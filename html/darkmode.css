@@ -1,0 +1,150 @@
+/* Dark Mode Theme Variables */
+:root {
+  --base-color: #ffffff;
+  --base-variant: #f8f9fc;
+  --text-color: #111528;
+  --secondary-text: #232738;
+  --primary-color: #3a435d;
+  --accent-color: #0071ff;
+  --card-bg: #ffffff;
+  --sidebar-bg: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+  --topbar-bg: #ffffff;
+  --border-color: #e3e6f0;
+}
+
+.darkmode {
+  --base-color: #070b1d;
+  --base-variant: #101425;
+  --text-color: #ffffff;
+  --secondary-text: #a4a5b8;
+  --primary-color: #3a435d;
+  --accent-color: #0071ff;
+  --card-bg: #101425;
+  --sidebar-bg: linear-gradient(180deg, #1a1f3a 10%, #0f1425 100%);
+  --topbar-bg: #101425;
+  --border-color: #1a1f3a;
+}
+
+/* Dark Mode Theme Switch Button */
+#theme-switch {
+  height: 40px;
+  width: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+#theme-switch:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
+}
+
+.darkmode #theme-switch:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+#theme-switch svg {
+  fill: #5a5c69;
+  width: 24px;
+  height: 24px;
+}
+
+#theme-switch svg:last-child {
+  display: none;
+}
+
+.darkmode #theme-switch svg:first-child {
+  display: none;
+}
+
+.darkmode #theme-switch svg:last-child {
+  display: block !important;
+  fill: #ffffff;
+}
+
+/* Apply dark mode to body */
+body {
+  background-color: var(--base-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode for cards */
+.darkmode .card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.darkmode .card-header {
+  background: var(--sidebar-bg);
+}
+
+/* Dark mode for sidebar */
+.darkmode .sidebar {
+  background: var(--sidebar-bg);
+}
+
+/* Dark mode for topbar */
+.darkmode .topbar {
+  background-color: var(--topbar-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Dark mode for tables */
+.darkmode .table {
+  color: var(--text-color);
+}
+
+.darkmode .table thead th {
+  background-color: #1a1f3a;
+  color: var(--text-color);
+}
+
+.darkmode .table tbody tr {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+.darkmode .table tbody tr:hover {
+  background-color: var(--base-variant);
+}
+
+/* Dark mode for form controls */
+.darkmode .form-control {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.darkmode .form-control:focus {
+  background-color: var(--card-bg);
+  border-color: var(--accent-color);
+  color: var(--text-color);
+}
+
+/* Dark mode for buttons */
+.darkmode .btn-primary {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+/* Dark mode for text */
+.darkmode .text-gray-900,
+.darkmode .text-gray-800 {
+  color: var(--text-color) !important;
+}
+
+.darkmode .text-gray-600 {
+  color: var(--secondary-text) !important;
+}
+
+.darkmode .text-muted {
+  color: var(--secondary-text) !important;
+}
+

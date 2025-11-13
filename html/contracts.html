@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Sözleşmeler">
+    <meta name="author" content="">
+    <title>CROWE HSY - Sözleşmeler</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <!-- Logout Button CSS -->
+    <link rel="stylesheet" href="logout-button.css">
+    
+    <!-- jExcel CSS -->
+    <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" />
+    <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
+    
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background: #002060;
+            color: white;
+            width: 224px;
+            list-style: none;
+            margin: 0;
+        }
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-brand img {
+            display: block;
+            margin: 0 auto;
+            width: 80px;
+            height: 80px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            padding: 1rem;
+            font-weight: 500;
+            display: block;
+            text-decoration: none;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: rgba(255,255,255,1);
+            background-color: rgba(255,255,255,.1);
+        }
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 1.5rem;
+        }
+        .sidebar-divider {
+            border-top: 1px solid rgba(255, 255, 255, .15);
+            margin: 1rem 0;
+        }
+        .nav-item {
+            list-style: none;
+        }
+        #content-wrapper {
+            margin-left: 224px;
+            width: calc(100% - 224px);
+        }
+        .topbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            padding: 1rem 1.5rem;
+        }
+        .card {
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: #002060;
+            color: white;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+        }
+        .nav-tabs .nav-link {
+            color: #002060;
+            font-weight: 600;
+            border: none;
+            border-bottom: 3px solid transparent;
+        }
+        .nav-tabs .nav-link.active {
+            color: #002060;
+            background-color: transparent;
+            border-bottom: 3px solid #002060;
+        }
+        .nav-tabs .nav-link:hover {
+            border-bottom: 3px solid rgba(0, 32, 96, 0.3);
+        }
+        .table thead th {
+            background-color: #5a5c69;
+            color: white;
+            font-weight: 600;
+            border: none;
+            vertical-align: middle;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+        .table tbody td {
+            vertical-align: middle;
+        }
+        .btn-action {
+            margin: 2px;
+        }
+        .table-actions {
+            display: flex;
+            gap: 0.25rem;
+            justify-content: center;
+            align-items: center;
+        }
+        .table-actions .btn {
+            padding: 0.25rem 0.45rem;
+            line-height: 1;
+        }
+        .contract-spreadsheet {
+            width: 100%;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+        }
+        .contract-spreadsheet .jexcel_container {
+            display: block !important;
+            width: 100% !important;
+            padding-right: 0 !important;
+        }
+        .contract-spreadsheet .jspreadsheet-container {
+            flex: 1 1 auto;
+            display: flex;
+            width: 100% !important;
+        }
+        .contract-spreadsheet .jspreadsheet,
+        .contract-spreadsheet .jspreadsheet div,
+        .contract-spreadsheet .jexcel_content {
+            width: 100% !important;
+            flex: 1 1 auto;
+        }
+        .contract-spreadsheet .jspreadsheet table,
+        .contract-spreadsheet .jspreadsheet table td,
+        .contract-spreadsheet .jspreadsheet table td.readonly,
+        .contract-spreadsheet .jspreadsheet table td[class*="readonly"],
+        .contract-spreadsheet .jspreadsheet table span,
+        .contract-spreadsheet .jspreadsheet table input,
+        .contract-spreadsheet .jspreadsheet table textarea,
+        .contract-spreadsheet .jexcel_content td,
+        .contract-spreadsheet .jexcel_content td.readonly,
+        .contract-spreadsheet .jexcel_content td[class*="readonly"] {
+            color: #000000 !important;
+            opacity: 1 !important;
+            font-weight: 400 !important;
+        }
+        .contract-spreadsheet .table-actions .btn,
+        .contract-spreadsheet .table-actions .btn * {
+            color: #fff !important;
+        }
+        #theme-switch {
+            height: 40px;
+            width: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background-color: transparent;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #theme-switch:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        #theme-switch svg {
+            width: 24px;
+            height: 24px;
+        }
+        .access-denied {
+            text-align: center;
+            padding: 3rem;
+            color: #858796;
+        }
+        .access-denied i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #e74a3b;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="sidebar" id="accordionSidebar">
+            <a class="sidebar-brand" href="index.html">
+                <img src="logo.svg" alt="Crowe HSY Logo">
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="client-list.html">
+                    <i class="fas fa-building"></i>
+                    <span>Müşteriler</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="payments.html">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Gelen Ödemeler</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="reports.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Raporlar</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="contracts.html">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Sözleşmeler</span>
+                </a>
+            </li>
+            <li class="nav-item" style="padding: 1rem; display: flex; justify-content: center;">
+                <button class="logoutButton">
+                    <svg class="doorway" viewBox="0 0 100 100">
+                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+                        <path class="bang" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z" />
+                    </svg>
+                    <svg class="figure" viewBox="0 0 100 100">
+                        <circle cx="52.1" cy="32.4" r="6.4" />
+                        <path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z" />
+                        <g class="arm1">
+                            <path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z" />
+                            <path class="wrist1" d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z" />
+                        </g>
+                        <g class="arm2">
+                            <path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z" />
+                            <path class="wrist2" d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z" />
+                        </g>
+                        <g class="leg1">
+                            <path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z" />
+                            <path class="calf1" d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z" />
+                        </g>
+                        <g class="leg2">
+                            <path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z" />
+                            <path class="calf2" d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z" />
+                        </g>
+                    </svg>
+                    <svg class="door" viewBox="0 0 100 100">
+                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+                        <circle cx="66" cy="50" r="3.7" />
+                    </svg>
+                    <span class="button-text">Çıkış</span>
+                </button>
+            </li>
+        </ul>
+        
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
+                    <h4 class="mb-0 text-gray-800">Sözleşmeler</h4>
+                    
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown no-arrow" style="margin-right: 2rem;">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Kullanıcı</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Çıkış
+                                </a>
+                            </div>
+                        </li>
+                        <li class="nav-item" style="margin-left: 0.5rem;">
+                            <button id="theme-switch" class="btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="5"></circle>
+                                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                </svg>
+                            </button>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <!-- Page Content -->
+                <div class="container-fluid">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Tabs -->
+                            <ul class="nav nav-tabs mb-4" id="contractTabs" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="tab-denetim" data-toggle="tab" href="#denetim" role="tab">
+                                        <i class="fas fa-file-invoice mr-2"></i>
+                                        Bağımsız Denetim
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-bddk-ek4" data-toggle="tab" href="#bddk-ek4" role="tab">
+                                        <i class="fas fa-file-signature mr-2"></i>
+                                        BDDK EK-4
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-bddk-10265" data-toggle="tab" href="#bddk-10265" role="tab">
+                                        <i class="fas fa-file-contract mr-2"></i>
+                                        BDDK 10265
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="tab-degerleme" data-toggle="tab" href="#degerleme" role="tab">
+                                        <i class="fas fa-file-alt mr-2"></i>
+                                        Değerleme Sözleşmeleri
+                                    </a>
+                                </li>
+                            </ul>
+                            
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="contractTabsContent">
+                                <!-- Bağımsız Denetim -->
+                                <div class="tab-pane fade show active" id="denetim" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-invoice text-primary mr-2"></i>
+                                            Bağımsız Denetim Sözleşmeleri
+                                        </h5>
+                                        <div>
+                                            <label for="excelDenetim" class="btn btn-info mr-2 mb-0" style="cursor: pointer;">
+                                                <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
+                                                <input type="file" id="excelDenetim" accept=".xlsx,.xls" style="display: none;" onchange="importExcel(this, 'Bağımsız Denetim')">
+                                            </label>
+                                            <button class="btn btn-success" data-toggle="modal" data-target="#addContractModal" onclick="setContractType('Bağımsız Denetim')">
+                                                <i class="fas fa-plus mr-2"></i>
+                                                Yeni Sözleşme
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded border p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-table text-primary mr-2"></i>
+                                                Excel Çalışma Kağıdı
+                                            </h6>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary" type="button" id="refreshDenetimSheetBtn">
+                                                    <i class="fas fa-sync mr-1"></i> Yenile
+                                                        </button>
+                                                <button class="btn btn-outline-secondary" type="button" id="clearDenetimSheetBtn">
+                                                    <i class="fas fa-eraser mr-1"></i> Temizle
+                                                        </button>
+                                            </div>
+                                        </div>
+                                        <div id="denetimSpreadsheet" class="rounded contract-spreadsheet"></div>
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                            Hücreleri doğrudan düzenleyebilir, yeni satırlar ekleyebilir veya Excel dosyasından içe aktarabilirsiniz. Yapılan değişiklikler otomatik olarak kayıt altına alınır.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- BDDK EK-4 -->
+                                <div class="tab-pane fade" id="bddk-ek4" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-signature text-info mr-2"></i>
+                                            BDDK EK-4 Sözleşmeleri
+                                        </h5>
+                                        <div>
+                                            <label for="excelBDDKEK4" class="btn btn-info mr-2 mb-0" style="cursor: pointer;">
+                                                <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
+                                                <input type="file" id="excelBDDKEK4" accept=".xlsx,.xls" style="display: none;" onchange="importExcel(this, 'BDDK EK-4')">
+                                            </label>
+                                            <button class="btn btn-success" data-toggle="modal" data-target="#addContractModal" onclick="setContractType('BDDK EK-4')">
+                                                <i class="fas fa-plus mr-2"></i>
+                                                Yeni Sözleşme
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded border p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-table text-info mr-2"></i>
+                                                Excel Çalışma Kağıdı
+                                            </h6>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary" type="button" id="refreshBddkEk4SheetBtn">
+                                                    <i class="fas fa-sync mr-1"></i> Yenile
+                                                        </button>
+                                                <button class="btn btn-outline-secondary" type="button" id="clearBddkEk4SheetBtn">
+                                                    <i class="fas fa-eraser mr-1"></i> Temizle
+                                                        </button>
+                                            </div>
+                                        </div>
+                                        <div id="bddkEk4Spreadsheet" class="rounded contract-spreadsheet"></div>
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                            Hücreleri Excel benzeri şekilde düzenleyebilir, satır ekleyip silebilirsiniz. Değişiklikler otomatik olarak kaydedilir.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- BDDK 10265 -->
+                                <div class="tab-pane fade" id="bddk-10265" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-contract text-success mr-2"></i>
+                                            BDDK 10265 Sözleşmeleri
+                                        </h5>
+                                        <div>
+                                            <label for="excelBDDK10265" class="btn btn-info mr-2 mb-0" style="cursor: pointer;">
+                                                <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
+                                                <input type="file" id="excelBDDK10265" accept=".xlsx,.xls" style="display: none;" onchange="importExcel(this, 'BDDK 10265')">
+                                            </label>
+                                            <button class="btn btn-success" data-toggle="modal" data-target="#addContractModal" onclick="setContractType('BDDK 10265')">
+                                                <i class="fas fa-plus mr-2"></i>
+                                                Yeni Sözleşme
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-white rounded border p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0">
+                                                <i class="fas fa-table text-success mr-2"></i>
+                                                Excel Çalışma Kağıdı
+                                            </h6>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <button class="btn btn-outline-primary" type="button" id="refreshBddk10265SheetBtn">
+                                                    <i class="fas fa-sync mr-1"></i> Yenile
+                                                        </button>
+                                                <button class="btn btn-outline-secondary" type="button" id="clearBddk10265SheetBtn">
+                                                    <i class="fas fa-eraser mr-1"></i> Temizle
+                                                        </button>
+                                            </div>
+                                        </div>
+                                        <div id="bddk10265Spreadsheet" class="rounded contract-spreadsheet"></div>
+                                        <div class="alert alert-info mt-3 mb-0">
+                                            <i class="fas fa-info-circle mr-2"></i>
+                                            Hücreleri Excel benzeri şekilde düzenleyebilir, satır ekleyip silebilirsiniz. Değişiklikler otomatik olarak kaydedilir.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Değerleme Sözleşmeleri -->
+                                <div class="tab-pane fade" id="degerleme" role="tabpanel">
+                                    <div id="degerleme-content">
+                                        <!-- İçerik JavaScript ile yüklenecek -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Contract Modal -->
+    <div class="modal fade" id="addContractModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-plus-circle mr-2"></i>
+                        Yeni Sözleşme Ekle
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addContractForm">
+                        <input type="hidden" id="contractType">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Şirket Adı <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="companyName" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Sözleşme Adı <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contractName" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Sözleşme Türü <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="contractCategory" required>
+                                        <option value="">Seçin...</option>
+                                        <option value="Bağımsız Denetim">Bağımsız Denetim</option>
+                                        <option value="BDDK EK-4">BDDK EK-4</option>
+                                        <option value="BDDK 10265">BDDK 10265</option>
+                                        <option value="Değerleme">Değerleme</option>
+                                        <option value="Danışmanlık">Danışmanlık</option>
+                                        <option value="Diğer">Diğer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Başlangıç Tarihi <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="startDate" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Bitiş Tarihi <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="endDate" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Ekip/Uzman <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="team" required>
+                                        <option value="">Seçin...</option>
+                                        <option value="B1_EDA">B1_EDA</option>
+                                        <option value="B2_MAS">B2_MAS</option>
+                                        <option value="B3_HAKAN">B3_HAKAN</option>
+                                        <option value="Mert Cengiz">Mert Cengiz</option>
+                                        <option value="Özkan Cengiz">Özkan Cengiz</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>PDF Dosyası</label>
+                                    <input type="file" class="form-control-file" id="pdfFile" accept=".pdf">
+                                    <small class="text-muted">PDF formatında sözleşme dosyası yükleyin</small>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-2"></i>
+                        İptal
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="saveContract()">
+                        <i class="fas fa-save mr-2"></i>
+                        Kaydet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- PDF Viewer Modal -->
+    <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-file-pdf mr-2"></i>
+                        Sözleşme PDF
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: 70vh;">
+                    <div id="pdfContent" class="text-center" style="padding: 3rem;">
+                        <i class="fas fa-file-pdf" style="font-size: 5rem; color: #dc3545; margin-bottom: 1rem;"></i>
+                        <h5>PDF Önizleme</h5>
+                        <p class="text-muted" id="pdfTitle">Sözleşme PDF dosyası burada görüntülenecek</p>
+                        <button class="btn btn-primary mt-3">
+                            <i class="fas fa-download mr-2"></i>
+                            İndir
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Authentication -->
+    <script src="auth.js"></script>
+    <!-- Logout Button -->
+    <script src="logout-button.js"></script>
+    <!-- jSpreadsheet & XLSX -->
+    <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+    <script src="https://jsuites.net/v4/jsuites.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <script>
+        // Check authentication
+        if (!Auth.isAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+        
+        // Display user info
+        const currentUser = Auth.getCurrentUser();
+        if (currentUser) {
+            document.getElementById('userFullName').textContent = currentUser.fullName;
+        }
+        
+        // Dark mode toggle
+        const themeSwitch = document.getElementById('theme-switch');
+        if (themeSwitch) {
+            themeSwitch.addEventListener('click', function() {
+                document.body.classList.toggle('darkmode');
+                const isDark = document.body.classList.contains('darkmode');
+                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+            });
+            
+            // Load saved preference
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.body.classList.add('darkmode');
+            }
+        }
+        
+        // Check access for Değerleme Sözleşmeleri tab
+        document.getElementById('tab-degerleme').addEventListener('click', function(e) {
+            checkDegerlemeAccess();
+        });
+        
+        // Initial check if on Değerleme tab
+        if (window.location.hash === '#degerleme') {
+            checkDegerlemeAccess();
+        }
+        
+        function checkDegerlemeAccess() {
+            const currentUser = Auth.getCurrentUser();
+            const allowedUsers = ['mert.cengiz', 'ozkan.cengiz'];
+            const degerlemeContent = document.getElementById('degerleme-content');
+            
+            if (!currentUser || !allowedUsers.includes(currentUser.username)) {
+                // Access Denied
+                degerlemeContent.innerHTML = `
+                    <div class="access-denied">
+                        <i class="fas fa-lock"></i>
+                        <h4>Erişim Engellendi</h4>
+                        <p>Bu bölüme erişim yetkiniz bulunmamaktadır.</p>
+                        <p class="text-muted">Sadece yetkili kullanıcılar bu sözleşmeleri görüntüleyebilir.</p>
+                    </div>
+                `;
+            } else {
+                // Access Granted
+                degerlemeContent.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-alt text-warning mr-2"></i>
+                            Değerleme Sözleşmeleri
+                        </h5>
+                        <div>
+                            <label for="excelDegerleme" class="btn btn-info mr-2 mb-0" style="cursor: pointer;">
+                                <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
+                                <input type="file" id="excelDegerleme" accept=".xlsx,.xls" style="display: none;" onchange="importExcel(this, 'Değerleme')">
+                            </label>
+                            <button class="btn btn-success" data-toggle="modal" data-target="#addContractModal" onclick="setContractType('Değerleme')">
+                                <i class="fas fa-plus mr-2"></i>
+                                Yeni Sözleşme
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="5%">#</th>
+                                    <th width="25%">Şirket Adı</th>
+                                    <th width="20%">Sözleşme Adı</th>
+                                    <th width="15%">Başlangıç</th>
+                                    <th width="15%">Bitiş</th>
+                                    <th width="10%">Uzman</th>
+                                    <th width="10%">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>MNO Gayrimenkul</td>
+                                    <td>Değerleme Raporu</td>
+                                    <td>10.01.2024</td>
+                                    <td>10.03.2024</td>
+                                    <td>Mert Cengiz</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('MNO Gayrimenkul - Değerleme')">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(1, 'Değerleme')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(1, 'Değerleme')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>PQR Holding</td>
+                                    <td>Şirket Değerleme</td>
+                                    <td>05.02.2024</td>
+                                    <td>05.05.2024</td>
+                                    <td>Özkan Cengiz</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('PQR Holding - Değerleme')">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(2, 'Değerleme')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(2, 'Değerleme')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>STU Yatırım</td>
+                                    <td>Portföy Değerleme</td>
+                                    <td>20.03.2024</td>
+                                    <td>20.06.2024</td>
+                                    <td>Mert Cengiz</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('STU Yatırım - Değerleme')">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(3, 'Değerleme')">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(3, 'Değerleme')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+        }
+        
+        // Initial load for Değerleme tab if it's active
+        setTimeout(function() {
+            if ($('#tab-degerleme').hasClass('active')) {
+                checkDegerlemeAccess();
+            }
+        }, 100);
+        
+        // Set contract type when adding new contract
+        let currentContractType = '';
+        function setContractType(type) {
+            currentContractType = type;
+            document.getElementById('contractType').value = type;
+            const categoryField = document.getElementById('contractCategory');
+            if (categoryField) {
+                const matchingOption = Array.from(categoryField.options).find(option => option.value === type);
+                categoryField.value = matchingOption ? type : '';
+            }
+        }
+        
+        // Save contract
+        function saveContract() {
+            const companyName = document.getElementById('companyName').value.trim();
+            const contractName = document.getElementById('contractName').value.trim();
+            const contractCategory = document.getElementById('contractCategory').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const team = document.getElementById('team').value;
+            
+            if (!companyName || !contractName || !contractCategory || !startDate || !endDate || !team) {
+                alert('Lütfen tüm zorunlu alanları doldurun!');
+                return;
+            }
+            
+            alert(
+                'Sözleşme başarıyla eklendi!' +
+                '\n\nŞirket: ' + companyName +
+                '\nSözleşme: ' + contractName +
+                '\nTür: ' + currentContractType +
+                '\nSözleşme Türü: ' + contractCategory
+            );
+            
+            $('#addContractModal').modal('hide');
+            document.getElementById('addContractForm').reset();
+        }
+        
+        // View PDF
+        function viewPDF(contractName) {
+            document.getElementById('pdfTitle').textContent = contractName + ' - PDF Dosyası';
+            $('#pdfModal').modal('show');
+        }
+        
+        // Edit contract
+        function editContract(id, type) {
+            alert('Sözleşme düzenleme özelliği\n\nSözleşme ID: ' + id + '\nTür: ' + type);
+            // Modal açılıp mevcut veriler doldurulabilir
+        }
+        
+        // Delete contract
+        function deleteContract(id, type) {
+            if (confirm('Bu sözleşmeyi silmek istediğinizden emin misiniz?\n\nID: ' + id + '\nTür: ' + type)) {
+                alert('Sözleşme başarıyla silindi!');
+                // Tablodan satır silinebilir
+            }
+        }
+        
+        // Import from Excel
+        function importExcel(input, contractType) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    // İlk çalışma sayfasını al
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                    
+                    if (jsonData.length < 2) {
+                        alert('Excel dosyası boş veya geçersiz!');
+                        return;
+                    }
+                    
+                    const importedContracts = [];
+                    const isSpreadsheetTarget = Boolean(spreadsheetConfigs[contractType]);
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (!row[0] && !row[1]) continue;
+                        if (isSpreadsheetTarget) {
+                            importedContracts.push({
+                                company: row[0] || '',
+                                period: row[1] || '',
+                                auditor1: row[2] || '',
+                                auditor2: row[3] || '',
+                                auditor3: row[4] || '',
+                                team: row[5] || '',
+                                hours: row[6] || '',
+                                contractReceived: row[7] || '',
+                                kgkReported: row[8] || '',
+                                contract: row[9] || ''
+                            });
+                        } else {
+                            importedContracts.push({
+                                company: row[0] || '',
+                                contract: row[1] || '',
+                                start: row[2] || '',
+                                end: row[3] || '',
+                                team: row[4] || ''
+                            });
+                        }
+                    }
+
+                    if (!importedContracts.length) {
+                        alert('Aktarılacak veri bulunamadı.');
+                        return;
+                    }
+
+                    if (isSpreadsheetTarget) {
+                        contractData[contractType] = importedContracts;
+                        renderContractSpreadsheet(contractType);
+                        alert(`${importedContracts.length} sözleşme başarıyla ${contractType} çalışma kağıdına aktarıldı!`);
+                        input.value = '';
+                        return;
+                    }
+
+                    // Hedef sekme tablo tabanlı ise mevcut akışı sürdür
+                    let tbody;
+                    if (contractType === 'Değerleme') {
+                        tbody = document.querySelector('#degerleme tbody');
+                    }
+                    
+                    if (!tbody) {
+                        alert('Tablo bulunamadı!');
+                        return;
+                    }
+                    
+                    let currentRowCount = tbody.querySelectorAll('tr').length;
+                    let importedCount = 0;
+                    
+                    importedContracts.forEach(contract => {
+                        currentRowCount++;
+                        importedCount++;
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${currentRowCount}</td>
+                            <td>${contract.company}</td>
+                            <td>${contract.contract}</td>
+                            <td>${contract.start || ''}</td>
+                            <td>${contract.end || ''}</td>
+                            <td>${contract.team || ''}</td>
+                            <td>
+                                <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('${contract.company} - ${contract.contract}')">
+                                    <i class="fas fa-file-pdf"></i>
+                                </button>
+                                <button class="btn btn-sm btn-warning btn-action" onclick="editContract(${currentRowCount}, '${contractType}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(${currentRowCount}, '${contractType}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    
+                    alert(`${importedCount} sözleşme başarıyla ${contractType} sekmesine içe aktarıldı!`);
+                    
+                    // Input'u temizle
+                    input.value = '';
+                    
+                } catch (error) {
+                    console.error('Excel okuma hatası:', error);
+                    alert('Excel dosyası okunurken bir hata oluştu. Lütfen dosya formatını kontrol edin.');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        const spreadsheetConfigs = {
+            'Bağımsız Denetim': {
+                containerId: 'denetimSpreadsheet',
+                refreshBtnId: 'refreshDenetimSheetBtn',
+                clearBtnId: 'clearDenetimSheetBtn',
+                tabId: 'tab-denetim'
+            },
+            'BDDK EK-4': {
+                containerId: 'bddkEk4Spreadsheet',
+                refreshBtnId: 'refreshBddkEk4SheetBtn',
+                clearBtnId: 'clearBddkEk4SheetBtn',
+                tabId: 'tab-bddk-ek4'
+            },
+            'BDDK 10265': {
+                containerId: 'bddk10265Spreadsheet',
+                refreshBtnId: 'refreshBddk10265SheetBtn',
+                clearBtnId: 'clearBddk10265SheetBtn',
+                tabId: 'tab-bddk-10265'
+            }
+        };
+
+        const contractData = {
+            'Bağımsız Denetim': [
+                {
+                    company: 'ABC İnşaat A.Ş.',
+                    contract: '2024 Denetim Sözleşmesi',
+                    period: '2024',
+                    auditor1: 'B1_EDA',
+                    auditor2: 'B2_MAS',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-1',
+                    hours: '120',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Hayır'
+                },
+                {
+                    company: 'DEF Gıda Ltd. Şti.',
+                    contract: '2024 Denetim Sözleşmesi',
+                    period: '2024',
+                    auditor1: 'B2_MAS',
+                    auditor2: 'B1_EDA',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-2',
+                    hours: '95',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
+                }
+            ],
+            'BDDK EK-4': [
+                {
+                    company: 'XYZ Bankası',
+                    contract: 'EK-4 Raporu 2024',
+                    period: 'Q2 2024',
+                    auditor1: 'B3_HAKAN',
+                    auditor2: 'Mert Cengiz',
+                    auditor3: 'Özkan Cengiz',
+                    team: 'B-3',
+                    hours: '60',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Beklemede'
+                }
+            ],
+            'BDDK 10265': [
+                {
+                    company: 'ABC Finansman',
+                    contract: '10265 İncelemesi',
+                    period: '2024',
+                    auditor1: 'B1_EDA',
+                    auditor2: 'B2_MAS',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-4',
+                    hours: '80',
+                    contractReceived: 'Hayır',
+                    kgkReported: 'Hayır'
+                }
+            ]
+        };
+
+        const spreadsheetInstances = {};
+
+        function escapeForJs(value) {
+            return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        }
+
+        function createActionButtons(type, index) {
+            const contracts = contractData[type] || [];
+            const contract = contracts[index];
+            if (!contract) {
+                return '';
+            }
+            const safeType = escapeForJs(type);
+            return `
+                <div class="table-actions">
+                    <button type="button" class="btn btn-sm btn-info table-action-btn" title="PDF" onclick="handleContractAction('view','${safeType}',${index})">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-warning table-action-btn" title="Düzenle" onclick="handleContractAction('edit','${safeType}',${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger table-action-btn" title="Sil" onclick="handleContractAction('delete','${safeType}',${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `.trim();
+        }
+
+        function getSpreadsheetRows(type) {
+            const contracts = contractData[type] || [];
+            const rows = [];
+            const minRows = Math.max(contracts.length, 10);
+            for (let i = 0; i < minRows; i++) {
+                if (i < contracts.length) {
+                    const contract = contracts[i];
+                    rows.push([
+                        contract.company || '',
+                        contract.period || '',
+                        contract.auditor1 || '',
+                        contract.auditor2 || '',
+                        contract.auditor3 || '',
+                        contract.team || '',
+                        contract.hours || '',
+                        contract.contractReceived || '',
+                        contract.kgkReported || '',
+                        ''
+                    ]);
+                } else {
+                    rows.push([
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        '',
+                        ''
+                    ]);
+                }
+            }
+            return rows;
+        }
+
+        function syncContractDataFromInstance(type, instance) {
+            const raw = instance.getData();
+            const existingContracts = contractData[type] || [];
+            const cleaned = [];
+            raw.forEach((row, index) => {
+                const company = (row[0] || '').trim();
+                const period = (row[1] || '').trim();
+                const auditor1 = (row[2] || '').trim();
+                const auditor2 = (row[3] || '').trim();
+                const auditor3 = (row[4] || '').trim();
+                const team = (row[5] || '').trim();
+                const hours = (row[6] || '').trim();
+                const contractReceived = (row[7] || '').trim();
+                const kgkReported = (row[8] || '').trim();
+                const original = existingContracts[index] || {};
+                const contract = original.contract || '';
+                if (company || period || auditor1 || auditor2 || auditor3 || team || hours || contractReceived || kgkReported) {
+                    cleaned.push({ company, contract, period, auditor1, auditor2, auditor3, team, hours, contractReceived, kgkReported });
+                }
+            });
+            contractData[type] = cleaned;
+        }
+
+        function renderContractSpreadsheet(type) {
+            const config = spreadsheetConfigs[type];
+            if (!config) {
+                return;
+            }
+            const container = document.getElementById(config.containerId);
+            if (!container || typeof jspreadsheet === 'undefined') {
+                return;
+            }
+
+            if (spreadsheetInstances[type] && typeof spreadsheetInstances[type].destroy === 'function') {
+                spreadsheetInstances[type].destroy();
+            }
+
+            const data = getSpreadsheetRows(type);
+            spreadsheetInstances[type] = jspreadsheet(container, {
+                data: data,
+                columns: [
+                    { type: 'text', title: 'Şirket Adı', width: 240, readOnly: true },
+                    { type: 'text', title: 'Dönem', width: 140, readOnly: true },
+                    { type: 'text', title: 'Denetçi -1', width: 180, readOnly: true },
+                    { type: 'text', title: 'Denetçi -2', width: 180, readOnly: true },
+                    { type: 'text', title: 'Denetçi -3', width: 180, readOnly: true },
+                    { type: 'text', title: 'Ekip', width: 140, readOnly: true },
+                    { type: 'text', title: 'Saat', width: 100, readOnly: true },
+                    { type: 'text', title: 'Sözleşme geldi mi?', width: 180, readOnly: true },
+                    { type: 'text', title: 'KGK bildirimi yapıldı mı?', width: 200, readOnly: true },
+                    { type: 'html', title: 'İşlemler', width: 200, readOnly: true }
+                ],
+                minDimensions: [10, Math.max(data.length, 10)],
+                tableOverflow: true,
+                tableHeight: '320px',
+                tableWidth: '100%',
+                editable: false,
+                allowInsertRow: false,
+                allowDeleteRow: false,
+                allowManualInsertRow: false,
+                allowInsertColumn: false,
+                defaultColAlign: 'left',
+                updateTable: function(instance, cell, col, row) {
+                    if (col === 9) {
+                        cell.classList.add('jexcel-readonly');
+                        const actionsHtml = createActionButtons(type, row);
+                        cell.innerHTML = actionsHtml;
+                    }
+                }
+            });
+        }
+
+        function refreshContractSpreadsheet(type) {
+            const instance = spreadsheetInstances[type];
+            if (instance) {
+                syncContractDataFromInstance(type, instance);
+            }
+            renderContractSpreadsheet(type);
+        }
+
+        function clearContractSheet(type) {
+            if (!confirm(`${type} çalışma kağıdındaki tüm veriler silinecek. Onaylıyor musunuz?`)) {
+                return;
+            }
+            contractData[type] = [];
+            renderContractSpreadsheet(type);
+        }
+
+        function handleContractAction(action, type, index) {
+            const contracts = contractData[type] || [];
+            const contract = contracts[index];
+            if (!contract) {
+                alert('Bu satırda veri bulunmuyor.');
+                return;
+            }
+            const contractName = contract.contract || contract.period || contract.company;
+            if (action === 'view') {
+                viewPDF(`${contract.company} - ${contractName}`);
+            } else if (action === 'edit') {
+                alert(`Sözleşme düzenleme özelliği\n\nŞirket: ${contract.company}\nSözleşme: ${contractName}\nTür: ${type}`);
+            } else if (action === 'delete') {
+                if (confirm(`"${contract.company}" sözleşmesini silmek istediğinize emin misiniz?`)) {
+                    contracts.splice(index, 1);
+                    contractData[type] = contracts;
+                    renderContractSpreadsheet(type);
+                }
+            }
+        }
+
+        function initContractSheet(type) {
+            renderContractSpreadsheet(type);
+            const config = spreadsheetConfigs[type];
+            if (!config) {
+                return;
+            }
+            if (config.refreshBtnId) {
+                const refreshBtn = document.getElementById(config.refreshBtnId);
+                if (refreshBtn) {
+                    refreshBtn.addEventListener('click', function() {
+                        refreshContractSpreadsheet(type);
+                    });
+                }
+            }
+            if (config.clearBtnId) {
+                const clearBtn = document.getElementById(config.clearBtnId);
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        clearContractSheet(type);
+                    });
+                }
+            }
+        }
+
+        function initAllContractSheets() {
+            Object.keys(spreadsheetConfigs).forEach(function(type) {
+                initContractSheet(type);
+            });
+            $('#contractTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                const targetId = e.target ? e.target.id : '';
+                const matchedEntry = Object.entries(spreadsheetConfigs).find(([key, cfg]) => cfg.tabId === targetId);
+                if (matchedEntry) {
+                    refreshContractSpreadsheet(matchedEntry[0]);
+                }
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAllContractSheets);
+        } else {
+            initAllContractSheets();
+        }
+
+    </script>
+</body>
+</html>

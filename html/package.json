@@ -1,0 +1,27 @@
+{
+  "name": "crowe-hsy-password-generator",
+  "version": "1.0.0",
+  "description": "Password hash generator for Crowe HSY admin users",
+  "main": "generate-password-hashes.js",
+  "scripts": {
+    "generate-hashes": "node generate-password-hashes.js"
+  },
+  "keywords": [
+    "bcrypt",
+    "password",
+    "hash",
+    "crowe-hsy"
+  ],
+  "author": "Crowe HSY",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1"
+  }
+}
+
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+{
+	"require" : {
+		"krizalys/onedrive-php-sdk" : "^2.6",
+		"setasign/fpdf" : "1.8.*",
+		"setasign/fpdi" : "^2.0",
+		"phpmailer/phpmailer": "~6.1"
+	}
+}

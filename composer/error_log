@@ -1,0 +1,10 @@
+[27-Jul-2023 15:56:07 Europe/Istanbul] PHP Fatal error:  Uncaught Exception: The state's redirect URI must be set to call obtainAccessToken() in /home/crowehsy/public_html/composer/vendor/krizalys/onedrive-php-sdk/src/Client.php:354
+Stack trace:
+#0 /home/crowehsy/public_html/composer/redirect.php(24): Krizalys\Onedrive\Client->obtainAccessToken('oP37Q~7vA.IiQNR...', '0.AYEA0SgjoOSzg...')
+#1 {main}
+  thrown in /home/crowehsy/public_html/composer/vendor/krizalys/onedrive-php-sdk/src/Client.php on line 354
+[27-Jul-2023 16:07:18 Europe/Istanbul] PHP Fatal error:  Uncaught Exception: The state's redirect URI must be set to call obtainAccessToken() in /home/crowehsy/public_html/composer/vendor/krizalys/onedrive-php-sdk/src/Client.php:354
+Stack trace:
+#0 /home/crowehsy/public_html/composer/redirect.php(24): Krizalys\Onedrive\Client->obtainAccessToken('oP37Q~7vA.IiQNR...', '0.AYEA0SgjoOSzg...')
+#1 {main}
+  thrown in /home/crowehsy/public_html/composer/vendor/krizalys/onedrive-php-sdk/src/Client.php on line 354

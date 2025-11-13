@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Auditor Login Page">
+    <meta name="author" content="">
+    <title>CROWE HSY - Denetçi Girişi</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        html,
+        body {
+            overflow: hidden;
+        }
+        
+        .webgl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            outline: none;
+            z-index: 1;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Nunito', sans-serif;
+            position: relative;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 3rem;
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .login-card h1,
+        .login-card h2,
+        .login-card p,
+        .login-card label {
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .login-icon {
+            width: 150px;
+            height: 150px;
+            margin-bottom: 20px;
+            color: #ffffff;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #4e73df;
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+        }
+        
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        
+        .btn-primary:hover {
+            background-color: #224abe;
+            border-color: #224abe;
+        }
+        
+        .btn-secondary {
+            background-color: rgba(108, 117, 125, 0.8);
+            border-color: rgba(108, 117, 125, 0.8);
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(90, 98, 104, 0.9);
+            border-color: rgba(90, 98, 104, 0.9);
+        }
+        
+        #hata, #onay {
+            display: none;
+        }
+        
+        .text-center a.small {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .text-center a.small:hover {
+            color: white;
+            text-decoration: underline;
+        }
+        
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .language-switcher .btn {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+        <button class="btn btn-sm btn-outline-light" id="langSwitch" onclick="toggleLanguage()">
+            <i class="fas fa-globe"></i> <span id="langText">TR</span>
+        </button>
+    </div>
+    
+    <canvas class="webgl"></canvas>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="login-card">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-shield login-icon"></i>
+                        <h1 class="h4 mb-2">WELCOME!</h1>
+                        <h2 class="mb-4">CROWE HSY</h2>
+                        <p>Financial Advisor Management Platform</p>
+                        <p class="mt-2"><strong>Denetçi Girişi</strong></p>
+                    </div>
+                    
+                    <form id="auditorLoginForm">
+                        <div class="form-group">
+                            <input type="email" class="form-control form-control-user" id="auditorKul" placeholder="E-posta Adresi (örn: kullanici@crowehsy.net)..." required autocomplete="username">
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="password" class="form-control form-control-user" id="auditorPas" placeholder="Şifre..." required autocomplete="current-password">
+                        </div>
+                        
+                        <a class="btn btn-primary btn-user btn-block text-white" href="#" id="auditorLoginBtn">
+                            <i class="fas fa-sign-in-alt"></i> Giriş Yap
+                        </a>
+                        
+                        <hr style="border-color: rgba(255, 255, 255, 0.3);">
+                    </form>
+                    
+                    <div class="text-center">
+                        <a class="small" href="#">Şifremi Unuttum?</a>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="home.html" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+                        </a>
+                    </div>
+                    
+                    <!-- Hata/Başarı Mesajları -->
+                    <div id="hata" class="alert alert-danger mt-3" style="display: none;">
+                        <div id="hataMesaji"></div>
+                    </div>
+                    <div id="onay" class="alert alert-success mt-3" style="display: none;">
+                        <div id="onayMesaji"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Three.js Galaxy Animation -->
+    <script type="module">
+        import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
+        import { OrbitControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js";
+
+        // Canvas
+        const canvas = document.querySelector('canvas.webgl')
+
+        // Scene
+        const scene = new THREE.Scene()
+
+        //galaxy
+        const parameters = {}
+        parameters.count = 100000;
+        parameters.size = 0.01;
+        parameters.radius = 2.15; 
+        parameters.branches = 3; 
+        parameters.spin = 3;
+        parameters.randomness = 5;
+        parameters.randomnessPower = 4;
+        parameters.insideColor = '#ff6030';
+        parameters.outsideColor = '#0949f0';
+
+        let material = null; 
+        let geometry = null; 
+        let points = null; 
+
+        const generateGalaxy = () => {
+            
+        if(points !== null){
+            geometry.dispose();
+            material.dispose();
+            scene.remove(points);
+        }
+        material = new THREE.PointsMaterial({
+            size: parameters.size,
+            sizeAttenuation: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexColors: true
+        })
+
+            geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(parameters.count * 3);
+
+            const colors = new Float32Array(parameters.count * 3);
+            const colorInside = new THREE.Color(parameters.insideColor);
+            const colorOutside = new THREE.Color(parameters.outsideColor);
+
+
+            for(let i=0; i<parameters.count; i++){
+                const i3 = i*3;
+                const radius = Math.pow(Math.random()*parameters.randomness, Math.random()*parameters.radius);
+                const spinAngle = radius*parameters.spin;
+                const branchAngle = ((i%parameters.branches)/parameters.branches)*Math.PI*2;
+                
+
+                const negPos = [1,-1];
+                const randomX = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
+                const randomY = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
+                const randomZ = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
+
+                positions[i3] = Math.cos(branchAngle + spinAngle)*(radius) + randomX;
+                positions[i3+1] = randomY;
+                positions[i3+2] = Math.sin(branchAngle + spinAngle)*(radius) + randomZ;
+
+                const mixedColor = colorInside.clone();
+                mixedColor.lerp(colorOutside, Math.random()*radius/parameters.radius);
+
+                colors[i3] = mixedColor.r;
+                colors[i3+1] = mixedColor.g;
+                colors[i3+2] = mixedColor.b;
+                
+                
+            }
+            geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
+            geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
+
+            points = new THREE.Points(geometry, material);
+            scene.add(points);
+        }
+        generateGalaxy();
+
+        /**
+         * Sizes
+         */
+        const sizes = {
+            width: window.innerWidth,
+            height: window.innerHeight
+        }
+
+        window.addEventListener('resize', () =>
+        {
+            // Update sizes
+            sizes.width = window.innerWidth
+            sizes.height = window.innerHeight
+
+            // Update camera
+            camera.aspect = sizes.width / sizes.height
+            camera.updateProjectionMatrix()
+
+            // Update renderer
+            renderer.setSize(sizes.width, sizes.height)
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+        })
+
+        /**
+         * Camera
+         */
+        // Base camera
+        const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+        camera.position.x = 3
+        camera.position.y = 3
+        camera.position.z = 3
+        scene.add(camera)
+
+        // Controls
+        const controls = new OrbitControls(camera, canvas)
+        controls.enableDamping = true
+
+        /**
+         * Renderer
+         */
+        const renderer = new THREE.WebGLRenderer({
+            canvas: canvas
+        })
+        renderer.setSize(sizes.width, sizes.height)
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+        /**
+         * Animate
+         */
+        const clock = new THREE.Clock()
+
+        const tick = () =>
+        {
+            const elapsedTime = clock.getElapsedTime()
+
+            // Update controls
+            controls.update()
+
+            camera.position.x = Math.cos(elapsedTime*0.05);
+            camera.position.z = Math.sin(elapsedTime*0.05);
+            camera.lookAt(0,0,0);
+
+            // Render
+            renderer.render(scene, camera)
+
+            // Call tick again on the next frame
+            window.requestAnimationFrame(tick)
+        }
+
+        tick()
+    </script>
+    
+    <script>
+        function toggleLanguage() {
+            const currentLang = document.getElementById('langText').textContent;
+            const newLang = currentLang === 'EN' ? 'TR' : 'EN';
+            document.getElementById('langText').textContent = newLang;
+        }
+        
+        $(function(){
+            function hataAc(icerik){
+                $("#hataMesaji").text(icerik);
+                $("#hata").show();
+                $("#onay").hide();
+            }
+            
+            function onayAc(icerik){
+                $("#onayMesaji").text(icerik);
+                $("#onay").show();
+                $("#hata").hide();
+            }
+            
+            $("#auditorLoginBtn").click(function(e){
+                e.preventDefault();
+                
+                var kul = $("#auditorKul").val();
+                var pas = $("#auditorPas").val();
+                
+                if (!kul || !pas) {
+                    hataAc("Lütfen e-posta adresi ve şifre giriniz!");
+                    return;
+                }
+                
+                const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
+                const auditors = [
+                    "ibrahim.kuvvet@crowehsy.net",
+                    "yunusemre.durmus@crowehsy.net",
+                    "berki.ozkan@crowehsy.net",
+                    "dilan.ulusu@crowehsy.net",
+                    "aykan.altintel@crowehsy.net",
+                    "beste.darcan@crowehsy.net",
+                    "fatih.senturk@crowehsy.net",
+                    "kasim.durmus@crowehsy.net",
+                    "yaprak.tosun@crowehsy.net",
+                    "nida.cetin@crowehsy.net",
+                    "dilek.cinar2@crowehsy.net",
+                    "elif.girgin@crowehsy.net",
+                    "servet.aykanat@crowehsy.net",
+                    "cevahir.dogan@crowehsy.net",
+                    "adar.kilic@crowehsy.net",
+                    "hasan.bozkaya@crowehsy.net",
+                    "mesut.molla@crowehsy.net",
+                    "s.korkmaz@crowehsy.net",
+                    "serdar.karaagin@crowehsy.net"
+                ];
+
+                function getStoredAuditorPassword(email) {
+                    return localStorage.getItem("auditorPassword_" + email.toLowerCase());
+                }
+
+                function hasAuditorPasswordChanged(email) {
+                    return localStorage.getItem("auditorPasswordChanged_" + email.toLowerCase()) === 'true';
+                }
+
+                function saveAuditorSession(email) {
+                    localStorage.setItem('auditorUser', email);
+                }
+                
+                // E-posta küçük harfe çevir (case-insensitive)
+                const normalizedKul = kul.toLowerCase().trim();
+                const auditorExists = auditors.includes(normalizedKul);
+                const storedPassword = getStoredAuditorPassword(normalizedKul) || DEFAULT_AUDITOR_PASSWORD;
+                
+                if (auditorExists && storedPassword === pas) {
+                    saveAuditorSession(normalizedKul);
+
+                    const requiresPasswordChange = storedPassword === DEFAULT_AUDITOR_PASSWORD || !hasAuditorPasswordChanged(normalizedKul);
+
+                    if (requiresPasswordChange) {
+                        localStorage.setItem('auditorPendingPasswordChange', normalizedKul);
+                        onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
+                        setTimeout(function() {
+                            window.location.href = 'auditor-password-change.html';
+                        }, 600);
+                        return;
+                    } else {
+                        localStorage.removeItem('auditorPendingPasswordChange');
+                    }
+
+                    onayAc("Giriş başarılı! OneDrive'a yönlendiriliyorsunuz...");
+                    setTimeout(function() {
+                        window.location.href = 'auditor-dashboard.html';
+                    }, 600);
+                } else {
+                    hataAc("Kullanıcı adı veya şifre hatalı!");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+

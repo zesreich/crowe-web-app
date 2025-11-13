@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Interface Preview">
+    <meta name="author" content="">
+    <title>CROWE HSY - Interface Preview</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Nunito', sans-serif;
+        }
+        .main-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 3rem;
+            max-width: 900px;
+            width: 100%;
+        }
+        .page-button {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            text-decoration: none;
+            display: block;
+        }
+        .page-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            text-decoration: none;
+        }
+        .page-button i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+        .btn-success {
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+        .btn-info {
+            background-color: #36b9cc;
+            border-color: #36b9cc;
+        }
+        .btn-warning {
+            background-color: #f6c23e;
+            border-color: #f6c23e;
+            color: #212529;
+        }
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .language-switcher .btn {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Language Switcher -->
+    <div class="language-switcher">
+        <button class="btn btn-sm btn-outline-light" id="langSwitch" onclick="toggleLanguage()">
+            <i class="fas fa-globe"></i> <span id="langText">TR</span>
+        </button>
+    </div>
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="main-card">
+                    <div class="text-center mb-4">
+                        <h1 class="h3 text-gray-900 mb-2" data-i18n="interfacePreview">Crowe HSY Interface Preview</h1>
+                        <p class="text-muted" data-i18n="interfacePreviewDescription">You can review different page views from the buttons below:</p>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- 1. Login Sayfası -->
+                        <div class="col-md-6 mb-3">
+                            <a href="login.html" class="btn btn-primary btn-block page-button text-white">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    <span class="font-weight-bold" data-i18n="loginPage">Login Page</span>
+                                    <small class="mt-1" data-i18n="loginPageDescription">Login screen</small>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- 2. Dashboard -->
+                        <div class="col-md-6 mb-3">
+                            <a href="dashboard.html" class="btn btn-success btn-block page-button text-white">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    <span class="font-weight-bold" data-i18n="dashboard">Dashboard</span>
+                                    <small class="mt-1" data-i18n="dashboardDescription">Main panel</small>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- 3. Müşteri Listesi -->
+                        <div class="col-md-6 mb-3">
+                            <a href="client-list.html" class="btn btn-info btn-block page-button text-white">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-building"></i>
+                                    <span class="font-weight-bold" data-i18n="clientList">Client List</span>
+                                    <small class="mt-1" data-i18n="clientListDescription">Client listing</small>
+                                </div>
+                            </a>
+                        </div>
+                        
+                        <!-- 4. Müşteri Detay -->
+                        <div class="col-md-6 mb-3">
+                            <a href="client-detail.html?id=1" class="btn btn-warning btn-block page-button text-white">
+                                <div class="d-flex flex-column align-items-center">
+                                    <i class="fas fa-user-tie"></i>
+                                    <span class="font-weight-bold" data-i18n="clientDetail">Client Detail</span>
+                                    <small class="mt-1" data-i18n="clientDetailDescription">Client detail page</small>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted mb-0">
+                            <small data-i18n="platformDescription">Financial Advisor Management Platform</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- i18n System -->
+    <script src="i18n.js"></script>
+    <script>
+        function toggleLanguage() {
+            const currentLang = i18n.currentLang;
+            const newLang = currentLang === 'en' ? 'tr' : 'en';
+            i18n.setLanguage(newLang);
+            document.getElementById('langText').textContent = newLang === 'en' ? 'TR' : 'EN';
+        }
+        
+        // Update language switcher text on language change
+        document.addEventListener('languageChanged', function() {
+            document.getElementById('langText').textContent = i18n.currentLang === 'en' ? 'TR' : 'EN';
+        });
+    </script>
+</body>
+</html>

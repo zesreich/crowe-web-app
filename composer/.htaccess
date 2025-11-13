@@ -1,0 +1,4 @@
+<IfModule mod_security.c>
+SecFilterEngine on
+SecFilterScanPOST on
+</IfModule>

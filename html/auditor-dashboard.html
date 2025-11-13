@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Denetçi Dashboard - OneDrive Entegrasyonu">
+    <meta name="author" content="">
+    <title>CROWE HSY - Denetçi Panel - OneDrive</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+        }
+        
+        .navbar {
+            background-color: #4e73df;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .navbar .nav-link:hover {
+            color: white !important;
+        }
+        
+        .container-fluid {
+            padding: 2rem;
+        }
+        
+        .welcome-header {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .welcome-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .session-timer-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 12px;
+            padding: 0.6rem 1.1rem;
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            min-width: 200px;
+            justify-content: center;
+        }
+        
+        .session-timer-pill .timer-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        
+        .session-timer-pill .timer-display {
+            font-family: 'JetBrains Mono', 'Fira Mono', 'SFMono-Regular', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        
+        .onedrive-container {
+            background: white;
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            min-height: 600px;
+        }
+        
+        .onedrive-header {
+            background: #0078d4;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e3e3e3;
+            background-color: #faf9f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar .toolbar-left {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .onedrive-toolbar .toolbar-right {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar .btn {
+            font-size: 0.9rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .view-toggle {
+            display: flex;
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .view-toggle button {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-toggle button:hover {
+            background: #f3f2f1;
+        }
+        
+        .view-toggle button.active {
+            background: #0078d4;
+            color: white;
+        }
+        
+        .view-toggle button:not(:last-child) {
+            border-right: 1px solid #d2d0ce;
+        }
+        
+        .sort-select {
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            padding: 0.375rem 2rem 0.375rem 0.75rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .file-list {
+            padding: 1.5rem;
+            margin: 0;
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .file-list.list-view {
+            display: block;
+            padding: 0;
+        }
+        
+        .file-list.grid-view {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+        
+        .file-card {
+            background: white;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .file-card:hover {
+            box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
+            border-color: #0078d4;
+        }
+        
+        .file-card-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-card-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+        
+        .file-card-meta {
+            font-size: 0.75rem;
+            color: #605e5c;
+        }
+        
+        .file-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e3e3e3;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .file-item:hover {
+            background-color: #f3f2f1;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .file-icon.folder {
+            color: #ffb900;
+        }
+        
+        .file-icon.excel {
+            color: #107c41;
+        }
+        
+        .file-icon.word {
+            color: #185abd;
+        }
+        
+        .file-icon.pdf {
+            color: #dc3545;
+        }
+        
+        .file-icon.image {
+            color: #6c757d;
+        }
+        
+        .file-icon.powerpoint {
+            color: #d24726;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-meta {
+            font-size: 0.85rem;
+            color: #605e5c;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .file-actions .btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .breadcrumb {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .onedrive-empty {
+            text-align: center;
+            padding: 3rem;
+            color: #605e5c;
+        }
+        
+        .onedrive-empty i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #d2d0ce;
+        }
+        
+        .login-prompt {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .login-prompt .btn {
+            margin-top: 1rem;
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        #fileUploadInput {
+            display: none;
+        }
+        
+        .storage-info {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e3e3e3;
+        }
+        
+        .storage-bar {
+            height: 8px;
+            background-color: #e3e3e3;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .storage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0078d4, #00bcf2);
+            transition: width 0.3s;
+        }
+        
+        /* Dosya Önizleme Modal */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            overflow: auto;
+        }
+        
+        .preview-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container {
+            background: white;
+            border-radius: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none;
+        }
+        
+        .preview-header {
+            background: #0078d4;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 50px;
+        }
+        
+        .preview-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+        
+        .preview-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .preview-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preview-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .preview-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .preview-toolbar {
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid #e3e3e3;
+            background: #f8f9fa;
+            display: flex;
+            gap: 0.75rem;
+            min-height: 55px;
+            align-items: center;
+        }
+        
+        .preview-toolbar .btn {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-shield-alt"></i> CROWE HSY - Denetçi Paneli
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> <span id="userName">Denetçi</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Çıkış</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <div>
+                <h2><i class="fas fa-user-shield text-primary"></i> Hoş Geldiniz, <span id="userNameDisplay">Denetçi</span></h2>
+                <p class="mb-0 text-muted">Microsoft OneDrive entegrasyonu ile denetim dosyalarınıza erişin.</p>
+            </div>
+            <div class="session-timer-pill" id="sessionTimerContainer">
+                <span class="timer-label"><i class="far fa-clock"></i> Oturum Süresi</span>
+                <span class="timer-display" id="sessionTimerDisplay">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- OneDrive Container -->
+        <div class="onedrive-container">
+            <!-- OneDrive Header -->
+            <div class="onedrive-header">
+                <div>
+                    <i class="fab fa-microsoft fa-lg"></i> <span id="oneDriveTitle">Microsoft OneDrive</span>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-light" id="refreshBtn" onclick="loadFiles()" style="display: none;">
+                        <i class="fas fa-sync-alt"></i> Yenile
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="signOutBtn" onclick="signOutOneDrive()" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> OneDrive'dan Çık
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="contentArea">
+                <!-- Login Prompt -->
+                <div id="loginPrompt" class="login-prompt">
+                    <i class="fab fa-microsoft" style="font-size: 5rem; color: #0078d4;"></i>
+                    <h3 class="mt-3">Microsoft OneDrive'a Bağlan</h3>
+                    <p class="text-muted">Denetim dosyalarınıza erişmek için Microsoft hesabınızla giriş yapın.</p>
+                    <button class="btn btn-primary btn-lg" onclick="signIn()">
+                        <i class="fab fa-microsoft"></i> Microsoft ile Giriş Yap
+                    </button>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Güvenli OAuth2 protokolü kullanılmaktadır.
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingArea" class="loading" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3 text-muted">OneDrive dosyaları yükleniyor...</p>
+                </div>
+
+                <!-- Files Area -->
+                <div id="filesArea" style="display: none;">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" id="breadcrumb">
+                            <li class="breadcrumb-item active">Yükleniyor...</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Toolbar -->
+                    <div class="onedrive-toolbar">
+                        <div class="toolbar-left">
+                            <button class="btn btn-sm btn-primary" onclick="document.getElementById('fileUploadInput').click()">
+                                <i class="fas fa-upload"></i> Yükle
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="createFolder()">
+                                <i class="fas fa-folder-plus"></i> Yeni
+                            </button>
+                        </div>
+                        <div class="toolbar-right">
+                            <select class="sort-select" id="sortSelect" onchange="sortFiles(this.value)">
+                                <option value="name">İsme Göre</option>
+                                <option value="modified">Değiştirilme Tarihine Göre</option>
+                                <option value="size">Boyuta Göre</option>
+                            </select>
+                            <div class="view-toggle">
+                                <button onclick="changeView('list')" id="listViewBtn" class="active">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                                <button onclick="changeView('grid')" id="gridViewBtn">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File List -->
+                    <div class="file-list list-view" id="fileList">
+                        <!-- Dosyalar JavaScript ile yüklenecek -->
+                    </div>
+
+                    <!-- Storage Info -->
+                    <div class="storage-info">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Depolama Alanı</small>
+                            <small class="text-muted" id="storageText">Hesaplanıyor...</small>
+                        </div>
+                        <div class="storage-bar">
+                            <div class="storage-bar-fill" id="storageBarFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden File Upload Input -->
+            <input type="file" id="fileUploadInput" multiple onchange="uploadFiles(this.files)">
+        </div>
+    </div>
+
+    <!-- Dosya Önizleme Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h4 id="previewFileName">Dosya Önizleme</h4>
+                <button class="preview-close" onclick="closePreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="preview-content">
+                <div class="preview-loading" id="previewLoading">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3">Dosya yükleniyor...</p>
+                </div>
+                <iframe id="previewIframe" class="preview-iframe" style="display: none;"></iframe>
+            </div>
+            <div class="preview-toolbar">
+                <button class="btn btn-sm btn-warning" id="previewEditBtn" onclick="editCurrentFile()" style="display: none;">
+                    <i class="fas fa-edit"></i> Düzenle (SharePoint)
+                </button>
+                <button class="btn btn-sm btn-success" id="previewDownloadBtn" onclick="downloadCurrentPreview()">
+                    <i class="fas fa-download"></i> İndir
+                </button>
+                <button class="btn btn-sm btn-primary" id="previewOpenNewTabBtn" onclick="openCurrentPreviewNewTab()">
+                    <i class="fas fa-external-link-alt"></i> Yeni Sekmede Aç
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="closePreview()">
+                    <i class="fas fa-times"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- MSAL.js - Microsoft Authentication Library -->
+    <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
+    
+    <script>
+        // MSAL Configuration
+        // NOT: Gerçek OneDrive entegrasyonu için Azure AD'de uygulama kayıt gereklidir.
+        // Şu an demo modunda çalışıyor - gerçek Microsoft hesabı gerekmez.
+        
+        // DEMO MODE: Gerçek Azure AD uygulaması için aşağıdaki client ID'yi değiştirin
+        const DEMO_MODE = false; // false = Gerçek OneDrive kullanılıyor
+        const YOUR_CLIENT_ID = "c0addd41-6869-47b6-8329-c0387a406104"; // Azure Portal'dan alındı
+        
+        const msalConfig = {
+            auth: {
+                clientId: DEMO_MODE ? "00000000-0000-0000-0000-000000000000" : YOUR_CLIENT_ID,
+                // Tenant-specific endpoint kullanılıyor (sadece CROWE HSY organizasyonu)
+                // Multi-tenant için: "https://login.microsoftonline.com/common"
+                authority: "https://login.microsoftonline.com/organizations",
+                redirectUri: window.location.origin + window.location.pathname
+            },
+            cache: {
+                cacheLocation: "localStorage",
+                storeAuthStateInCookie: false
+            }
+        };
+
+        const loginRequest = {
+            // Paylaşılanlar için Files.Read.All kullanıyoruz (daha az kısıtlayıcı)
+            // Not: Bazı organizasyonlarda yine admin consent gerektirebilir
+            scopes: ["User.Read", "Files.Read.All", "Sites.Read.All"]
+        };
+
+        let msalInstance;
+        let accessToken = null;
+        let currentFolderId = "root";
+        let currentPath = [];
+        let isViewingShared = false; // Paylaşılanlar görünümü kontrolü
+        let currentView = 'list'; // 'list' veya 'grid'
+        let currentFiles = []; // Mevcut dosyaları sakla (sıralama için)
+        let currentPreviewUrl = ''; // Önizlemedeki dosyanın URL'si
+        let currentPreviewFile = {}; // Önizlemedeki dosyanın bilgileri
+        let currentDriveId = null; // Paylaşılan drive içindeyken drive ID'yi sakla
+        
+        const AUDITOR_SESSIONS_KEY = 'auditorSessions';
+        const DEFAULT_AUDITOR_PASSWORD = 'Crowe2022!';
+        let sessionTimerInterval = null;
+        let sessionStartTime = null;
+
+        // Kullanıcı bilgisi
+        const auditorUser = localStorage.getItem('auditorUser') || 'Denetçi';
+        document.getElementById('userName').textContent = auditorUser;
+        document.getElementById('userNameDisplay').textContent = auditorUser;
+
+        function hasAuditorPasswordChanged(email) {
+            return localStorage.getItem('auditorPasswordChanged_' + email.toLowerCase()) === 'true';
+        }
+
+        function getStoredAuditorPassword(email) {
+            return localStorage.getItem('auditorPassword_' + email.toLowerCase());
+        }
+
+        function ensureAuditorPasswordChange(email) {
+            if (!email || email === 'Denetçi') {
+                window.location.href = 'auditor-login.html';
+                return;
+            }
+            const normalized = email.toLowerCase();
+            const storedPassword = getStoredAuditorPassword(normalized);
+            const changed = hasAuditorPasswordChanged(normalized);
+            if (!changed || !storedPassword || storedPassword === DEFAULT_AUDITOR_PASSWORD) {
+                localStorage.setItem('auditorPendingPasswordChange', normalized);
+                window.location.href = 'auditor-password-change.html';
+            }
+        }
+
+        ensureAuditorPasswordChange(auditorUser);
+
+        function getAuditorSessionsStore() {
+            const raw = localStorage.getItem(AUDITOR_SESSIONS_KEY);
+            if (!raw) return {};
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (err) {
+                console.warn('Auditor session store parse error:', err);
+                return {};
+            }
+        }
+
+        function setAuditorSessionsStore(store) {
+            localStorage.setItem(AUDITOR_SESSIONS_KEY, JSON.stringify(store || {}));
+        }
+
+        function updateAuditorSessionStore(email, patch) {
+            if (!email) {
+                return;
+            }
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized] || {
+                email: email,
+                displayName: email,
+                startTime: null,
+                elapsed: 0,
+                active: false,
+                lastUpdate: null
+            };
+            store[normalized] = Object.assign({}, existing, patch || {}, {
+                email: email,
+                displayName: (patch && patch.displayName) || existing.displayName || email
+            });
+            setAuditorSessionsStore(store);
+            // Storage event not triggered in same tab, manually dispatch custom event
+            window.dispatchEvent(new CustomEvent('auditorSessionsUpdated'));
+        }
+
+        function formatDuration(ms) {
+            if (!ms || Number.isNaN(ms) || ms < 0) {
+                ms = 0;
+            }
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function updateSessionTimerDisplay(ms) {
+            const el = document.getElementById('sessionTimerDisplay');
+            if (!el) return;
+            el.textContent = formatDuration(ms);
+        }
+
+        function startAuditorSessionTimer(email) {
+            if (!email) return;
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized];
+            const now = Date.now();
+            if (existing && existing.active && existing.startTime) {
+                sessionStartTime = existing.startTime;
+            } else {
+                sessionStartTime = now;
+            }
+
+            updateSessionTimerDisplay(now - sessionStartTime);
+            updateAuditorSessionStore(email, {
+                displayName: email,
+                startTime: sessionStartTime,
+                lastUpdate: now,
+                elapsed: now - sessionStartTime,
+                active: true
+            });
+
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+            }
+
+            sessionTimerInterval = setInterval(() => {
+                const elapsed = Date.now() - sessionStartTime;
+                updateSessionTimerDisplay(elapsed);
+                updateAuditorSessionStore(email, {
+                    lastUpdate: Date.now(),
+                    elapsed: elapsed,
+                    active: true
+                });
+            }, 1000);
+        }
+
+        function stopAuditorSessionTimer(email) {
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+                sessionTimerInterval = null;
+            }
+            if (!email) return;
+            const now = Date.now();
+            const elapsed = sessionStartTime ? (now - sessionStartTime) : 0;
+            sessionStartTime = null;
+            updateSessionTimerDisplay(0);
+            updateAuditorSessionStore(email, {
+                lastUpdate: now,
+                elapsed: elapsed,
+                active: false,
+                endTime: now
+            });
+        }
+
+        function restoreAuditorSessionTimer(email) {
+            if (!email) {
+                updateSessionTimerDisplay(0);
+                return;
+            }
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized];
+            if (existing && existing.active && existing.startTime) {
+                sessionStartTime = existing.startTime;
+                if (sessionTimerInterval) {
+                    clearInterval(sessionTimerInterval);
+                }
+                updateSessionTimerDisplay(Date.now() - sessionStartTime);
+                sessionTimerInterval = setInterval(() => {
+                    const elapsed = Date.now() - sessionStartTime;
+                    updateSessionTimerDisplay(elapsed);
+                    updateAuditorSessionStore(email, {
+                        lastUpdate: Date.now(),
+                        elapsed: elapsed,
+                        active: true
+                    });
+                }, 1000);
+            } else if (existing && existing.elapsed) {
+                updateSessionTimerDisplay(existing.elapsed);
+            } else {
+                updateSessionTimerDisplay(0);
+            }
+        }
+
+        restoreAuditorSessionTimer(auditorUser);
+
+        window.addEventListener('beforeunload', function() {
+            if (!auditorUser) return;
+            const now = Date.now();
+            if (sessionStartTime !== null) {
+                const elapsed = now - sessionStartTime;
+                updateAuditorSessionStore(auditorUser, {
+                    lastUpdate: now,
+                    elapsed: elapsed,
+                    active: false,
+                    endTime: now
+                });
+            }
+        });
+
+        // MSAL Instance oluştur (sadece gerçek Azure AD kullanıyorsak)
+        if (!DEMO_MODE) {
+            try {
+                msalInstance = new msal.PublicClientApplication(msalConfig);
+                
+                // Redirect response'ı handle et (kritik!)
+                msalInstance.handleRedirectPromise()
+                    .then(response => {
+                        if (response) {
+                            console.log("✅ Redirect sonrası geri dönüldü:", response.account.username);
+                            msalInstance.setActiveAccount(response.account);
+                            accessToken = response.accessToken;
+                            
+                            // Başarılı giriş sonrası OneDrive'ı göster
+                            document.getElementById('oneDriveTitle').textContent = 
+                                'Microsoft OneDrive - ' + response.account.name;
+                            
+                            showFilesArea();
+                            loadFiles();
+                            startAuditorSessionTimer(auditorUser);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Redirect handling error:", error);
+                        showError("Giriş sonrası hata: " + error.message);
+                    });
+            } catch (error) {
+                console.error("MSAL başlatılamadı:", error);
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+            }
+        }
+
+        // Sayfa yüklendiğinde token kontrolü
+        $(document).ready(async function() {
+            // İlk olarak mevcut interaction'ları temizle
+            if (!DEMO_MODE && msalInstance) {
+                try {
+                    // Mevcut interaction'ı bekle ve temizle
+                    await msalInstance.handleRedirectPromise();
+                } catch (error) {
+                    console.log("Redirect promise error (normal):", error);
+                }
+            }
+            
+            checkAuthState();
+        });
+
+        async function checkAuthState() {
+            // Demo mode: Login ekranını göster
+            if (DEMO_MODE) {
+                showLoginPrompt();
+                return;
+            }
+            
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                msalInstance.setActiveAccount(accounts[0]);
+                try {
+                    await getTokenSilent();
+                    showFilesArea();
+                    loadFiles();
+                    startAuditorSessionTimer(auditorUser);
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showLoginPrompt();
+                }
+            } else {
+                showLoginPrompt();
+            }
+        }
+
+        let isSigningIn = false; // Çift tıklama engeli
+
+        // MSAL interaction flag'ini temizle
+        function clearInteractionInProgress() {
+            // LocalStorage'daki tüm interaction flag'lerini temizle
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes('interaction.status') || 
+                    key.includes('interaction_status') ||
+                    key.includes('.interaction.')) {
+                    localStorage.removeItem(key);
+                    console.log('Temizlendi:', key);
+                }
+            });
+        }
+
+        async function signIn() {
+            // Eğer zaten giriş işlemi devam ediyorsa, tekrar başlatma
+            if (isSigningIn) {
+                console.log("Giriş işlemi zaten devam ediyor, lütfen bekleyin...");
+                return;
+            }
+
+            // DEMO MODE kontrolü
+            if (DEMO_MODE) {
+                showLoading();
+                setTimeout(() => {
+                    document.getElementById('oneDriveTitle').textContent = 
+                        'Microsoft OneDrive - ' + auditorUser + ' (Demo Mode)';
+                    accessToken = 'DEMO_TOKEN';
+                    showFilesArea();
+                    loadDemoFiles();
+                }, 1000);
+                return;
+            }
+            
+            // Önce interaction flag'lerini temizle
+            clearInteractionInProgress();
+            
+            isSigningIn = true;
+            
+            try {
+                showLoading();
+                
+                // Mevcut hesapları kontrol et
+                const accounts = msalInstance.getAllAccounts();
+                if (accounts.length > 0) {
+                    msalInstance.setActiveAccount(accounts[0]);
+                    console.log('Mevcut hesap bulundu:', accounts[0].username);
+                }
+                
+                console.log('LoginRedirect başlatılıyor...');
+                // Popup yerine redirect kullan (daha güvenilir)
+                await msalInstance.loginRedirect(loginRequest);
+                
+                // Redirect sonrası sayfa yeniden yüklenecek, bu kod çalışmaz
+                // handleRedirectPromise bu işi yapacak
+            } catch (error) {
+                console.error("Giriş hatası:", error);
+                
+                // Interaction in progress hatası için özel işlem
+                if (error.errorCode === 'interaction_in_progress' || 
+                    error.message.includes('interaction_in_progress')) {
+                    
+                    console.warn('Interaction flag temizleniyor ve tekrar deneniyor...');
+                    clearInteractionInProgress();
+                    isSigningIn = false;
+                    
+                    showError("Önceki giriş işlemi temizlendi. Lütfen tekrar 'Giriş Yap' butonuna tıklayın.");
+                    showLoginPrompt();
+                } else {
+                    showError("Microsoft hesabına giriş yapılamadı: " + (error.errorMessage || error.message));
+                    showLoginPrompt();
+                }
+            } finally {
+                isSigningIn = false;
+            }
+        }
+
+        async function getTokenSilent() {
+            const account = msalInstance.getActiveAccount();
+            if (!account) {
+                throw new Error("No active account");
+            }
+
+            const silentRequest = {
+                scopes: loginRequest.scopes,
+                account: account
+            };
+
+            try {
+                const response = await msalInstance.acquireTokenSilent(silentRequest);
+                accessToken = response.accessToken;
+                document.getElementById('oneDriveTitle').textContent = 
+                    'Microsoft OneDrive - ' + response.account.name;
+                return accessToken;
+            } catch (error) {
+                if (error instanceof msal.InteractionRequiredAuthError) {
+                    return await msalInstance.acquireTokenPopup(silentRequest);
+                }
+                throw error;
+            }
+        }
+
+        async function signOutOneDrive() {
+            if (DEMO_MODE) {
+                accessToken = null;
+                stopAuditorSessionTimer(auditorUser);
+                showLoginPrompt();
+                return;
+            }
+            
+            const account = msalInstance.getActiveAccount();
+            if (account) {
+                // Popup yerine redirect kullan
+                await msalInstance.logoutRedirect({
+                    account: account
+                });
+            }
+            accessToken = null;
+            stopAuditorSessionTimer(auditorUser);
+            showLoginPrompt();
+        }
+
+        function signOut() {
+            signOutOneDrive();
+            localStorage.removeItem('auditorUser');
+            localStorage.removeItem('auditorPendingPasswordChange');
+            window.location.href = 'auditor-login.html';
+        }
+
+        async function loadSharedFiles() {
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showError("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            }
+
+            showLoading();
+            isViewingShared = true;
+            currentFolderId = "shared";
+            currentPath = []; // Yolu sıfırla
+            currentDriveId = null; // Drive ID'yi sıfırla
+
+            try {
+                const endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=999";
+                console.log("Paylaşılan dosyalar yükleniyor:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("✅ Paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
+                
+                // Debug: İlk dosyanın yapısını göster
+                if (data.value && data.value.length > 0) {
+                    console.log("🔍 İlk paylaşılan dosya yapısı:", data.value[0]);
+                    console.log("🔍 remoteItem var mı?", data.value[0].remoteItem !== undefined);
+                    console.log("🔍 webUrl:", data.value[0].webUrl);
+                    if (data.value[0].remoteItem) {
+                        console.log("🔍 remoteItem.id:", data.value[0].remoteItem.id);
+                        console.log("🔍 remoteItem.driveId:", data.value[0].remoteItem.parentReference?.driveId);
+                    }
+                }
+                
+                displayFiles(data.value || []);
+                loadStorageInfo();
+                showFilesArea();
+            } catch (error) {
+                console.error("Paylaşılan dosyalar yükleme hatası:", error);
+                alert("Paylaşılan dosyalar yüklenirken hata oluştu: " + error.message);
+                // Ana klasöre geri dön ama oturumu kapatma
+                loadFiles('root');
+            }
+        }
+
+        async function loadFiles(folderId = "root") {
+            if (DEMO_MODE) {
+                loadDemoFiles();
+                return;
+            }
+            
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showError("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            }
+
+            showLoading();
+            isViewingShared = false;
+            currentFolderId = folderId;
+            currentPath = []; // Normal klasörlerde yolu sıfırla
+            currentDriveId = null; // Kendi drive'ımıza döndük
+
+            try {
+                // OneDrive API çağrısı - $top=999 ile daha fazla dosya iste
+                const endpoint = folderId === "root" 
+                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=999&$orderby=name"
+                    : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=999&$orderby=name`;
+
+                console.log("OneDrive API isteği gönderiliyor:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("Yüklenen dosya sayısı:", data.value ? data.value.length : 0);
+                
+                let allFiles = data.value || [];
+                
+                // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
+                let nextLink = data['@odata.nextLink'];
+                while (nextLink) {
+                    console.log("Daha fazla dosya yükleniyor...", nextLink);
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                        console.log("Toplam dosya sayısı:", allFiles.length);
+                    } else {
+                        break;
+                    }
+                }
+                
+                console.log("✅ Toplam yüklenen dosya:", allFiles.length);
+                displayFiles(allFiles);
+                
+                // Storage bilgisini al
+                loadStorageInfo();
+
+                showFilesArea();
+            } catch (error) {
+                console.error("Dosya yükleme hatası:", error);
+                
+                // 401 veya 403 hatası ise token geçersiz, yeniden giriş gerekli
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    alert("Oturum süresi doldu. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                } else {
+                    // Diğer hatalar için oturumu kapatma
+                    alert("Dosyalar yüklenirken hata oluştu: " + error.message);
+                }
+            }
+        }
+
+        function loadDemoSharedFiles() {
+            isViewingShared = true;
+            currentFolderId = "shared";
+            
+            const demoSharedFiles = [
+                { name: 'Ortak-Proje-2024.xlsx', folder: false, size: 1200000, lastModified: '2024-11-05', id: 'demo-shared-1' },
+                { name: 'Paylaşılan-Sunum.pptx', folder: false, size: 3500000, lastModified: '2024-11-04', id: 'demo-shared-2' },
+                { name: 'Ekip-Notları.docx', folder: false, size: 450000, lastModified: '2024-11-03', id: 'demo-shared-3' }
+            ];
+
+            const files = demoSharedFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                folder: f.folder ? { childCount: f.childCount } : undefined,
+                size: f.size,
+                lastModifiedDateTime: f.lastModified
+            }));
+
+            displayFiles(files);
+            document.getElementById('storageText').textContent = '8.5 GB / 15 GB kullanıldı (56.7%)';
+            document.getElementById('storageBarFill').style.width = '56.7%';
+            showFilesArea();
+        }
+
+        function loadDemoFiles() {
+            isViewingShared = false;
+            currentFolderId = "root";
+            
+            const demoFiles = [
+                { name: 'Denetim Raporları 2024', folder: true, childCount: 24, lastModified: '2024-11-05', id: 'demo-folder-1' },
+                { name: 'Mali Tablolar', folder: true, childCount: 15, lastModified: '2024-11-04', id: 'demo-folder-2' },
+                { name: 'Belgeler', folder: true, childCount: 8, lastModified: '2024-11-03', id: 'demo-folder-3' },
+                { name: 'Q3-2024-Denetim-Raporu.xlsx', folder: false, size: 2400000, lastModified: '2024-11-06', id: 'demo-file-1' },
+                { name: 'Mali-Analiz-Raporu.docx', folder: false, size: 1800000, lastModified: '2024-11-05', id: 'demo-file-2' },
+                { name: 'Finansal-Ozet.pdf', folder: false, size: 856000, lastModified: '2024-11-04', id: 'demo-file-3' },
+                { name: 'Yillik-Rapor-2024.pdf', folder: false, size: 3200000, lastModified: '2024-11-03', id: 'demo-file-4' }
+            ];
+
+            const files = demoFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                folder: f.folder ? { childCount: f.childCount } : undefined,
+                size: f.size,
+                lastModifiedDateTime: f.lastModified
+            }));
+
+            displayFiles(files);
+            
+            // Demo storage info
+            document.getElementById('storageText').textContent = '8.5 GB / 15 GB kullanıldı (56.7%)';
+            document.getElementById('storageBarFill').style.width = '56.7%';
+        }
+
+        async function loadStorageInfo() {
+            if (DEMO_MODE) {
+                return; // Demo mode'da loadDemoFiles zaten storage bilgisini yüklüyor
+            }
+            
+            try {
+                const response = await fetch("https://graph.microsoft.com/v1.0/me/drive", {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const quota = data.quota;
+                    const used = quota.used;
+                    const total = quota.total;
+                    const percentage = (used / total * 100).toFixed(1);
+
+                    document.getElementById('storageText').textContent = 
+                        `${formatBytes(used)} / ${formatBytes(total)} kullanıldı (${percentage}%)`;
+                    document.getElementById('storageBarFill').style.width = percentage + '%';
+                }
+            } catch (error) {
+                console.error("Storage bilgisi alınamadı:", error);
+            }
+        }
+
+        function changeView(viewType) {
+            currentView = viewType;
+            const fileListContainer = document.getElementById('fileList');
+            
+            // Buton aktif durumlarını güncelle
+            document.getElementById('listViewBtn').classList.toggle('active', viewType === 'list');
+            document.getElementById('gridViewBtn').classList.toggle('active', viewType === 'grid');
+            
+            // View class'ını güncelle
+            fileListContainer.className = `file-list ${viewType}-view`;
+            
+            // Dosyaları yeniden render et
+            displayFiles(currentFiles);
+        }
+        
+        function sortFiles(sortBy) {
+            if (currentFiles.length === 0) return;
+            
+            const sorted = [...currentFiles].sort((a, b) => {
+                if (sortBy === 'name') {
+                    return a.name.localeCompare(b.name, 'tr');
+                } else if (sortBy === 'modified') {
+                    return new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime);
+                } else if (sortBy === 'size') {
+                    const sizeA = a.size || 0;
+                    const sizeB = b.size || 0;
+                    return sizeB - sizeA;
+                }
+                return 0;
+            });
+            
+            currentFiles = sorted;
+            displayFiles(sorted);
+        }
+
+        function displayFiles(files) {
+            const fileListContainer = document.getElementById('fileList');
+            currentFiles = files; // Dosyaları sakla
+            
+            if (files.length === 0 && currentFolderId === "shared") {
+                fileListContainer.innerHTML = `
+                    <div class="onedrive-empty">
+                        <i class="fas fa-share-alt"></i>
+                        <h5>Paylaşılan Dosya Yok</h5>
+                        <p class="text-muted">Sizinle paylaşılan dosya bulunmuyor.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (files.length === 0) {
+                fileListContainer.innerHTML = `
+                    <div class="onedrive-empty">
+                        <i class="fas fa-folder-open"></i>
+                        <h5>Bu klasör boş</h5>
+                        <p class="text-muted">Dosya yüklemek için "Yükle" butonuna tıklayın.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // Root klasördeyse, en üstte "Paylaşılanlar" sanal klasörünü ekle
+            if (currentFolderId === "root" && !isViewingShared) {
+                const loadFunc = DEMO_MODE ? 'loadDemoSharedFiles()' : 'loadSharedFiles()';
+                html += `
+                    <div class="file-item" onclick="${loadFunc}" style="background-color: #f0f8ff;">
+                        <i class="fas fa-share-alt file-icon" style="color: #0078d4;"></i>
+                        <div class="file-info">
+                            <div class="file-name">📤 Paylaşılanlar</div>
+                            <div class="file-meta">Benimle paylaşılan dosyalar</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); ${loadFunc}">
+                                <i class="fas fa-folder-open"></i> Aç
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            files.forEach(file => {
+                // Paylaşılan dosyalar için remoteItem kullan
+                const isSharedItem = file.remoteItem !== undefined;
+                
+                // Shared item ise remoteItem'dan bilgileri al
+                const fileData = isSharedItem ? file.remoteItem : file;
+                const isFolder = fileData.folder !== undefined;
+                const iconHTML = getFileIconFromName(file.name, isFolder);
+                const size = isFolder ? (fileData.folder?.childCount + ' öğe' || 'Klasör') : formatBytes(fileData.size || file.size || 0);
+                const modified = new Date(file.lastModifiedDateTime).toLocaleDateString('tr-TR');
+                
+                // ID ve Drive bilgilerini al
+                const actualId = isSharedItem ? fileData.id : file.id;
+                
+                // Drive ID'yi belirle: 
+                // 1. Shared item ise remoteItem'dan al
+                // 2. Paylaşılan drive içindeysek (currentDriveId varsa) onu kullan
+                // 3. Değilse boş bırak (kendi drive'ımız)
+                let driveId = '';
+                if (isSharedItem) {
+                    driveId = fileData.parentReference?.driveId || '';
+                } else if (currentDriveId) {
+                    driveId = currentDriveId; // Paylaşılan drive içindeyiz
+                }
+                
+                const webUrl = file.webUrl || fileData.webUrl || '';
+                
+                // Debug log (ilk dosya için)
+                if (files.indexOf(file) === 0) {
+                    console.log("🔍 Dosya render:", {
+                        name: file.name,
+                        isSharedItem,
+                        isFolder,
+                        actualId,
+                        driveId,
+                        currentDriveId,
+                        webUrl: webUrl ? webUrl.substring(0, 50) + '...' : 'yok'
+                    });
+                }
+                
+                // Paylaşılan drive içinde miyiz?
+                const isInSharedDrive = (currentDriveId !== null);
+                
+                // Güvenli string dönüşümü (onclick için)
+                const safeWebUrl = webUrl ? webUrl.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+                const safeDriveId = driveId || '';
+                const safeActualId = actualId || '';
+
+                if (currentView === 'grid') {
+                    // Kart görünümü
+                    let clickAction;
+                    if (isFolder) {
+                        // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')`;
+                        } else {
+                            clickAction = `loadFiles('${safeActualId}')`;
+                        }
+                    } else {
+                        // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}', '${safeWebUrl}')`;
+                        } else {
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(file.name)}')`;
+                        }
+                    }
+                    
+                    html += `
+                        <div class="file-card" onclick="${clickAction}">
+                            <div class="file-card-icon">${iconHTML}</div>
+                            <div class="file-card-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+                            <div class="file-card-meta">${size}</div>
+                        </div>
+                    `;
+                } else {
+                    // Liste görünümü
+                    let clickAction;
+                    if (isFolder) {
+                        // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')`;
+                        } else {
+                            clickAction = `loadFiles('${safeActualId}')`;
+                        }
+                    } else {
+                        // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}', '${safeWebUrl}')`;
+                        } else {
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(file.name)}')`;
+                        }
+                    }
+                    
+                    html += `
+                        <div class="file-item" onclick="${clickAction}">
+                            ${iconHTML}
+                            <div class="file-info">
+                                <div class="file-name">${escapeHtml(file.name)}${isSharedItem ? ' <span style="color: #0078d4; font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
+                                <div class="file-meta">${size} • ${modified}</div>
+                            </div>
+                            <div class="file-actions">
+                                ${!isFolder ? `
+                                <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); ${(isInSharedDrive || isSharedItem) ? `downloadSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')` : `downloadFile('${safeActualId}', '${escapeHtml(file.name)}')`}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); ${safeWebUrl ? `window.open('${safeWebUrl}', '_blank')` : `shareFile('${safeActualId}')`}">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            fileListContainer.innerHTML = html;
+            updateBreadcrumb();
+        }
+
+        function getFileIconFromName(name, isFolder) {
+            if (isFolder) {
+                return '<i class="fas fa-folder file-icon folder"></i>';
+            }
+
+            const ext = name.split('.').pop().toLowerCase();
+            const icons = {
+                'xlsx': '<i class="fas fa-file-excel file-icon excel"></i>',
+                'xls': '<i class="fas fa-file-excel file-icon excel"></i>',
+                'docx': '<i class="fas fa-file-word file-icon word"></i>',
+                'doc': '<i class="fas fa-file-word file-icon word"></i>',
+                'pdf': '<i class="fas fa-file-pdf file-icon pdf"></i>',
+                'pptx': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                'ppt': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                'png': '<i class="fas fa-file-image file-icon image"></i>',
+                'jpg': '<i class="fas fa-file-image file-icon image"></i>',
+                'jpeg': '<i class="fas fa-file-image file-icon image"></i>',
+                'gif': '<i class="fas fa-file-image file-icon image"></i>'
+            };
+
+            return icons[ext] || '<i class="fas fa-file file-icon"></i>';
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            
+            if (isViewingShared) {
+                breadcrumb.innerHTML = `
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadFiles('root'); return false;">
+                            <i class="fas fa-home"></i> Ana Klasör
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadSharedFiles(); return false;">
+                            <i class="fas fa-share-alt"></i> Paylaşılanlar
+                        </a>
+                    </li>
+                `;
+                
+                // Paylaşılan klasör yolunu göster
+                if (currentPath.length > 0) {
+                    currentPath.forEach((folder, index) => {
+                        if (index < currentPath.length - 1) {
+                            breadcrumb.innerHTML += `
+                                <li class="breadcrumb-item">
+                                    <a href="#" onclick="loadSharedFolderContent('${folder.driveId}', '${folder.id}', '${escapeHtml(folder.name)}'); return false;">
+                                        ${escapeHtml(folder.name)}
+                                    </a>
+                                </li>
+                            `;
+                        } else {
+                            breadcrumb.innerHTML += `
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    ${escapeHtml(folder.name)}
+                                </li>
+                            `;
+                        }
+                    });
+                }
+            } else {
+                breadcrumb.innerHTML = `
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadFiles('root'); return false;">
+                            <i class="fas fa-home"></i> Ana Klasör
+                        </a>
+                    </li>
+                `;
+                
+                if (currentFolderId !== "root") {
+                    breadcrumb.innerHTML += `
+                        <li class="breadcrumb-item active" aria-current="page">Klasör</li>
+                    `;
+                }
+            }
+        }
+
+        async function downloadFile(fileId, fileName) {
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası indiriliyor...\n\nGerçek OneDrive entegrasyonunda bu dosya indirilecektir.`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya indirilemedi");
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                showSuccess("Dosya başarıyla indirildi: " + fileName);
+            } catch (error) {
+                console.error("Dosya indirme hatası:", error);
+                showError("Dosya indirilemedi: " + error.message);
+            }
+        }
+
+        async function openSharedFolder(driveId, itemId, folderName, webUrl) {
+            console.log("📁 openSharedFolder çağrıldı:", {driveId, itemId, folderName});
+            
+            // Paylaşılan klasörün içeriğini yükle (aynı arayüzde)
+            if (driveId && driveId !== 'null' && itemId && itemId !== 'null') {
+                loadSharedFolderContent(driveId, itemId, folderName);
+            } else {
+                alert(`Klasör bilgileri eksik.`);
+            }
+        }
+        
+        async function loadSharedFolderContent(driveId, itemId, folderName) {
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    alert("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    return;
+                }
+            }
+
+            showLoading();
+            isViewingShared = true;
+            currentFolderId = itemId;
+            currentDriveId = driveId; // Drive ID'yi sakla (alt klasörler için)
+
+            try {
+                const endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/children?$top=999&$orderby=name`;
+                console.log("📁 Paylaşılan klasör içeriği yükleniyor:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log("✅ Klasör içeriği yüklendi:", data.value ? data.value.length : 0, "öğe");
+                
+                // Breadcrumb'a klasör adını ekle (eğer yoksa)
+                const alreadyInPath = currentPath.find(p => p.id === itemId);
+                if (!alreadyInPath) {
+                    currentPath.push({name: folderName, id: itemId, driveId: driveId});
+                }
+                
+                let allFiles = data.value || [];
+                
+                // Pagination
+                let nextLink = data['@odata.nextLink'];
+                while (nextLink) {
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                    } else {
+                        break;
+                    }
+                }
+                
+                console.log("✅ Toplam yüklenen öğe:", allFiles.length);
+                displayFiles(allFiles);
+                loadStorageInfo();
+                showFilesArea();
+            } catch (error) {
+                console.error("Paylaşılan klasör yükleme hatası:", error);
+                alert("Klasör içeriği yüklenirken hata oluştu: " + error.message);
+                loadSharedFiles();
+            }
+        }
+
+        async function openSharedFile(driveId, itemId, fileName, webUrl) {
+            console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
+            
+            // Her zaman API'den dosya bilgilerini al
+            if (driveId && driveId !== 'null' && itemId && itemId !== 'null') {
+                try {
+                    console.log("📡 API isteği (dosya bilgileri için): drives/" + driveId + "/items/" + itemId);
+                    const response = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("❌ API Hatası:", errorText);
+                        throw new Error("Paylaşılan dosya bilgisi alınamadı: " + response.status);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Öncelik sırası: downloadUrl > webUrl (CSP bypass için)
+                    const fileUrlToUse = data['@microsoft.graph.downloadUrl'] || data.webUrl || webUrl;
+                    
+                    console.log("✅ Paylaşılan dosya URL'si alındı:", {
+                        downloadUrl: data['@microsoft.graph.downloadUrl'] ? 'var' : 'yok',
+                        webUrl: data.webUrl ? 'var' : 'yok',
+                        using: fileUrlToUse.substring(0, 50) + '...'
+                    });
+                    
+                    if (fileUrlToUse) {
+                        openPreview(fileName, fileUrlToUse, {
+                            driveId, 
+                            itemId, 
+                            fileName, 
+                            webUrl: data.webUrl, 
+                            downloadUrl: data['@microsoft.graph.downloadUrl']
+                        });
+                    } else {
+                        downloadSharedFile(driveId, itemId, fileName);
+                    }
+                } catch (error) {
+                    console.error("❌ Paylaşılan dosya açma hatası:", error);
+                    alert("Paylaşılan dosya açılamadı: " + error.message + "\n\nBu dosya için direkt SharePoint'ten erişmeyi deneyin.");
+                }
+            } else {
+                console.error("❌ Drive ID veya Item ID eksik:", {driveId, itemId});
+                alert("Dosya bilgileri eksik. Lütfen tekrar deneyin.");
+            }
+        }
+
+        async function downloadSharedFile(driveId, itemId, fileName) {
+            if (!driveId || !itemId) {
+                alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
+                return;
+            }
+            
+            try {
+                console.log("📥 İndiriliyor: drives/" + driveId + "/items/" + itemId);
+                const response = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ İndirme hatası:", errorText);
+                    throw new Error("HTTP " + response.status);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                console.log("✅ Paylaşılan dosya indirildi:", fileName);
+            } catch (error) {
+                console.error("❌ Paylaşılan dosya indirme hatası:", error);
+                alert("Dosya indirilemedi: " + error.message + "\n\nLütfen paylaş butonuna tıklayarak SharePoint'ten açmayı deneyin.");
+                // OTURUMU KAPATMA!
+            }
+        }
+
+        async function openFile(fileId, fileName) {
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası açılıyor...\n\nGerçek OneDrive entegrasyonunda bu dosya arayüz içinde önizlenecektir.`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya bilgisi alınamadı");
+                }
+
+                const data = await response.json();
+                
+                // Önizleme için downloadUrl kullan (CSP bypass için)
+                const downloadUrl = data['@microsoft.graph.downloadUrl'];
+                
+                if (downloadUrl) {
+                    console.log("✅ Dosya downloadUrl ile önizleniyor");
+                    openPreview(fileName, downloadUrl, {fileId, fileName, webUrl: data.webUrl, downloadUrl: downloadUrl});
+                } else if (data.webUrl) {
+                    console.log("⚠️ downloadUrl yok, webUrl kullanılıyor");
+                    openPreview(fileName, data.webUrl, {fileId, fileName, webUrl: data.webUrl});
+                } else {
+                    console.log("❌ Önizleme URL'si yok, indiriliyor");
+                    downloadFile(fileId, fileName);
+                }
+            } catch (error) {
+                console.error("Dosya açma hatası:", error);
+                alert("Dosya açılamadı: " + error.message);
+            }
+        }
+
+        async function deleteFile(fileId, fileName) {
+            if (!confirm(`"${fileName}" dosyasını silmek istediğinizden emin misiniz?`)) {
+                return;
+            }
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası silindi (simülasyon).`);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya silinemedi");
+                }
+
+                showSuccess("Dosya başarıyla silindi: " + fileName);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Dosya silme hatası:", error);
+                showError("Dosya silinemedi: " + error.message);
+            }
+        }
+
+        async function uploadFiles(files) {
+            if (!files || files.length === 0) return;
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: ${files.length} dosya yükleniyor...\n\nSeçilen dosyalar:\n${Array.from(files).map(f => '- ' + f.name).join('\n')}\n\nGerçek OneDrive entegrasyonunda bu dosyalar yüklenecektir.`);
+                document.getElementById('fileUploadInput').value = '';
+                return;
+            }
+
+            showLoading();
+
+            try {
+                for (let file of files) {
+                    const endpoint = currentFolderId === "root"
+                        ? `https://graph.microsoft.com/v1.0/me/drive/root:/${file.name}:/content`
+                        : `https://graph.microsoft.com/v1.0/me/drive/items/${currentFolderId}:/${file.name}:/content`;
+
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken,
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Dosya yüklenemedi: ${file.name}`);
+                    }
+                }
+
+                showSuccess(`${files.length} dosya başarıyla yüklendi`);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Dosya yükleme hatası:", error);
+                showError("Dosya yüklenirken hata oluştu: " + error.message);
+                showFilesArea();
+            }
+
+            document.getElementById('fileUploadInput').value = '';
+        }
+
+        async function createFolder() {
+            const folderName = prompt('Yeni klasör adı:');
+            if (!folderName) return;
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${folderName}" klasörü oluşturuldu (simülasyon).`);
+                return;
+            }
+
+            try {
+                const endpoint = currentFolderId === "root"
+                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                    : `https://graph.microsoft.com/v1.0/me/drive/items/${currentFolderId}/children`;
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: folderName,
+                        folder: {},
+                        '@microsoft.graph.conflictBehavior': 'rename'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Klasör oluşturulamadı");
+                }
+
+                showSuccess("Klasör başarıyla oluşturuldu: " + folderName);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Klasör oluşturma hatası:", error);
+                showError("Klasör oluşturulamadı: " + error.message);
+            }
+        }
+
+        async function shareFile(fileId) {
+            if (DEMO_MODE) {
+                const demoLink = 'https://onedrive.live.com/demo-share-link';
+                navigator.clipboard.writeText(demoLink).catch(() => {});
+                alert(`Demo Mode: Paylaşım Linki\n\n${demoLink}\n\n(Simülasyon - Gerçek link değildir)`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/createLink`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'view',
+                        scope: 'anonymous'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Paylaşım linki oluşturulamadı");
+                }
+
+                const data = await response.json();
+                const shareLink = data.link.webUrl;
+
+                // Linki kopyala
+                navigator.clipboard.writeText(shareLink);
+                showSuccess("Paylaşım linki panoya kopyalandı!");
+                
+                // Link göster
+                alert("Paylaşım Linki:\n\n" + shareLink + "\n\nLink panoya kopyalandı!");
+            } catch (error) {
+                console.error("Paylaşım hatası:", error);
+                showError("Paylaşım linki oluşturulamadı: " + error.message);
+            }
+        }
+
+        function downloadSelected() {
+            alert("Birden fazla dosya indirme özelliği yakında eklenecek.");
+        }
+
+        function deleteSelected() {
+            alert("Birden fazla dosya silme özelliği yakında eklenecek.");
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function showLoginPrompt() {
+            document.getElementById('loginPrompt').style.display = 'block';
+            document.getElementById('loadingArea').style.display = 'none';
+            document.getElementById('filesArea').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'none';
+            document.getElementById('signOutBtn').style.display = 'none';
+            stopAuditorSessionTimer(auditorUser);
+        }
+
+        function showLoading() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingArea').style.display = 'block';
+            document.getElementById('filesArea').style.display = 'none';
+        }
+
+        function showFilesArea() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingArea').style.display = 'none';
+            document.getElementById('filesArea').style.display = 'block';
+            document.getElementById('refreshBtn').style.display = 'inline-block';
+            document.getElementById('signOutBtn').style.display = 'inline-block';
+        }
+
+        function showError(message) {
+            alert("HATA: " + message);
+        }
+
+        function showSuccess(message) {
+            // Toast notification eklenebilir
+            console.log("Başarılı:", message);
+        }
+
+        // Dosya Önizleme Fonksiyonları
+        async function openPreview(fileName, fileUrl, downloadInfo) {
+            currentPreviewUrl = fileUrl;
+            currentPreviewFile = downloadInfo || {};
+            
+            const modal = document.getElementById('previewModal');
+            const iframe = document.getElementById('previewIframe');
+            const loading = document.getElementById('previewLoading');
+            const fileNameElement = document.getElementById('previewFileName');
+            const editBtn = document.getElementById('previewEditBtn');
+            
+            // Modal'ı göster
+            modal.classList.add('active');
+            fileNameElement.textContent = fileName;
+            
+            // Loading göster
+            loading.style.display = 'block';
+            iframe.style.display = 'none';
+            
+            // Dosya uzantısını kontrol et
+            const ext = fileName.split('.').pop().toLowerCase();
+            
+            // Office dosyaları için "Düzenle" butonunu göster
+            const isOfficeFile = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext);
+            if (isOfficeFile && downloadInfo && downloadInfo.webUrl) {
+                editBtn.style.display = 'inline-block';
+            } else {
+                editBtn.style.display = 'none';
+            }
+            
+            // PDF için özel işlem: Blob olarak indir ve göster (CSP bypass)
+            if (ext === 'pdf') {
+                try {
+                    console.log("📕 PDF indiriliyor ve önizleniyor:", fileUrl);
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>PDF Yükleniyor...</strong></p>
+                        <p class="text-muted">Büyük dosyalar biraz zaman alabilir</p>
+                    `;
+                    
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) throw new Error("PDF yüklenemedi");
+                    
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    console.log("✅ PDF blob URL oluşturuldu:", blobUrl);
+                    iframe.src = blobUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    
+                    // iframe yüklenme süresi
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                } catch (error) {
+                    console.error("PDF yükleme hatası:", error);
+                    loading.innerHTML = `
+                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p class="mt-3"><strong>PDF önizlemesi yüklenemedi</strong></p>
+                        <p class="text-muted">${error.message}</p>
+                        <button class="btn btn-success mt-3" onclick="downloadCurrentPreview()">
+                            <i class="fas fa-download"></i> PDF'i İndir
+                        </button>
+                    `;
+                }
+                return;
+            }
+            
+            // Office dosyaları için Office Online Viewer (CSP bypass için SharePoint URL kullanılmaz)
+            if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext)) {
+                // Daima downloadUrl kullan (SharePoint webUrl CSP hatası verir)
+                const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
+                const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
+                
+                console.log("📊 Office Online Viewer açılıyor:", {
+                    fileName: fileName,
+                    sourceUrl: sourceUrl.substring(0, 80) + '...',
+                    viewer: 'https://view.officeapps.live.com'
+                });
+                
+                loading.innerHTML = `
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                    <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
+                    <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
+                `;
+                
+                // Office Online viewer kullan
+                iframe.src = previewUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                
+                // Yükleme timeout (Office dosyaları yavaş yüklenebilir)
+                const loadTimeout = setTimeout(() => {
+                    if (loading.style.display !== 'none') {
+                        loading.innerHTML = `
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Yükleniyor...</span>
+                            </div>
+                            <p class="mt-3"><strong>Dosya yükleniyor...</strong></p>
+                            <p class="text-muted">Büyük Office dosyaları uzun sürebilir</p>
+                        `;
+                    }
+                }, 3000);
+                
+                iframe.onload = function() {
+                    clearTimeout(loadTimeout);
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                };
+                
+                iframe.onerror = function() {
+                    clearTimeout(loadTimeout);
+                    loading.innerHTML = `
+                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p class="mt-3"><strong>Office dosyası yüklenemedi</strong></p>
+                        <p class="text-muted">Dosya önizlemesi başarısız oldu</p>
+                        <div class="mt-3">
+                            <button class="btn btn-success mr-2" onclick="downloadCurrentPreview()">
+                                <i class="fas fa-download"></i> Dosyayı İndir
+                            </button>
+                            <button class="btn btn-primary" onclick="openCurrentPreviewNewTab()">
+                                <i class="fas fa-external-link-alt"></i> SharePoint'te Aç
+                            </button>
+                        </div>
+                    `;
+                };
+                
+                return;
+            }
+            
+            // Resimler için direkt göster
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
+                console.log("🖼️ Resim önizleniyor:", fileUrl);
+                iframe.src = fileUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                
+                iframe.onload = function() {
+                    loading.style.display = 'none';
+                    iframe.style.display = 'block';
+                };
+                
+                return;
+            }
+            
+            // Diğer dosya türleri için direkt deneme
+            console.log("📄 Dosya önizleniyor:", fileUrl);
+            iframe.src = fileUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
+            
+            iframe.onerror = function() {
+                loading.innerHTML = `
+                    <i class="fas fa-file" style="font-size: 3rem; color: #6c757d;"></i>
+                    <p class="mt-3"><strong>Önizleme desteklenmiyor</strong></p>
+                    <p class="text-muted">Bu dosya türü tarayıcıda açılamıyor.</p>
+                    <button class="btn btn-success mt-3" onclick="downloadCurrentPreview()">
+                        <i class="fas fa-download"></i> Dosyayı İndir
+                    </button>
+                `;
+            };
+        }
+        
+        function closePreview() {
+            const modal = document.getElementById('previewModal');
+            const iframe = document.getElementById('previewIframe');
+            
+            modal.classList.remove('active');
+            iframe.src = 'about:blank';
+            currentPreviewUrl = '';
+            currentPreviewFile = {};
+        }
+        
+        function downloadCurrentPreview() {
+            if (currentPreviewFile.driveId && currentPreviewFile.itemId) {
+                downloadSharedFile(currentPreviewFile.driveId, currentPreviewFile.itemId, currentPreviewFile.fileName);
+            } else if (currentPreviewFile.fileId) {
+                downloadFile(currentPreviewFile.fileId, currentPreviewFile.fileName);
+            } else if (currentPreviewUrl) {
+                window.open(currentPreviewUrl, '_blank');
+            }
+        }
+        
+        function openCurrentPreviewNewTab() {
+            if (currentPreviewFile.webUrl) {
+                window.open(currentPreviewFile.webUrl, '_blank');
+            } else if (currentPreviewUrl) {
+                window.open(currentPreviewUrl, '_blank');
+            }
+        }
+        
+        function editCurrentFile() {
+            // Office dosyalarını düzenlemek için SharePoint'te aç
+            if (currentPreviewFile.webUrl) {
+                console.log("📝 Dosya düzenleme için SharePoint'te açılıyor:", currentPreviewFile.webUrl);
+                window.open(currentPreviewFile.webUrl, '_blank');
+            } else {
+                alert("Düzenleme linki bulunamadı. Lütfen 'Yeni Sekmede Aç' butonunu kullanın.");
+            }
+        }
+        
+        // ESC tuşu ile modal'ı kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        });
+    </script>
+</body>
+</html>

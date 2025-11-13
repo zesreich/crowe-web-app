@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Raporlar">
+    <meta name="author" content="">
+    <title>CROWE HSY - Raporlar</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="darkmode.css">
+    
+    <!-- Logout Button CSS -->
+    <link rel="stylesheet" href="logout-button.css">
+    
+    <style>
+        body {
+            background-color: #f8f9fc;
+            font-family: 'Nunito', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 100;
+            padding: 48px 0 0;
+            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
+            background: #002060;
+            color: white;
+            width: 224px;
+        }
+        .sidebar-brand {
+            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .sidebar-brand img {
+            display: block;
+            margin: 0 auto;
+            width: 80px;
+            height: 80px;
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,.8);
+            padding: 1rem;
+            font-weight: 500;
+        }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active {
+            color: rgba(255,255,255,1);
+            background-color: rgba(255,255,255,.1);
+        }
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 1.5rem;
+        }
+        #content-wrapper {
+            margin-left: 224px;
+            width: calc(100% - 224px);
+        }
+        .topbar {
+            background-color: white;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            padding: 1rem 1.5rem;
+        }
+        .table tbody tr:hover {
+            background-color: #f8f9fc;
+        }
+        .badge-spk {
+            background-color: #dc3545;
+            color: white;
+        }
+        .badge-kgk {
+            background-color: #000000;
+            color: white;
+        }
+        #theme-switch {
+            height: 40px;
+            width: 40px;
+            padding: 0;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #theme-switch:hover {
+            background-color: rgba(0,0,0,.05);
+        }
+        #theme-switch svg {
+            fill: #5a5c69;
+        }
+        #theme-switch svg:last-child {
+            display: none;
+        }
+        .darkmode #theme-switch svg:first-child {
+            display: none;
+        }
+        .darkmode #theme-switch svg:last-child {
+            display: block !important;
+        }
+    </style>
+</head>
+<body id="page-top">
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <ul class="sidebar" id="accordionSidebar">
+            <a class="sidebar-brand" href="index.html">
+                <img src="logo.svg" alt="Crowe HSY Logo">
+            </a>
+            <hr class="sidebar-divider my-0">
+            <li class="nav-item">
+                <a class="nav-link" href="dashboard.html">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="client-list.html">
+                    <i class="fas fa-building"></i>
+                    <span>Müşteriler</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="payments.html">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Gelen Ödemeler</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="reports.html">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Raporlar</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="contracts.html">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Sözleşmeler</span>
+                </a>
+            </li>
+            <li class="nav-item" style="padding: 1rem; display: flex; justify-content: center;">
+                <button class="logoutButton">
+                    <svg class="doorway" viewBox="0 0 100 100">
+                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+                        <path class="bang" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z" />
+                    </svg>
+                    <svg class="figure" viewBox="0 0 100 100">
+                        <circle cx="52.1" cy="32.4" r="6.4" />
+                        <path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z" />
+                        <g class="arm1">
+                            <path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z" />
+                            <path class="wrist1" d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z" />
+                        </g>
+                        <g class="arm2">
+                            <path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z" />
+                            <path class="wrist2" d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z" />
+                        </g>
+                        <g class="leg1">
+                            <path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z" />
+                            <path class="calf1" d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z" />
+                        </g>
+                        <g class="leg2">
+                            <path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z" />
+                            <path class="calf2" d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z" />
+                        </g>
+                    </svg>
+                    <svg class="door" viewBox="0 0 100 100">
+                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
+                        <circle cx="66" cy="50" r="3.7" />
+                    </svg>
+                    <span class="button-text">Çıkış</span>
+                </button>
+            </li>
+            <hr class="sidebar-divider d-none d-md-block">
+        </ul>
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper">
+            <!-- Topbar -->
+            <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
+                <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
+                    <i class="fa fa-bars"></i>
+                </button>
+                <h3 class="text-dark ml-5 mb-0">RAPORLAR</h3>
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Admin</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Profil
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#" onclick="Auth.logout(); return false;">
+                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                Çıkış
+                            </a>
+                        </div>
+                    </li>
+                    <!-- Dark Mode Switcher -->
+                    <li class="nav-item">
+                        <button id="theme-switch" aria-label="Switch to dark mode" style="border: none; background: transparent; padding: 0; cursor: pointer; margin-left: 0.5rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69;">
+                                <path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/>
+                            </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69; display: none;">
+                                <path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z"/>
+                            </svg>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="container-fluid">
+                <!-- Rapor Ekleme Formu -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white py-3">
+                        <h6 class="m-0 font-weight-bold">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            YENİ RAPOR EKLE
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="reportForm">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="companyName">
+                                            <i class="fas fa-building mr-2 text-primary"></i>
+                                            Şirket Adı
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="companyName" required>
+                                            <option value="">-- Lütfen Seçiniz --</option>
+                                            <option value="ABC Construction Inc.">ABC Construction Inc.</option>
+                                            <option value="XYZ Manufacturing Ltd.">XYZ Manufacturing Ltd.</option>
+                                            <option value="Global Trade Corp.">Global Trade Corp.</option>
+                                            <option value="Tech Solutions A.Ş.">Tech Solutions A.Ş.</option>
+                                            <option value="Finance Partners Ltd.">Finance Partners Ltd.</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="reportService">
+                                            <i class="fas fa-file-alt mr-2 text-primary"></i>
+                                            Rapor Türü
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="reportService" required>
+                                            <option value="">-- Lütfen Seçiniz --</option>
+                                            <option value="Denetim Hizmeti">Denetim Hizmeti</option>
+                                            <option value="Vergi Danışmanlığı">Vergi Danışmanlığı</option>
+                                            <option value="Mali Müşavirlik">Mali Müşavirlik</option>
+                                            <option value="Bağımsız Denetim">Bağımsız Denetim</option>
+                                            <option value="Finansal Analiz">Finansal Analiz</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="reportTypeSelect">
+                                            <i class="fas fa-tag mr-2 text-primary"></i>
+                                            Rapor Tipi
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="reportTypeSelect" required>
+                                            <option value="">-- Lütfen Seçiniz --</option>
+                                            <option value="SPK">SPK</option>
+                                            <option value="KGK">KGK</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="startDate">
+                                            <i class="fas fa-calendar-alt mr-2 text-primary"></i>
+                                            Başlangıç Tarihi
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="date" class="form-control" id="startDate" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="endDate">
+                                            <i class="fas fa-calendar-check mr-2 text-primary"></i>
+                                            Bitiş Tarihi
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="date" class="form-control" id="endDate" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="teamName">
+                                            <i class="fas fa-users mr-2 text-primary"></i>
+                                            Ekip
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="teamName" placeholder="Ekip adı girin..." required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <label for="statusSelect">
+                                            <i class="fas fa-info-circle mr-2 text-primary"></i>
+                                            Durum
+                                            <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-control" id="statusSelect" required>
+                                            <option value="">-- Lütfen Seçiniz --</option>
+                                            <option value="Tamamlandı">Tamamlandı</option>
+                                            <option value="Devam Ediyor">Devam Ediyor</option>
+                                            <option value="Planlandı">Planlandı</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <button type="reset" class="btn btn-secondary mr-2">
+                                    <i class="fas fa-undo mr-2"></i>
+                                    Temizle
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Rapor Ekle
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Rapor Listesi -->
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h6 class="m-0 font-weight-bold">RAPOR LİSTESİ</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover" id="reportsTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="4%">#</th>
+                                        <th width="13%">Şirket Adı</th>
+                                        <th width="13%">Rapor Türü</th>
+                                        <th width="8%">Rapor Tipi</th>
+                                        <th width="10%">Başlangıç</th>
+                                        <th width="10%">Bitiş</th>
+                                        <th width="12%">Ekip</th>
+                                        <th width="10%">Durum</th>
+                                        <th width="10%">İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportsTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Authentication -->
+    <script src="auth.js"></script>
+    
+    <!-- Logout Button -->
+    <script src="logout-button.js"></script>
+    
+    <script>
+        // Check authentication
+        if (!Auth.isAuthenticated()) {
+            window.location.href = 'login.html';
+        }
+        
+        // Set current user info
+        const currentUser = Auth.getCurrentUser();
+        if (currentUser) {
+            document.getElementById('userFullName').textContent = currentUser.full_name;
+        }
+        
+        // Load reports from localStorage
+        function loadReports() {
+            const reports = JSON.parse(localStorage.getItem('reports')) || [];
+            const tbody = document.getElementById('reportsTableBody');
+            
+            if (reports.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Henüz rapor kaydı bulunmamaktadır.</td></tr>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            reports.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            
+            tbody.innerHTML = '';
+            reports.forEach((report, index) => {
+                let statusBadge = '';
+                if (report.status === 'Tamamlandı') {
+                    statusBadge = 'badge-success';
+                } else if (report.status === 'Devam Ediyor') {
+                    statusBadge = 'badge-warning';
+                } else {
+                    statusBadge = 'badge-info';
+                }
+                
+                let typeBadge = report.reportType === 'SPK' ? 'badge-spk' : 'badge-kgk';
+                
+                const downloadBtn = report.status === 'Tamamlandı' 
+                    ? '<button class="btn btn-sm btn-primary ml-1" title="İndir"><i class="fas fa-download"></i></button>'
+                    : '<button class="btn btn-sm btn-secondary disabled ml-1" title="Henüz hazır değil"><i class="fas fa-download"></i></button>';
+                
+                const row = `
+                    <tr>
+                        <td class="text-center">${index + 1}</td>
+                        <td>${report.company}</td>
+                        <td>${report.service}</td>
+                        <td class="text-center"><span class="badge ${typeBadge}">${report.reportType}</span></td>
+                        <td class="text-center">${new Date(report.startDate).toLocaleDateString('tr-TR')}</td>
+                        <td class="text-center">${new Date(report.endDate).toLocaleDateString('tr-TR')}</td>
+                        <td>${report.team}</td>
+                        <td class="text-center"><span class="badge ${statusBadge}">${report.status}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-warning" onclick="editReport(${report.id})" title="Düzenle">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger ml-1" onclick="deleteReport(${report.id})" title="Sil">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            ${downloadBtn}
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+        
+        // Form submission
+        document.getElementById('reportForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const report = {
+                id: Date.now(),
+                company: document.getElementById('companyName').value,
+                service: document.getElementById('reportService').value,
+                reportType: document.getElementById('reportTypeSelect').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                team: document.getElementById('teamName').value,
+                status: document.getElementById('statusSelect').value,
+                createdAt: new Date().toISOString()
+            };
+            
+            // Get existing reports
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            
+            // Add new report
+            reports.push(report);
+            
+            // Save to localStorage
+            localStorage.setItem('reports', JSON.stringify(reports));
+            
+            // Reload table
+            loadReports();
+            
+            // Reset form
+            this.reset();
+            
+            alert('Rapor başarıyla eklendi!');
+        });
+        
+        // Delete report
+        function deleteReport(id) {
+            if (!confirm('Bu raporu silmek istediğinizden emin misiniz?')) {
+                return;
+            }
+            
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            reports = reports.filter(report => report.id !== id);
+            localStorage.setItem('reports', JSON.stringify(reports));
+            
+            loadReports();
+            alert('Rapor başarıyla silindi!');
+        }
+        
+        // Edit report (placeholder for future)
+        function editReport(id) {
+            alert('Düzenleme özelliği yakında eklenecek!');
+        }
+        
+        // Load reports on page load
+        $(document).ready(function() {
+            loadReports();
+        });
+    </script>
+</body>
+</html>
+
