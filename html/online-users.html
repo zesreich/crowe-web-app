@@ -240,7 +240,7 @@
                     </li>
                     <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Admin</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userEmail">Admin</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <a class="dropdown-item" href="#">
@@ -320,7 +320,8 @@
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
-            $('#userFullName').text(currentUser.fullName);
+            const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+            $('#userEmail').text(userEmail);
         }
         
         function toggleLanguage() {

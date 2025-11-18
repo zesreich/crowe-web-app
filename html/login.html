@@ -28,14 +28,6 @@
             overflow: hidden;
         }
         
-        .webgl {
-            position: fixed;
-            top: 0;
-            left: 0;
-            outline: none;
-            z-index: 1; /* Galaxy animasyonunu arkaya al */
-        }
-        
         body {
             min-height: 100vh;
             display: flex;
@@ -43,6 +35,20 @@
             justify-content: center;
             font-family: 'Nunito', sans-serif;
             position: relative; /* Z-index için gerekli */
+            background: radial-gradient(circle at top, #010409 0%, #020617 45%, #000000 100%);
+            overflow: hidden;
+        }
+        
+        .webgl {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+            z-index: 0; /* Galaxy animasyonunu arkaya al */
+            pointer-events: none;
+            display: block;
         }
         
         .container {
@@ -164,6 +170,9 @@
     <script src="auth.js"></script>
     <!-- i18n System -->
     <script src="i18n.js"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
     <script>
         const DEFAULT_ADMIN_PASSWORD = 'Crowe2022!';
         const ADMIN_USERS = [
@@ -234,172 +243,135 @@
     </script>
     
     <!-- Three.js Galaxy Animation -->
-    <script type="module">
-        // import './style.css'
-        import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
-
-        import { OrbitControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js";
-
-
-        // import { Geometry, TetrahedronGeometry } from 'three'
-
-        /**
-         * Base
-         */
-        // Debug
-
-        // Canvas
-        const canvas = document.querySelector('canvas.webgl')
-
-        // Scene
-        const scene = new THREE.Scene()
-
-        //galaxy
-        const parameters = {}
-        parameters.count = 100000;
-        parameters.size = 0.01;
-        parameters.radius = 2.15; 
-        parameters.branches = 3; 
-        parameters.spin = 3;
-        parameters.randomness = 5;
-        parameters.randomnessPower = 4;
-        parameters.insideColor = '#ff6030';
-        parameters.outsideColor = '#0949f0';
-
-        let material = null; 
-        let geometry = null; 
-        let points = null; 
-
-        const generateGalaxy = () => {
-            
-        if(points !== null){
-            geometry.dispose();
-            material.dispose();
-            scene.remove(points);
-        }
-        material = new THREE.PointsMaterial({
-            size: parameters.size,
-            sizeAttenuation: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            vertexColors: true
-        })
-
-            geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(parameters.count * 3);
-
-            const colors = new Float32Array(parameters.count * 3);
-            const colorInside = new THREE.Color(parameters.insideColor);
-            const colorOutside = new THREE.Color(parameters.outsideColor);
-
-
-            for(let i=0; i<parameters.count; i++){
-                const i3 = i*3;
-                const radius = Math.pow(Math.random()*parameters.randomness, Math.random()*parameters.radius);
-                const spinAngle = radius*parameters.spin;
-                const branchAngle = ((i%parameters.branches)/parameters.branches)*Math.PI*2;
-                
-
-                const negPos = [1,-1];
-                const randomX = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
-                const randomY = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
-                const randomZ = Math.pow(Math.random(), parameters.randomnessPower)*negPos[Math.floor(Math.random() * negPos.length)];
-
-                positions[i3] = Math.cos(branchAngle + spinAngle)*(radius) + randomX;
-                positions[i3+1] = randomY;
-                positions[i3+2] = Math.sin(branchAngle + spinAngle)*(radius) + randomZ;
-
-                const mixedColor = colorInside.clone();
-                mixedColor.lerp(colorOutside, Math.random()*radius/parameters.radius);
-
-                colors[i3] = mixedColor.r;
-                colors[i3+1] = mixedColor.g;
-                colors[i3+2] = mixedColor.b;
-                
-                
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!THREE) {
+                console.error('Three.js yüklenemedi');
+                return;
             }
-            geometry.setAttribute('position',new THREE.BufferAttribute(positions,3));
-            geometry.setAttribute('color',new THREE.BufferAttribute(colors,3));
 
-            points = new THREE.Points(geometry, material);
-            scene.add(points);
-        }
-        generateGalaxy();
+            const canvas = document.querySelector('canvas.webgl');
+            const scene = new THREE.Scene();
 
-        /**
-         * Test cube
-         */
+            const parameters = {
+                count: 100000,
+                size: 0.008,
+                radius: 2.5,
+                branches: 3,
+                spin: 2,
+                randomness: 2,
+                randomnessPower: 3,
+                insideColor: '#f97316',
+                outsideColor: '#2563eb'
+            };
 
-        /**
-         * Sizes
-         */
-        const sizes = {
-            width: window.innerWidth,
-            height: window.innerHeight
-        }
+            let material = null;
+            let geometry = null;
+            let points = null;
 
-        window.addEventListener('resize', () =>
-        {
-            // Update sizes
-            sizes.width = window.innerWidth
-            sizes.height = window.innerHeight
+            const generateGalaxy = () => {
+                if (points !== null) {
+                    geometry.dispose();
+                    material.dispose();
+                    scene.remove(points);
+                }
 
-            // Update camera
-            camera.aspect = sizes.width / sizes.height
-            camera.updateProjectionMatrix()
+                material = new THREE.PointsMaterial({
+                    size: parameters.size,
+                    sizeAttenuation: true,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending,
+                    vertexColors: true
+                });
 
-            // Update renderer
-            renderer.setSize(sizes.width, sizes.height)
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-        })
+                geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(parameters.count * 3);
+                const colors = new Float32Array(parameters.count * 3);
+                const colorInside = new THREE.Color(parameters.insideColor);
+                const colorOutside = new THREE.Color(parameters.outsideColor);
 
-        /**
-         * Camera
-         */
-        // Base camera
-        const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-        camera.position.x = 3
-        camera.position.y = 3
-        camera.position.z = 3
-        scene.add(camera)
+                for (let i = 0; i < parameters.count; i++) {
+                    const i3 = i * 3;
+                    const radius = Math.random() * parameters.radius;
+                    const spinAngle = radius * parameters.spin;
+                    const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
 
-        // Controls
-        const controls = new OrbitControls(camera, canvas)
-        controls.enableDamping = true
+                    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+                    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+                    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
 
-        /**
-         * Renderer
-         */
-        const renderer = new THREE.WebGLRenderer({
-            canvas: canvas
-        })
-        renderer.setSize(sizes.width, sizes.height)
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+                    positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+                    positions[i3 + 1] = randomY * 0.3;
+                    positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
 
-        /**
-         * Animate
-         */
-        const clock = new THREE.Clock()
+                    const mixedColor = colorInside.clone();
+                    mixedColor.lerp(colorOutside, radius / parameters.radius);
 
-        const tick = () =>
-        {
-            const elapsedTime = clock.getElapsedTime()
+                    colors[i3] = mixedColor.r;
+                    colors[i3 + 1] = mixedColor.g;
+                    colors[i3 + 2] = mixedColor.b;
+                }
 
-            // Update controls
-            controls.update()
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-            camera.position.x = Math.cos(elapsedTime*0.05);
-            camera.position.z = Math.sin(elapsedTime*0.05);
-            camera.lookAt(0,0,0);
+                points = new THREE.Points(geometry, material);
+                scene.add(points);
+            };
 
-            // Render
-            renderer.render(scene, camera)
+            generateGalaxy();
 
-            // Call tick again on the next frame
-            window.requestAnimationFrame(tick)
-        }
+            const sizes = {
+                width: window.innerWidth,
+                height: window.innerHeight
+            };
 
-        tick()
+            const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+            camera.position.set(3, 2.5, 3);
+            scene.add(camera);
+
+            const controls = new THREE.OrbitControls(camera, canvas);
+            controls.enableDamping = true;
+            controls.enablePan = false;
+            controls.enableZoom = false;
+
+            const renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                antialias: true
+            });
+            renderer.setSize(sizes.width, sizes.height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);
+
+            window.addEventListener('resize', () => {
+                sizes.width = window.innerWidth;
+                sizes.height = window.innerHeight;
+
+                camera.aspect = sizes.width / sizes.height;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(sizes.width, sizes.height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            });
+
+            const clock = new THREE.Clock();
+
+            const tick = () => {
+                const elapsedTime = clock.getElapsedTime();
+
+                controls.update();
+
+                camera.position.x = Math.cos(elapsedTime * 0.05) * 3;
+                camera.position.z = Math.sin(elapsedTime * 0.05) * 3;
+                camera.lookAt(0, 0, 0);
+
+                renderer.render(scene, camera);
+
+                window.requestAnimationFrame(tick);
+            };
+
+            tick();
+        });
     </script>
     
     <script>

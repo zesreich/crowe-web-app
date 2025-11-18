@@ -25,24 +25,43 @@
     <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
     
     <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Nunito', sans-serif;
+        * {
+            box-sizing: border-box;
         }
+        
+        body {
+            background: radial-gradient(circle at top, #1f2933, #050608 55%);
+            color: #e5e7eb;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+        
         .sidebar {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background: #002060;
-            color: white;
-            width: 224px;
+            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            color: #e5e7eb;
+            width: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 18px;
+            gap: 20px;
             list-style: none;
             margin: 0;
         }
+        
+        #accordionSidebar::after {
+            content: "";
+            display: block;
+            flex-grow: 1;
+            background: transparent;
+        }
+        
         .sidebar-brand {
             font-size: 1.5rem;
             font-weight: 800;
@@ -54,163 +73,442 @@
             align-items: center;
             justify-content: center;
         }
+        
         .sidebar-brand img {
             display: block;
             margin: 0 auto;
             width: 80px;
             height: 80px;
         }
+        
         .sidebar .nav-link {
-            color: rgba(255,255,255,.8);
-            padding: 1rem;
+            color: rgba(229, 231, 235, 0.8);
+            padding: 8px 10px;
             font-weight: 500;
-            display: block;
+            font-size: 13px;
+            border-radius: 10px;
+            transition: all 0.18s ease-out;
+            display: flex;
+            align-items: center;
             text-decoration: none;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: rgba(255,255,255,1);
-            background-color: rgba(255,255,255,.1);
+        
+        .sidebar .nav-link:hover {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(148, 163, 184, 0.5);
+            color: rgba(229, 231, 235, 1);
         }
+        
+        .sidebar .nav-link.active {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(56, 189, 248, 0.7);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+            color: rgba(229, 231, 235, 1);
+        }
+        
         .sidebar .nav-link i {
             margin-right: 0.5rem;
             width: 1.5rem;
         }
+        
         .sidebar-divider {
-            border-top: 1px solid rgba(255, 255, 255, .15);
+            border-top: 1px solid rgba(148, 163, 184, 0.2);
             margin: 1rem 0;
         }
+        
         .nav-item {
             list-style: none;
         }
+        
         #content-wrapper {
-            margin-left: 224px;
-            width: calc(100% - 224px);
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            background: transparent;
         }
+        
         .topbar {
-            background-color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             padding: 1rem 1.5rem;
+            color: #e5e7eb;
         }
+        
+        .topbar h3 {
+            color: #e5e7eb !important;
+        }
+        
+        .topbar .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .topbar .dropdown-menu {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item {
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item:hover {
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+        }
+        
         .card {
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
-            border: none;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             margin-bottom: 1.5rem;
         }
+        
         .card-header {
-            background: #002060;
-            color: white;
+            background: transparent;
+            color: #e5e7eb;
             font-weight: 600;
-            padding: 1rem 1.5rem;
+            padding: 12px 12px 10px;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
+        
+        .nav-tabs {
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
+        }
+        
         .nav-tabs .nav-link {
-            color: #002060;
+            color: #9ca3af;
             font-weight: 600;
             border: none;
             border-bottom: 3px solid transparent;
+            padding: 8px 12px;
         }
+        
         .nav-tabs .nav-link.active {
-            color: #002060;
+            color: #38bdf8;
             background-color: transparent;
-            border-bottom: 3px solid #002060;
+            border-bottom: 3px solid #38bdf8;
         }
+        
         .nav-tabs .nav-link:hover {
-            border-bottom: 3px solid rgba(0, 32, 96, 0.3);
+            color: #e5e7eb;
+            border-bottom: 3px solid rgba(56, 189, 248, 0.5);
         }
+        
+        .table {
+            color: #e5e7eb;
+        }
+        
         .table thead th {
-            background-color: #5a5c69;
-            color: white;
+            background: rgba(15, 23, 42, 0.98);
+            color: #6b7280;
             font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
             border: none;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
+            padding: 6px 12px;
             vertical-align: middle;
         }
+        
+        .table tbody tr {
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
         .table tbody tr:hover {
-            background-color: #f8f9fc;
+            background: rgba(15, 23, 42, 0.96);
         }
+        
         .table tbody td {
+            color: #e5e7eb;
+            padding: 8px 12px;
+            font-size: 11px;
             vertical-align: middle;
         }
+        
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+            font-size: 11px;
+            padding: 5px 9px;
+            transition: all 0.18s ease-out;
+        }
+        
+        .btn:hover {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: rgba(15, 23, 42, 1);
+            color: #e5e7eb;
+        }
+        
+        .btn-primary {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.2));
+        }
+        
         .btn-action {
             margin: 2px;
         }
+        
         .table-actions {
             display: flex;
             gap: 0.25rem;
             justify-content: center;
             align-items: center;
         }
+        
         .table-actions .btn {
             padding: 0.25rem 0.45rem;
             line-height: 1;
         }
+        
         .contract-spreadsheet {
             width: 100%;
             min-height: 420px;
             display: flex;
             flex-direction: column;
         }
+        
         .contract-spreadsheet .jexcel_container {
             display: block !important;
             width: 100% !important;
             padding-right: 0 !important;
         }
+        
         .contract-spreadsheet .jspreadsheet-container {
             flex: 1 1 auto;
             display: flex;
             width: 100% !important;
         }
+        
         .contract-spreadsheet .jspreadsheet,
         .contract-spreadsheet .jspreadsheet div,
         .contract-spreadsheet .jexcel_content {
             width: 100% !important;
             flex: 1 1 auto;
         }
+        
+        /* Classic Excel Style - Dark Mode */
         .contract-spreadsheet .jspreadsheet table,
+        .contract-spreadsheet .jexcel_content table {
+            background: #ffffff !important;
+            border-collapse: collapse !important;
+            border: 1px solid #d1d5db !important;
+        }
+        
         .contract-spreadsheet .jspreadsheet table td,
-        .contract-spreadsheet .jspreadsheet table td.readonly,
-        .contract-spreadsheet .jspreadsheet table td[class*="readonly"],
-        .contract-spreadsheet .jspreadsheet table span,
-        .contract-spreadsheet .jspreadsheet table input,
-        .contract-spreadsheet .jspreadsheet table textarea,
-        .contract-spreadsheet .jexcel_content td,
-        .contract-spreadsheet .jexcel_content td.readonly,
-        .contract-spreadsheet .jexcel_content td[class*="readonly"] {
+        .contract-spreadsheet .jexcel_content td {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
             color: #000000 !important;
             opacity: 1 !important;
             font-weight: 400 !important;
+            padding: 8px !important;
         }
+        
+        .contract-spreadsheet .jspreadsheet table thead th,
+        .contract-spreadsheet .jexcel_content thead th,
+        .contract-spreadsheet .jspreadsheet table th,
+        .contract-spreadsheet .jexcel_content th {
+            background: #f3f4f6 !important;
+            border: 1px solid #9ca3af !important;
+            color: #000000 !important;
+            font-weight: 600 !important;
+            padding: 8px !important;
+        }
+        
+        .contract-spreadsheet .jspreadsheet table td.readonly,
+        .contract-spreadsheet .jspreadsheet table td[class*="readonly"],
+        .contract-spreadsheet .jexcel_content td.readonly,
+        .contract-spreadsheet .jexcel_content td[class*="readonly"] {
+            background: #ffffff !important;
+            color: #000000 !important;
+            opacity: 1 !important;
+        }
+        
+        .contract-spreadsheet .jspreadsheet table span,
+        .contract-spreadsheet .jspreadsheet table input,
+        .contract-spreadsheet .jspreadsheet table textarea,
+        .contract-spreadsheet .jexcel_content span,
+        .contract-spreadsheet .jexcel_content input,
+        .contract-spreadsheet .jexcel_content textarea {
+            color: #000000 !important;
+            background: transparent !important;
+            opacity: 1 !important;
+        }
+        
+        .contract-spreadsheet .jspreadsheet table tbody tr:hover td,
+        .contract-spreadsheet .jexcel_content tbody tr:hover td {
+            background: #f9fafb !important;
+        }
+        
+        .contract-spreadsheet .jspreadsheet table tbody tr:nth-child(even) td,
+        .contract-spreadsheet .jexcel_content tbody tr:nth-child(even) td {
+            background: #ffffff !important;
+        }
+        
+        .contract-spreadsheet .jspreadsheet table tbody tr:nth-child(odd) td,
+        .contract-spreadsheet .jexcel_content tbody tr:nth-child(odd) td {
+            background: #fafafa !important;
+        }
+        
         .contract-spreadsheet .table-actions .btn,
         .contract-spreadsheet .table-actions .btn * {
             color: #fff !important;
         }
+        
+        /* Override jSpreadsheet default styles for classic Excel look */
+        .contract-spreadsheet .jexcel,
+        .contract-spreadsheet .jexcel * {
+            box-sizing: border-box;
+        }
+        
+        .contract-spreadsheet .jexcel tbody tr td,
+        .contract-spreadsheet .jexcel tbody tr td input {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid #d1d5db !important;
+        }
+        
+        .contract-spreadsheet .jexcel thead tr th {
+            background-color: #f3f4f6 !important;
+            color: #000000 !important;
+            border: 1px solid #9ca3af !important;
+            font-weight: 600 !important;
+        }
+        
+        .contract-spreadsheet .jexcel tbody tr:nth-child(even) td {
+            background-color: #ffffff !important;
+        }
+        
+        .contract-spreadsheet .jexcel tbody tr:nth-child(odd) td {
+            background-color: #fafafa !important;
+        }
+        
+        .contract-spreadsheet .jexcel tbody tr:hover td {
+            background-color: #f9fafb !important;
+        }
+        
+        /* Ensure all text is visible */
+        .contract-spreadsheet .jexcel tbody tr td,
+        .contract-spreadsheet .jexcel tbody tr td input,
+        .contract-spreadsheet .jexcel tbody tr td textarea,
+        .contract-spreadsheet .jexcel tbody tr td span {
+            color: #000000 !important;
+            opacity: 1 !important;
+        }
+        
         #theme-switch {
             height: 40px;
             width: 40px;
             padding: 0;
             border-radius: 50%;
             background-color: transparent;
-            border: none;
+            border: 1px solid rgba(148, 163, 184, 0.3);
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        
         #theme-switch:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(15, 23, 42, 0.9);
+            border-color: rgba(56, 189, 248, 0.7);
         }
+        
         #theme-switch svg {
             width: 24px;
             height: 24px;
+            fill: #9ca3af;
         }
+        
+        #theme-switch svg:last-child {
+            display: none;
+        }
+        
+        .darkmode #theme-switch svg:first-child {
+            display: none;
+        }
+        
+        .darkmode #theme-switch svg:last-child {
+            display: block !important;
+        }
+        
+        .darkmode #theme-switch svg {
+            fill: #e5e7eb;
+        }
+        
         .access-denied {
             text-align: center;
             padding: 3rem;
-            color: #858796;
+            color: #9ca3af;
         }
+        
         .access-denied i {
             font-size: 4rem;
             margin-bottom: 1rem;
-            color: #e74a3b;
+            color: #fca5a5;
+        }
+        
+        .contract-spreadsheet-container {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            color: #000000 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        body:not(.darkmode) .contract-spreadsheet-container {
+            background: white !important;
+            border: 1px solid #d1d5db !important;
+            color: #000000 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .darkmode .contract-spreadsheet-container {
+            background: #ffffff !important;
+            border: 1px solid #d1d5db !important;
+            color: #000000 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .contract-spreadsheet {
+            background: #ffffff !important;
+            border-radius: 4px;
+            padding: 0;
+            border: 1px solid #d1d5db;
+        }
+        
+        .contract-spreadsheet .jexcel_container,
+        .contract-spreadsheet .jspreadsheet-container {
+            background: #ffffff !important;
+            border-radius: 0;
+            border: none;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(55, 65, 81, 1);
+            border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 1);
         }
     </style>
 </head>
@@ -298,7 +596,7 @@
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow" style="margin-right: 2rem;">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Kullanıcı</span>
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userEmail">Kullanıcı</span>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
@@ -307,21 +605,14 @@
                                 </a>
                             </div>
                         </li>
-                        <li class="nav-item" style="margin-left: 0.5rem;">
-                            <button id="theme-switch" class="btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="5"></circle>
-                                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        <!-- Dark Mode Switcher -->
+                        <li class="nav-item">
+                            <button id="theme-switch" aria-label="Switch to dark mode" style="border: none; background: transparent; padding: 0; cursor: pointer; margin-left: 0.5rem;">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69;">
+                                    <path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/>
                                 </svg>
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69; display: none;">
+                                    <path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z"/>
                                 </svg>
                             </button>
                         </li>
@@ -380,7 +671,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="bg-white rounded border p-3">
+                                    <div class="bg-white rounded border p-3 contract-spreadsheet-container">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">
                                                 <i class="fas fa-table text-primary mr-2"></i>
@@ -421,7 +712,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="bg-white rounded border p-3">
+                                    <div class="bg-white rounded border p-3 contract-spreadsheet-container">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">
                                                 <i class="fas fa-table text-info mr-2"></i>
@@ -462,7 +753,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="bg-white rounded border p-3">
+                                    <div class="bg-white rounded border p-3 contract-spreadsheet-container">
                                         <div class="d-flex justify-content-between align-items-center mb-3">
                                             <h6 class="mb-0">
                                                 <i class="fas fa-table text-success mr-2"></i>
@@ -635,6 +926,8 @@
     <script src="auth.js"></script>
     <!-- Logout Button -->
     <script src="logout-button.js"></script>
+    <!-- Dark Mode -->
+    <script src="darkmode.js" defer></script>
     <!-- jSpreadsheet & XLSX -->
     <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
     <script src="https://jsuites.net/v4/jsuites.js"></script>
@@ -649,23 +942,11 @@
         // Display user info
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
-            document.getElementById('userFullName').textContent = currentUser.fullName;
+            const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+            document.getElementById('userEmail').textContent = userEmail;
         }
         
-        // Dark mode toggle
-        const themeSwitch = document.getElementById('theme-switch');
-        if (themeSwitch) {
-            themeSwitch.addEventListener('click', function() {
-                document.body.classList.toggle('darkmode');
-                const isDark = document.body.classList.contains('darkmode');
-                localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
-            });
-            
-            // Load saved preference
-            if (localStorage.getItem('darkMode') === 'enabled') {
-                document.body.classList.add('darkmode');
-            }
-        }
+        // Dark mode is handled by darkmode.js
         
         // Check access for Değerleme Sözleşmeleri tab
         document.getElementById('tab-degerleme').addEventListener('click', function(e) {

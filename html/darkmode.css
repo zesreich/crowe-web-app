@@ -148,3 +148,289 @@ body {
   color: var(--secondary-text) !important;
 }
 
+/* Light Mode Overrides for Commatek Design */
+body:not(.darkmode) {
+  background: #f8f9fc !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .sidebar {
+  background: #002060 !important;
+  color: white !important;
+}
+
+body:not(.darkmode) .topbar {
+  background-color: white !important;
+  color: #1a202c !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .topbar h3 {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .topbar .text-gray-600 {
+  color: #5a5c69 !important;
+}
+
+body:not(.darkmode) .card {
+  background: white !important;
+  border: none !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .card-header {
+  background: #002060 !important;
+  color: white !important;
+}
+
+body:not(.darkmode) .table {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .table thead th {
+  background-color: #5a5c69 !important;
+  color: white !important;
+}
+
+body:not(.darkmode) .table tbody tr {
+  background-color: white !important;
+}
+
+body:not(.darkmode) .table tbody tr:nth-child(even) {
+  background-color: #f8f9fc !important;
+}
+
+body:not(.darkmode) .table tbody tr:hover {
+  background-color: #f8f9fc !important;
+}
+
+body:not(.darkmode) .table td {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .form-control {
+  background-color: white !important;
+  border-color: #e3e6f0 !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .form-control:focus {
+  background-color: white !important;
+  border-color: #002060 !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .btn {
+  background-color: white !important;
+  border-color: #e3e6f0 !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .btn-primary {
+  background-color: #002060 !important;
+  border-color: #002060 !important;
+  color: white !important;
+}
+
+body:not(.darkmode) .bg-white {
+  background-color: white !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .text-muted {
+  color: #8e92a4 !important;
+}
+
+body:not(.darkmode) .nav-tabs .nav-link {
+  color: #002060 !important;
+}
+
+body:not(.darkmode) .nav-tabs .nav-link.active {
+  color: #002060 !important;
+  border-bottom-color: #002060 !important;
+}
+
+/* Dashboard.html Light Mode - Clean and Simple */
+body:not(.darkmode) {
+  background: #f8f9fc !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) #content-wrapper {
+  background: #f8f9fc !important;
+}
+
+body:not(.darkmode) .topbar {
+  background: white !important;
+  border-bottom: 1px solid #e3e6f0 !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .topbar h3 {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .topbar .text-gray-600 {
+  color: #5a5c69 !important;
+}
+
+body:not(.darkmode) .topbar .dropdown-menu {
+  background: white !important;
+  border: 1px solid #e3e6f0 !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .topbar .dropdown-item {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .topbar .dropdown-item:hover {
+  background: #f8f9fc !important;
+  color: #002060 !important;
+}
+
+/* Card Stats - Light Mode */
+body:not(.darkmode) .card-stats {
+  background: white !important;
+  border: 1px solid #e3e6f0 !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .card-stats:hover {
+  box-shadow: 0 0.25rem 2rem 0 rgba(58, 59, 69, .2) !important;
+  border-color: #002060 !important;
+}
+
+body:not(.darkmode) .stat-subtitle {
+  color: #5a5c69 !important;
+}
+
+body:not(.darkmode) .stat-title {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .stat-description {
+  color: #8e92a4 !important;
+}
+
+/* Card Charts - Light Mode */
+body:not(.darkmode) .card-chart {
+  background: white !important;
+  border: 1px solid #e3e6f0 !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .card-chart-subtitle {
+  color: #5a5c69 !important;
+}
+
+body:not(.darkmode) .card-chart-title {
+  color: #1a202c !important;
+}
+
+/* Card Tables - Light Mode */
+body:not(.darkmode) .card-table {
+  background: white !important;
+  border: 1px solid #e3e6f0 !important;
+  box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15) !important;
+}
+
+body:not(.darkmode) .card-table-header {
+  background: #f8f9fc !important;
+  border-bottom: 1px solid #e3e6f0 !important;
+  color: #1a202c !important;
+}
+
+/* Badges - Light Mode */
+body:not(.darkmode) .badge {
+  color: white !important;
+}
+
+body:not(.darkmode) .badge-success {
+  background-color: #28a745 !important;
+}
+
+body:not(.darkmode) .badge-danger {
+  background-color: #dc3545 !important;
+}
+
+body:not(.darkmode) .badge-warning {
+  background-color: #ffc107 !important;
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .badge-info {
+  background-color: #17a2b8 !important;
+}
+
+body:not(.darkmode) .badge-primary {
+  background-color: #002060 !important;
+}
+
+/* Dashboard Tables - Light Mode */
+body:not(.darkmode) .table-notus {
+  color: #1a202c !important;
+}
+
+body:not(.darkmode) .table-notus thead {
+  background: #f8f9fc !important;
+}
+
+body:not(.darkmode) .table-notus th {
+  color: #1a202c !important;
+  border-bottom: 2px solid #e3e6f0 !important;
+}
+
+body:not(.darkmode) .table-notus td {
+  color: #1a202c !important;
+  border-bottom: 1px solid #e3e6f0 !important;
+}
+
+body:not(.darkmode) .table-notus tbody tr:hover {
+  background: #f8f9fc !important;
+}
+
+body:not(.darkmode) .card-table-title {
+  color: #1a202c !important;
+}
+
+/* Chart containers - Light Mode */
+body:not(.darkmode) .chart-container {
+  background: white !important;
+}
+
+body:not(.darkmode) .payment-chart-container {
+  background: white !important;
+}
+
+/* Remove dark gradients in light mode */
+body:not(.darkmode) .card-stats,
+body:not(.darkmode) .card-chart,
+body:not(.darkmode) .card-table {
+  background-image: none !important;
+}
+
+/* Ensure text is readable in light mode */
+body:not(.darkmode) .stat-icon {
+  color: white !important;
+}
+
+/* Contracts.html specific dark mode overrides - Excel stays white */
+.darkmode .contract-spreadsheet-container {
+  background: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  color: #000000 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.darkmode .contract-spreadsheet {
+  background: #ffffff !important;
+}
+
+.darkmode .contract-spreadsheet .jexcel_container,
+.darkmode .contract-spreadsheet .jspreadsheet-container {
+  background: #ffffff !important;
+}
+

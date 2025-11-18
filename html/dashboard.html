@@ -21,31 +21,41 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
     
     <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Nunito', sans-serif;
+        * {
+            box-sizing: border-box;
         }
+        
+        body {
+            background: radial-gradient(circle at top, #1f2933, #050608 55%);
+            color: #e5e7eb;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+        
         .sidebar {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background: #002060;
-            color: white;
-            width: 224px;
+            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            color: #e5e7eb;
+            width: 260px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            padding: 20px 18px;
+            gap: 20px;
         }
+        
         #accordionSidebar::after {
             content: "";
             display: block;
             flex-grow: 1;
-            background: #002060;
+            background: transparent;
         }
+        
         .sidebar-brand {
             font-size: 1.5rem;
             font-weight: 800;
@@ -57,180 +67,365 @@
             align-items: center;
             justify-content: center;
         }
+        
         .sidebar-brand img {
             display: block;
             margin: 0 auto;
             width: 80px;
             height: 80px;
         }
+        
         .sidebar .nav-link {
-            color: rgba(255,255,255,.8);
-            padding: 1rem;
+            color: rgba(229, 231, 235, 0.8);
+            padding: 8px 10px;
             font-weight: 500;
+            font-size: 13px;
+            border-radius: 10px;
+            transition: all 0.18s ease-out;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: rgba(255,255,255,1);
-            background-color: rgba(255,255,255,.1);
+        
+        .sidebar .nav-link:hover {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(148, 163, 184, 0.5);
+            color: rgba(229, 231, 235, 1);
         }
+        
+        .sidebar .nav-link.active {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(56, 189, 248, 0.7);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+            color: rgba(229, 231, 235, 1);
+        }
+        
         .sidebar .nav-link i {
             margin-right: 0.5rem;
             width: 1.5rem;
         }
+        
         #content-wrapper {
-            margin-left: 224px;
-            width: calc(100% - 224px);
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            background: transparent;
         }
+        
         .topbar {
-            background-color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             padding: 1rem 1.5rem;
+            color: #e5e7eb;
         }
         
-        /* Vue Notus Style - Header Stats Section */
+        .topbar h3 {
+            color: #e5e7eb !important;
+        }
+        
+        .topbar .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .topbar .dropdown-menu {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item {
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item:hover {
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+        }
+        
+        /* Header Stats Section - Commatek Style */
         .header-stats {
-            background: #002060;
-            padding: 80px 0 60px 0;
-            margin-top: -64px;
+            background: transparent;
+            padding: 20px 0;
+            margin-top: 0;
         }
         
-        /* Vue Notus Style - Card Stats */
+        /* Card Stats - Commatek Style */
         .card-stats {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
-            padding: 1.5rem;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+            padding: 12px 12px 10px;
             margin-bottom: 1.5rem;
+            transition: all 0.18s ease-out;
         }
+        
+        .card-stats:hover {
+            transform: translateY(-2px);
+            border-color: rgba(56, 189, 248, 0.7);
+        }
+        
         .stat-subtitle {
-            font-size: 0.75rem;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            color: #8e92a4;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.16em;
+            color: #6b7280;
+            margin-bottom: 6px;
         }
+        
         .stat-title {
-            font-size: 1.5rem;
+            font-size: 20px;
             font-weight: 600;
-            color: #1a202c;
-            margin-bottom: 0.5rem;
+            color: #e5e7eb;
+            margin-bottom: 6px;
         }
+        
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.25rem;
-        }
-        .stat-percent {
-            font-size: 0.875rem;
-            margin-right: 0.5rem;
-        }
-        .stat-description {
-            font-size: 0.875rem;
-            color: #8e92a4;
+            font-size: 1.1rem;
         }
         
-        /* Vue Notus Style - Card Charts */
+        .stat-percent {
+            font-size: 12px;
+            margin-right: 0.5rem;
+        }
+        
+        .stat-description {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        
+        /* Card Charts - Commatek Style */
         .card-chart {
-            background: #1e293b;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             margin-bottom: 1.5rem;
             overflow: hidden;
         }
+        
         .card-chart-header {
-            padding: 1.5rem;
+            padding: 12px 12px 10px;
             background: transparent;
         }
+        
         .card-chart-subtitle {
-            font-size: 0.75rem;
+            font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.16em;
+            color: #6b7280;
+            margin-bottom: 6px;
         }
+        
         .card-chart-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e5e7eb;
         }
+        
         .card-chart-body {
-            padding: 1.5rem;
+            padding: 12px;
         }
+        
         .chart-container {
             position: relative;
             height: 350px;
         }
+        
         .payment-chart-container {
             height: 440px;
         }
         
-        /* Vue Notus Style - Card Tables */
+        /* Card Tables - Commatek Style */
         .card-table {
-            background: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             margin-bottom: 1.5rem;
             overflow: hidden;
         }
+        
         .card-table-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 12px 10px;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
+        
         .card-table-title {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #1a202c;
+            font-size: 13px;
+            font-weight: 500;
+            color: #e5e7eb;
         }
+        
         .card-table-body {
             overflow-x: auto;
         }
+        
         .table-notus {
             width: 100%;
             border-collapse: collapse;
+            font-size: 11px;
         }
+        
         .table-notus thead {
-            background-color: #f8f9fa;
+            background: rgba(15, 23, 42, 0.98);
+            position: sticky;
+            top: 0;
         }
+        
         .table-notus th {
-            padding: 0.75rem 1.5rem;
-            font-size: 0.75rem;
+            padding: 6px 12px;
+            font-size: 10px;
             font-weight: 600;
             text-transform: uppercase;
-            color: #8e92a4;
+            letter-spacing: 0.16em;
+            color: #6b7280;
             text-align: left;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
+        
         .table-notus td {
-            padding: 1rem 1.5rem;
-            font-size: 0.875rem;
-            color: #1a202c;
-            border-bottom: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: #e5e7eb;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
+        
+        .table-notus tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
         .table-notus tbody tr:hover {
-            background-color: #f8f9fa;
+            background: rgba(15, 23, 42, 0.96);
         }
+        
         .progress-bar-notus {
-            height: 8px;
-            border-radius: 4px;
+            height: 5px;
+            border-radius: 999px;
             overflow: hidden;
-            background-color: #e2e8f0;
+            background: rgba(31, 41, 55, 1);
         }
+        
         .progress-bar-fill {
             height: 100%;
-            border-radius: 4px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #22c55e, #38bdf8);
+        }
+        
+        .badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.55);
+            color: #9ca3af;
+        }
+        
+        .badge-success {
+            background: rgba(22, 163, 74, 0.18);
+            color: #4ade80;
+            border-color: rgba(22, 163, 74, 0.3);
+        }
+        
+        .badge-warning {
+            background: rgba(234, 179, 8, 0.18);
+            color: #facc15;
+            border-color: rgba(234, 179, 8, 0.3);
+        }
+        
+        .badge-secondary {
+            background: rgba(55, 65, 81, 1);
+            color: #e5e7eb;
+            border-color: rgba(55, 65, 81, 1);
+        }
+        
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+            font-size: 11px;
+            padding: 5px 9px;
+            transition: all 0.18s ease-out;
+        }
+        
+        .btn:hover {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: rgba(15, 23, 42, 1);
+        }
+        
+        .btn-primary {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.2));
+        }
+        
+        .btn-outline-primary {
+            border-color: rgba(56, 189, 248, 0.6);
+            background: transparent;
+        }
+        
+        .btn-outline-primary:hover {
+            background: rgba(56, 189, 248, 0.1);
+        }
+        
+        .text-muted {
+            color: #6b7280 !important;
+        }
+        
+        .text-success {
+            color: #4ade80 !important;
+        }
+        
+        .text-warning {
+            color: #facc15 !important;
+        }
+        
+        .text-danger {
+            color: #fca5a5 !important;
+        }
+        
+        .text-primary {
+            color: #38bdf8 !important;
+        }
+        
+        .text-info {
+            color: #0ea5e9 !important;
+        }
+        
+        .bg-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        }
+        
+        .bg-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+        }
+        
+        .bg-info {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7) !important;
+        }
+        
+        .bg-success {
+            background: linear-gradient(135deg, #22c55e, #16a34a) !important;
         }
         
         .language-switcher {
             position: relative;
         }
+        
         .language-switcher .btn {
             border-radius: 20px;
             padding: 0.5rem 1rem;
         }
+        
         #theme-switch {
             height: 40px;
             width: 40px;
@@ -242,25 +437,68 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
+        
         #theme-switch:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(15, 23, 42, 0.9);
+            border-color: rgba(56, 189, 248, 0.7);
         }
+        
         #theme-switch svg {
             width: 24px;
             height: 24px;
+            fill: #9ca3af;
         }
+        
         #theme-switch svg:last-child {
             display: none;
         }
+        
         .darkmode #theme-switch svg:first-child {
             display: none;
         }
+        
         .darkmode #theme-switch svg:last-child {
             display: block !important;
         }
+        
         .darkmode #theme-switch svg {
-            fill: #ffffff;
+            fill: #e5e7eb;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(55, 65, 81, 1);
+            border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 1);
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -349,7 +587,7 @@
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Admin</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userEmail">Admin</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <a class="dropdown-item" href="#">
@@ -497,14 +735,14 @@
                     <!-- Bar Chart Card (Right Top) -->
                     <div class="col-xl-4 col-lg-5 mb-4">
                         <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onclick="window.location.href='reports.html'">
-                            <div class="card-chart-header" style="background: white; padding: 1.5rem;">
+                            <div class="card-chart-header" style="background: transparent; padding: 12px 12px 10px;">
                                 <div class="stat-subtitle">Genel Bakış</div>
                                 <div class="stat-title" style="display: flex; align-items: center; justify-content: space-between;">
                                     <span>Tamamlanmış Raporlar</span>
-                                    <span id="totalCompletedReports" style="font-size: 2rem; font-weight: bold; color: #28a745;">0</span>
+                                    <span id="totalCompletedReports" style="font-size: 2rem; font-weight: bold; color: #4ade80;">0</span>
                                 </div>
                             </div>
-                            <div style="padding: 1.5rem;">
+                            <div style="padding: 12px;">
                                 <div class="chart-container">
                                     <canvas id="bar-chart"></canvas>
                                 </div>
@@ -674,7 +912,8 @@
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
-            $('#userFullName').text(currentUser.fullName);
+            const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+            $('#userEmail').text(userEmail);
         }
         
         
@@ -844,15 +1083,15 @@
                         datasets: [
                             {
                                 label: "Gelen Ödemeler (₺)",
-                                backgroundColor: "rgba(76, 81, 191, 0.1)",
-                                borderColor: "#4c51bf",
+                                backgroundColor: "rgba(56, 189, 248, 0.1)",
+                                borderColor: "#38bdf8",
                                 data: chartData,
                                 fill: true,
                                 tension: 0.4,
-                                pointBackgroundColor: "#4c51bf",
+                                pointBackgroundColor: "#38bdf8",
                                 pointBorderColor: "#fff",
                                 pointHoverBackgroundColor: "#fff",
-                                pointHoverBorderColor: "#4c51bf"
+                                pointHoverBorderColor: "#38bdf8"
                             }
                         ]
                     },
@@ -861,7 +1100,7 @@
                         responsive: true,
                         legend: {
                             labels: {
-                                fontColor: "#8e92a4"
+                                fontColor: "#9ca3af"
                             },
                             align: "end",
                             position: "bottom"
@@ -883,14 +1122,14 @@
                         scales: {
                             xAxes: [{
                                 ticks: {
-                                    fontColor: "#8e92a4"
+                                    fontColor: "#9ca3af"
                                 },
                                 display: true,
                                 gridLines: {
                                     display: false,
                                     borderDash: [2],
                                     borderDashOffset: [2],
-                                    color: "rgba(33, 37, 41, 0.3)",
+                                    color: "rgba(148, 163, 184, 0.2)",
                                     zeroLineColor: "rgba(0, 0, 0, 0)",
                                     zeroLineBorderDash: [2],
                                     zeroLineBorderDashOffset: [2]
@@ -898,7 +1137,7 @@
                             }],
                             yAxes: [{
                                 ticks: {
-                                    fontColor: "#8e92a4",
+                                    fontColor: "#9ca3af",
                                     beginAtZero: false,
                                     min: 50000,
                                     max: 2000000,
@@ -916,8 +1155,8 @@
                                     borderDash: [3],
                                     borderDashOffset: [3],
                                     drawBorder: false,
-                                    color: "rgba(142, 146, 164, 0.15)",
-                                    zeroLineColor: "rgba(33, 37, 41, 0)",
+                                    color: "rgba(148, 163, 184, 0.15)",
+                                    zeroLineColor: "rgba(0, 0, 0, 0)",
                                     zeroLineBorderDash: [2],
                                     zeroLineBorderDashOffset: [2]
                                 }
@@ -965,8 +1204,8 @@
                         datasets: [
                             {
                                 label: "SPK Raporları",
-                                backgroundColor: "#dc3545",
-                                borderColor: "#dc3545",
+                                backgroundColor: "#ef4444",
+                                borderColor: "#ef4444",
                                 data: spkMonthly,
                                 fill: false,
                                 barThickness: 8
@@ -974,8 +1213,8 @@
                             {
                                 label: "KGK Raporları",
                                 fill: false,
-                                backgroundColor: "#000000",
-                                borderColor: "#000000",
+                                backgroundColor: "#38bdf8",
+                                borderColor: "#38bdf8",
                                 data: kgkMonthly,
                                 barThickness: 8
                             }
@@ -986,7 +1225,7 @@
                         responsive: true,
                         legend: {
                             labels: {
-                                fontColor: "rgba(0,0,0,.4)"
+                                fontColor: "#9ca3af"
                             },
                             align: "end",
                             position: "bottom"
@@ -1017,8 +1256,8 @@
                                     borderDash: [2],
                                     drawBorder: false,
                                     borderDashOffset: [2],
-                                    color: "rgba(33, 37, 41, 0.2)",
-                                    zeroLineColor: "rgba(33, 37, 41, 0.15)",
+                                    color: "rgba(148, 163, 184, 0.15)",
+                                    zeroLineColor: "rgba(148, 163, 184, 0.2)",
                                     zeroLineBorderDash: [2],
                                     zeroLineBorderDashOffset: [2]
                                 },
@@ -1027,7 +1266,7 @@
                                     min: 0,
                                     max: 50,
                                     stepSize: 5,
-                                    fontColor: "rgba(0,0,0,.4)",
+                                    fontColor: "#9ca3af",
                                     callback: function(value) {
                                         return value + "";
                                     }

@@ -18,22 +18,41 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
     <style>
-        body {
-            background-color: #f8f9fc;
-            font-family: 'Nunito', sans-serif;
+        * {
+            box-sizing: border-box;
         }
+        
+        body {
+            background: radial-gradient(circle at top, #1f2933, #050608 55%);
+            color: #e5e7eb;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 'Nunito', sans-serif;
+            min-height: 100vh;
+        }
+        
         .sidebar {
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
             z-index: 100;
-            padding: 48px 0 0;
-            box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background: #002060;
-            color: white;
-            width: 224px;
+            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            color: #e5e7eb;
+            width: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 18px;
+            gap: 20px;
         }
+        
+        #accordionSidebar::after {
+            content: "";
+            display: block;
+            flex-grow: 1;
+            background: transparent;
+        }
+        
         .sidebar-brand {
             font-size: 1.5rem;
             font-weight: 800;
@@ -45,62 +64,162 @@
             align-items: center;
             justify-content: center;
         }
+        
         .sidebar-brand img {
             display: block;
             margin: 0 auto;
             width: 80px;
             height: 80px;
         }
+        
         .sidebar .nav-link {
-            color: rgba(255,255,255,.8);
-            padding: 1rem;
+            color: rgba(229, 231, 235, 0.8);
+            padding: 8px 10px;
             font-weight: 500;
+            font-size: 13px;
+            border-radius: 10px;
+            transition: all 0.18s ease-out;
+            display: flex;
+            align-items: center;
+            text-decoration: none;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            color: rgba(255,255,255,1);
-            background-color: rgba(255,255,255,.1);
+        
+        .sidebar .nav-link:hover {
+            background: rgba(15, 23, 42, 0.9);
+            border-color: rgba(148, 163, 184, 0.5);
+            color: rgba(229, 231, 235, 1);
         }
+        
+        .sidebar .nav-link.active {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(56, 189, 248, 0.7);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
+            color: rgba(229, 231, 235, 1);
+        }
+        
         .sidebar .nav-link i {
             margin-right: 0.5rem;
             width: 1.5rem;
         }
+        
         #content-wrapper {
-            margin-left: 224px;
-            width: calc(100% - 224px);
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            background: transparent;
         }
+        
         .topbar {
-            background-color: white;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             padding: 1rem 1.5rem;
+            color: #e5e7eb;
         }
+        
+        .topbar h3 {
+            color: #e5e7eb !important;
+        }
+        
+        .topbar .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .topbar .dropdown-menu {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item {
+            color: #e5e7eb;
+        }
+        
+        .topbar .dropdown-item:hover {
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+        }
+        
         .card {
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
-            border: none;
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border-radius: 16px;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             margin-bottom: 1.5rem;
         }
+        
         .card-header {
-            background: #002060;
-            color: white;
+            background: transparent;
+            color: #e5e7eb;
             font-weight: 600;
-            padding: 1rem 1.5rem;
+            padding: 12px 12px 10px;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
+        
+        .table {
+            color: #e5e7eb;
+        }
+        
         .table thead th {
-            background-color: #5a5c69;
-            color: white;
+            background: rgba(15, 23, 42, 0.98);
+            color: #6b7280;
             font-weight: 600;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
             border: none;
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
+            padding: 6px 12px;
         }
+        
+        .table tbody tr {
+            border-bottom: 1px solid rgba(51, 65, 85, 1);
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background: rgba(15, 23, 42, 0.8);
+        }
+        
         .table tbody tr:hover {
-            background-color: #f8f9fc;
+            background: rgba(15, 23, 42, 0.96);
             cursor: pointer;
         }
+        
+        .table td {
+            color: #e5e7eb;
+            padding: 8px 12px;
+            font-size: 11px;
+        }
+        
+        .btn {
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+            font-size: 11px;
+            padding: 5px 9px;
+            transition: all 0.18s ease-out;
+        }
+        
+        .btn:hover {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: rgba(15, 23, 42, 1);
+            color: #e5e7eb;
+        }
+        
+        .btn-primary {
+            border-color: rgba(56, 189, 248, 0.9);
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.2));
+        }
+        
         .language-switcher {
             position: relative;
         }
+        
         .language-switcher .btn {
             border-radius: 20px;
             padding: 0.5rem 1rem;
         }
+        
         #theme-switch {
             height: 40px;
             width: 40px;
@@ -112,25 +231,52 @@
             align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
+            border: 1px solid rgba(148, 163, 184, 0.3);
         }
+        
         #theme-switch:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: rgba(15, 23, 42, 0.9);
+            border-color: rgba(56, 189, 248, 0.7);
         }
+        
         #theme-switch svg {
             width: 24px;
             height: 24px;
+            fill: #9ca3af;
         }
+        
         #theme-switch svg:last-child {
             display: none;
         }
+        
         .darkmode #theme-switch svg:first-child {
             display: none;
         }
+        
         .darkmode #theme-switch svg:last-child {
             display: block !important;
         }
+        
         .darkmode #theme-switch svg {
-            fill: #ffffff;
+            fill: #e5e7eb;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(55, 65, 81, 1);
+            border-radius: 999px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 1);
         }
     </style>
 </head>
@@ -219,7 +365,7 @@
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userFullName">Admin</span>
+                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userEmail">Admin</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <a class="dropdown-item" href="#">
@@ -273,17 +419,17 @@
                                     </div>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped" id="tablebot">
+                                    <table class="table table-bordered table-striped" id="tablebot" style="font-weight: bold; font-size: 14px;">
                                         <thead>
                                             <tr>
-                                                <th class="text-center align-middle">Vergi No</th>
-                                                <th class="text-center align-middle">Unvan</th>
-                                                <th class="text-center align-middle">Vergi Dairesi</th>
-                                                <th class="text-center align-middle">Ekip</th>
-                                                <th class="text-center align-middle">İşlemler</th>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Vergi No</th>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Unvan</th>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Vergi Dairesi</th>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Ekip</th>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">İşlemler</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody style="font-weight: bold; font-size: 14px;">
                                             <tr class="listeEleman">
                                                 <td class="text-center align-middle">1234567890</td>
                                                 <td class="text-left align-middle">ABC İnşaat A.Ş.</td>
@@ -535,9 +681,220 @@
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
-            $('#userFullName').text(currentUser.fullName);
+            const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+            $('#userEmail').text(userEmail);
         }
         
+        // Get Supabase client from auth.js
+        function getSupabaseClient() {
+            // Check if supabaseClient is available from auth.js
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                return supabaseClient;
+            }
+            // Fallback: Try to create client if available
+            if (typeof window.supabase !== 'undefined') {
+                const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+                const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+                if (!SUPABASE_URL.includes('YOUR_') && !SUPABASE_ANON_KEY.includes('YOUR_')) {
+                    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            }
+            return null;
+        }
+        
+        // Client Management Functions with Supabase
+        async function getClientsFromSupabase() {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                // Fallback to localStorage if Supabase not available
+                const clients = localStorage.getItem('clients');
+                return clients ? JSON.parse(clients) : [];
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('clients')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    // Fallback to localStorage
+                    const clients = localStorage.getItem('clients');
+                    return clients ? JSON.parse(clients) : [];
+                }
+                
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+                // Fallback to localStorage
+                const clients = localStorage.getItem('clients');
+                return clients ? JSON.parse(clients) : [];
+            }
+        }
+        
+        async function addClientToSupabase(client) {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                // Fallback to localStorage
+                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                clients.push(client);
+                localStorage.setItem('clients', JSON.stringify(clients));
+                return { success: true, data: client };
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('clients')
+                    .insert([{
+                        vergi_no: client.vergiNo,
+                        unvan: client.unvan,
+                        vergi_dairesi: client.vergiDairesi,
+                        ekip: client.ekip
+                    }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('Supabase insert error:', error);
+                    throw error;
+                }
+                
+                return { success: true, data: data };
+            } catch (error) {
+                console.error('Error adding client:', error);
+                throw error;
+            }
+        }
+        
+        async function updateClientInSupabase(id, client) {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                // Fallback to localStorage
+                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                if (clients[id - 1]) {
+                    clients[id - 1] = client;
+                    localStorage.setItem('clients', JSON.stringify(clients));
+                }
+                return { success: true };
+            }
+            
+            try {
+                // Get all clients to find the UUID
+                const { data: allClients, error: fetchError } = await supabase
+                    .from('clients')
+                    .select('id')
+                    .order('created_at', { ascending: false });
+                
+                if (fetchError) throw fetchError;
+                
+                const clientToUpdate = allClients[id - 1];
+                if (!clientToUpdate) {
+                    throw new Error('Client not found');
+                }
+                
+                const { error } = await supabase
+                    .from('clients')
+                    .update({
+                        vergi_no: client.vergiNo,
+                        unvan: client.unvan,
+                        vergi_dairesi: client.vergiDairesi,
+                        ekip: client.ekip
+                    })
+                    .eq('id', clientToUpdate.id);
+                
+                if (error) throw error;
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Error updating client:', error);
+                throw error;
+            }
+        }
+        
+        async function deleteClientFromSupabase(id) {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                // Fallback to localStorage
+                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                if (clients[id - 1]) {
+                    clients.splice(id - 1, 1);
+                    localStorage.setItem('clients', JSON.stringify(clients));
+                }
+                return { success: true };
+            }
+            
+            try {
+                // Get all clients to find the UUID
+                const { data: allClients, error: fetchError } = await supabase
+                    .from('clients')
+                    .select('id')
+                    .order('created_at', { ascending: false });
+                
+                if (fetchError) throw fetchError;
+                
+                const clientToDelete = allClients[id - 1];
+                if (!clientToDelete) {
+                    throw new Error('Client not found');
+                }
+                
+                const { error } = await supabase
+                    .from('clients')
+                    .delete()
+                    .eq('id', clientToDelete.id);
+                
+                if (error) throw error;
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Error deleting client:', error);
+                throw error;
+            }
+        }
+        
+        async function renderClientsFromSupabase() {
+            const clients = await getClientsFromSupabase();
+            const tbody = document.querySelector('#tablebot tbody');
+            tbody.innerHTML = '';
+            
+            clients.forEach((client, index) => {
+                const id = index + 1;
+                const tr = document.createElement('tr');
+                tr.className = 'listeEleman';
+                tr.style.cursor = 'pointer';
+                tr.onclick = function() {
+                    window.location.href = 'client-detail.html?id=' + id;
+                };
+                
+                // Handle both Supabase format (vergi_no) and localStorage format (vergiNo)
+                const vergiNo = client.vergi_no || client.vergiNo || '';
+                const unvan = client.unvan || '';
+                const vergiDairesi = client.vergi_dairesi || client.vergiDairesi || '';
+                const ekip = client.ekip || '';
+                
+                tr.innerHTML = `
+                    <td class="text-center align-middle">${vergiNo}</td>
+                    <td class="text-left align-middle">${unvan}</td>
+                    <td class="text-center align-middle">${vergiDairesi}</td>
+                    <td class="text-center align-middle">${ekip}</td>
+                    <td class="text-center align-middle">
+                        <button onclick="editClient(${id}, '${vergiNo.replace(/'/g, "\\'")}', '${unvan.replace(/'/g, "\\'")}', '${vergiDairesi.replace(/'/g, "\\'")}', '${ekip.replace(/'/g, "\\'")}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
+                            <i class="fa fa-edit"></i> Düzenle
+                        </button><br>
+                        <button onclick="deleteClient(${id}, event)" class="btn btn-danger btn-sm" style="width: 90px;">
+                            <i class="fa fa-trash"></i> Sil
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+        
+        // Load clients from Supabase on page load
+        $(document).ready(function() {
+            renderClientsFromSupabase();
+        });
         
         // Tablo arama fonksiyonu
         $(document).ready(function() {
@@ -579,12 +936,12 @@
         });
         
         // Excel Import
-        document.getElementById('excelFile').addEventListener('change', function(e) {
+        document.getElementById('excelFile').addEventListener('change', async function(e) {
             const file = e.target.files[0];
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const data = new Uint8Array(e.target.result);
                     const workbook = XLSX.read(data, {type: 'array'});
@@ -600,11 +957,9 @@
                         return;
                     }
                     
-                    // Tabloyu temizle (başlıkları koru)
-                    const tbody = document.querySelector('#tablebot tbody');
-                    tbody.innerHTML = '';
+                    // Excel'den client'ları parse et
+                    const newClients = [];
                     
-                    let rowCount = 0;
                     // İlk satır başlık olduğu için 1'den başla
                     for (let i = 1; i < jsonData.length; i++) {
                         const row = jsonData[i];
@@ -612,39 +967,59 @@
                         // Boş satırları atla
                         if (!row[0] && !row[1]) continue;
                         
-                        const vergiNo = row[0] || '';
-                        const unvan = row[1] || '';
-                        const vergiDairesi = row[2] || '';
-                        const ekip = row[3] || '';
-                        
-                        rowCount++;
-                        
-                        const tr = document.createElement('tr');
-                        tr.className = 'listeEleman';
-                        tr.style.cursor = 'pointer';
-                        tr.onclick = function() {
-                            window.location.href = 'client-detail.html?id=' + rowCount;
+                        const client = {
+                            vergiNo: (row[0] || '').toString(),
+                            unvan: (row[1] || '').toString(),
+                            vergiDairesi: (row[2] || '').toString(),
+                            ekip: (row[3] || '').toString()
                         };
                         
-                        tr.innerHTML = `
-                            <td class="text-center align-middle">${vergiNo}</td>
-                            <td class="text-left align-middle">${unvan}</td>
-                            <td class="text-center align-middle">${vergiDairesi}</td>
-                            <td class="text-center align-middle">${ekip}</td>
-                            <td class="text-center align-middle">
-                                <button onclick="editClient(${rowCount}, '${vergiNo}', '${unvan}', '${vergiDairesi}', '${ekip}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                                    <i class="fa fa-edit"></i> Düzenle
-                                </button><br>
-                                <button onclick="deleteClient(${rowCount}, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                                    <i class="fa fa-trash"></i> Sil
-                                </button>
-                            </td>
-                        `;
-                        
-                        tbody.appendChild(tr);
+                        newClients.push(client);
                     }
                     
-                    alert(`${rowCount} müşteri başarıyla içe aktarıldı!`);
+                    // Supabase'e ekle
+                    const supabase = getSupabaseClient();
+                    if (supabase) {
+                        try {
+                            // Batch insert to Supabase
+                            const clientsToInsert = newClients.map(client => ({
+                                vergi_no: client.vergiNo,
+                                unvan: client.unvan,
+                                vergi_dairesi: client.vergiDairesi,
+                                ekip: client.ekip
+                            }));
+                            
+                            const { data, error } = await supabase
+                                .from('clients')
+                                .insert(clientsToInsert)
+                                .select();
+                            
+                            if (error) {
+                                console.error('Supabase batch insert error:', error);
+                                throw error;
+                            }
+                            
+                            // Tabloyu yeniden render et
+                            await renderClientsFromSupabase();
+                            
+                            alert(`${newClients.length} müşteri başarıyla içe aktarıldı ve Supabase'e kaydedildi!`);
+                        } catch (error) {
+                            console.error('Error importing to Supabase:', error);
+                            alert('Supabase\'e kaydedilirken bir hata oluştu. Veriler localStorage\'a kaydedildi.');
+                            // Fallback to localStorage
+                            const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
+                            const allClients = [...existingClients, ...newClients];
+                            localStorage.setItem('clients', JSON.stringify(allClients));
+                            await renderClientsFromSupabase();
+                        }
+                    } else {
+                        // Fallback to localStorage
+                        const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
+                        const allClients = [...existingClients, ...newClients];
+                        localStorage.setItem('clients', JSON.stringify(allClients));
+                        await renderClientsFromSupabase();
+                        alert(`${newClients.length} müşteri başarıyla içe aktarıldı ve localStorage'a kaydedildi!`);
+                    }
                     
                     // Input'u sıfırla
                     e.target.value = '';
@@ -674,8 +1049,8 @@
         }
         
         // Save edited client
-        function saveEditClient() {
-            const id = document.getElementById('editClientId').value;
+        async function saveEditClient() {
+            const id = parseInt(document.getElementById('editClientId').value);
             const vergiNo = document.getElementById('editVergiNo').value.trim();
             const unvan = document.getElementById('editUnvan').value.trim();
             const vergiDairesi = document.getElementById('editVergiDairesi').value.trim();
@@ -686,56 +1061,55 @@
                 return;
             }
             
-            // Tablodaki ilgili satırı bul ve güncelle
-            const tbody = document.querySelector('#tablebot tbody');
-            const rows = tbody.querySelectorAll('tr');
+            // Client objesi oluştur
+            const client = {
+                vergiNo: vergiNo,
+                unvan: unvan,
+                vergiDairesi: vergiDairesi,
+                ekip: ekip
+            };
             
-            rows.forEach((row, index) => {
-                if (index + 1 == id) {
-                    row.cells[0].textContent = vergiNo;
-                    row.cells[1].textContent = unvan;
-                    row.cells[2].textContent = vergiDairesi;
-                    row.cells[3].textContent = ekip;
-                    
-                    // İşlemler hücresindeki butonları güncelle
-                    row.cells[4].innerHTML = `
-                        <button onclick="editClient(${id}, '${vergiNo}', '${unvan}', '${vergiDairesi}', '${ekip}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                            <i class="fa fa-edit"></i> Düzenle
-                        </button><br>
-                        <button onclick="deleteClient(${id}, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                            <i class="fa fa-trash"></i> Sil
-                        </button>
-                    `;
-                }
-            });
-            
-            // Modal'ı kapat
-            $('#editClientModal').modal('hide');
-            
-            alert('Müşteri başarıyla güncellendi!');
+            try {
+                // Supabase'e kaydet
+                await updateClientInSupabase(id, client);
+                
+                // Tabloyu yeniden render et
+                await renderClientsFromSupabase();
+                
+                // Modal'ı kapat
+                $('#editClientModal').modal('hide');
+                
+                alert('Müşteri başarıyla güncellendi ve Supabase\'e kaydedildi!');
+            } catch (error) {
+                console.error('Error saving client:', error);
+                alert('Müşteri güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
+            }
         }
         
         // Delete client
-        function deleteClient(id, event) {
+        async function deleteClient(id, event) {
             if (event) {
                 event.stopPropagation();
             }
             
             if (confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
-                const tbody = document.querySelector('#tablebot tbody');
-                const rows = tbody.querySelectorAll('tr');
-                
-                rows.forEach((row, index) => {
-                    if (index + 1 == id) {
-                        row.remove();
-                        alert('Müşteri başarıyla silindi!');
-                    }
-                });
+                try {
+                    // Supabase'den sil
+                    await deleteClientFromSupabase(id);
+                    
+                    // Tabloyu yeniden render et
+                    await renderClientsFromSupabase();
+                    
+                    alert('Müşteri başarıyla silindi!');
+                } catch (error) {
+                    console.error('Error deleting client:', error);
+                    alert('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.');
+                }
             }
         }
         
         // Save new client
-        function saveNewClient() {
+        async function saveNewClient() {
             const vergiNo = document.getElementById('newVergiNo').value.trim();
             const unvan = document.getElementById('newUnvan').value.trim();
             const vergiDairesi = document.getElementById('newVergiDairesi').value.trim();
@@ -746,41 +1120,32 @@
                 return;
             }
             
-            // Tabloya yeni satır ekle
-            const tbody = document.querySelector('#tablebot tbody');
-            const currentRowCount = tbody.querySelectorAll('tr').length + 1;
-            
-            const tr = document.createElement('tr');
-            tr.className = 'listeEleman';
-            tr.style.cursor = 'pointer';
-            tr.onclick = function() {
-                window.location.href = 'client-detail.html?id=' + currentRowCount;
+            // Client objesi oluştur
+            const client = {
+                vergiNo: vergiNo,
+                unvan: unvan,
+                vergiDairesi: vergiDairesi,
+                ekip: ekip
             };
             
-            tr.innerHTML = `
-                <td class="text-center align-middle">${vergiNo}</td>
-                <td class="text-left align-middle">${unvan}</td>
-                <td class="text-center align-middle">${vergiDairesi}</td>
-                <td class="text-center align-middle">${ekip}</td>
-                <td class="text-center align-middle">
-                    <button onclick="editClient(${currentRowCount}, '${vergiNo}', '${unvan}', '${vergiDairesi}', '${ekip}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                        <i class="fa fa-edit"></i> Düzenle
-                    </button><br>
-                    <button onclick="deleteClient(${currentRowCount}, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                        <i class="fa fa-trash"></i> Sil
-                    </button>
-                </td>
-            `;
-            
-            tbody.appendChild(tr);
-            
-            // Modal'ı kapat
-            $('#addClientModal').modal('hide');
-            
-            // Formu temizle
-            document.getElementById('addClientForm').reset();
-            
-            alert('Müşteri başarıyla eklendi!');
+            try {
+                // Supabase'e kaydet
+                await addClientToSupabase(client);
+                
+                // Tabloyu yeniden render et
+                await renderClientsFromSupabase();
+                
+                // Modal'ı kapat
+                $('#addClientModal').modal('hide');
+                
+                // Formu temizle
+                document.getElementById('addClientForm').reset();
+                
+                alert('Müşteri başarıyla eklendi ve Supabase\'e kaydedildi!');
+            } catch (error) {
+                console.error('Error adding client:', error);
+                alert('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+            }
         }
     </script>
 </body>

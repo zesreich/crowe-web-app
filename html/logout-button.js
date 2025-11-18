@@ -161,17 +161,47 @@ if (document.readyState === 'loading') {
   initLogoutButtons();
 }
 
+// Reset on page navigation
 window.addEventListener('pageshow', function(event) {
-  if (event.persisted) {
-    document.querySelectorAll('.logoutButton').forEach(button => {
-      button.dataset.initialized = 'false';
-      resetLogoutButton(button);
-    });
-    setTimeout(initLogoutButtons, 0);
-  }
+  document.querySelectorAll('.logoutButton').forEach(button => {
+    button.dataset.initialized = 'false';
+    resetLogoutButton(button);
+    // Force reset all CSS variables
+    button.style.removeProperty('--figure-duration');
+    button.style.removeProperty('--transform-figure');
+    button.style.removeProperty('--walking-duration');
+    button.style.removeProperty('--transform-arm1');
+    button.style.removeProperty('--transform-wrist1');
+    button.style.removeProperty('--transform-arm2');
+    button.style.removeProperty('--transform-wrist2');
+    button.style.removeProperty('--transform-leg1');
+    button.style.removeProperty('--transform-calf1');
+    button.style.removeProperty('--transform-leg2');
+    button.style.removeProperty('--transform-calf2');
+  });
+  setTimeout(initLogoutButtons, 100);
 });
 
 window.addEventListener('load', function() {
+  document.querySelectorAll('.logoutButton').forEach(button => {
+    resetLogoutButton(button);
+    // Force reset all CSS variables
+    button.style.removeProperty('--figure-duration');
+    button.style.removeProperty('--transform-figure');
+    button.style.removeProperty('--walking-duration');
+    button.style.removeProperty('--transform-arm1');
+    button.style.removeProperty('--transform-wrist1');
+    button.style.removeProperty('--transform-arm2');
+    button.style.removeProperty('--transform-wrist2');
+    button.style.removeProperty('--transform-leg1');
+    button.style.removeProperty('--transform-calf1');
+    button.style.removeProperty('--transform-leg2');
+    button.style.removeProperty('--transform-calf2');
+  });
+});
+
+// Reset on beforeunload to prevent animation state from persisting
+window.addEventListener('beforeunload', function() {
   document.querySelectorAll('.logoutButton').forEach(button => {
     resetLogoutButton(button);
   });
