@@ -289,22 +289,51 @@ if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' 
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
-        // DOMContentLoaded ile kontrol et, script'lerin yüklenmesi için bekle
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(function() {
-                    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-                        window.location.href = 'login.html';
-                    }
-                }, 100);
-            });
-        } else {
-            // Sayfa zaten yüklendiyse direkt kontrol et
-            setTimeout(function() {
-                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+        // Wait for Auth object and check authentication
+        function checkGlobalAuth() {
+            // Check localStorage first (faster)
+            const authUser = localStorage.getItem('auth_user');
+            const authToken = localStorage.getItem('auth_token');
+            
+            // If no auth data, redirect immediately
+            if (!authUser || !authToken) {
+                console.log('Global auth check: No auth data, redirecting to login...');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Wait for Auth object if not available
+            if (typeof Auth === 'undefined') {
+                setTimeout(checkGlobalAuth, 50);
+                return;
+            }
+            
+            // Check with Auth.isAuthenticated()
+            try {
+                if (!Auth.isAuthenticated()) {
+                    console.log('Global auth check: Not authenticated, redirecting to login...');
+                    window.location.href = 'login.html';
+                } else {
+                    console.log('Global auth check: Authenticated');
+                }
+            } catch (error) {
+                console.error('Global auth check error:', error);
+                // If error but localStorage has data, allow (fallback)
+                if (authUser && authToken) {
+                    console.log('Global auth check: Error but localStorage has data, allowing');
+                } else {
                     window.location.href = 'login.html';
                 }
-            }, 100);
+            }
+        }
+        
+        // Start checking when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(checkGlobalAuth, 150);
+            });
+        } else {
+            setTimeout(checkGlobalAuth, 150);
         }
     }
 }
