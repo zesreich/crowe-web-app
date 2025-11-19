@@ -278,6 +278,29 @@
         ::-webkit-scrollbar-thumb:hover {
             background: rgba(75, 85, 99, 1);
         }
+        
+        /* Checkbox stilleri */
+        .client-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        #selectAllCheckbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        #deleteSelectedBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #deleteSelectedBtn:not(:disabled):hover {
+            background: rgba(239, 68, 68, 0.9) !important;
+            border-color: rgba(239, 68, 68, 1) !important;
+        }
     </style>
 </head>
 <body id="page-top">
@@ -361,7 +384,6 @@
                 <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
                     <i class="fa fa-bars"></i>
                 </button>
-                <h3 class="text-dark ml-5 mb-0">MÜŞTERİ LİSTESİ</h3>
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
                         <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -403,18 +425,28 @@
                             </div>
                             <div class="card-body">
                                 <div class="row mb-3">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <input type="text" class="form-control" id="search" placeholder="Müşteri ara...">
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <label for="excelFile" class="btn btn-info btn-block mb-0" style="cursor: pointer;">
                                             <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
                                             <input type="file" id="excelFile" accept=".xlsx,.xls" style="display: none;">
                                         </label>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <button class="btn btn-success btn-block" data-toggle="modal" data-target="#addClientModal">
                                             <i class="fa fa-plus"></i> <span>Yeni Müşteri</span>
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-danger btn-block" id="deleteSelectedBtn" onclick="deleteSelectedClients()" disabled>
+                                            <i class="fa fa-trash"></i> Seçilenleri Sil
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-secondary btn-block" onclick="toggleSelectAll()">
+                                            <i class="fa fa-check-square"></i> <span id="selectAllText">Tümünü Seç</span>
                                         </button>
                                     </div>
                                 </div>
@@ -422,6 +454,9 @@
                                     <table class="table table-bordered table-striped" id="tablebot" style="font-weight: bold; font-size: 14px;">
                                         <thead>
                                             <tr>
+                                                <th class="text-center align-middle" style="font-weight: bold; font-size: 14px; width: 50px;">
+                                                    <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" style="cursor: pointer;">
+                                                </th>
                                                 <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Vergi No</th>
                                                 <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Unvan</th>
                                                 <th class="text-center align-middle" style="font-weight: bold; font-size: 14px;">Vergi Dairesi</th>
@@ -430,62 +465,7 @@
                                             </tr>
                                         </thead>
                                         <tbody style="font-weight: bold; font-size: 14px;">
-                                            <tr class="listeEleman">
-                                                <td class="text-center align-middle">1234567890</td>
-                                                <td class="text-left align-middle">ABC İnşaat A.Ş.</td>
-                                                <td class="text-center align-middle">Kadıköy VD</td>
-                                                <td class="text-center align-middle">B1_EDA</td>
-                                                <td class="text-center align-middle">
-                                                    <button onclick="editClient(1, '1234567890', 'ABC İnşaat A.Ş.', 'Kadıköy VD', 'B1_EDA', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                                                        <i class="fa fa-edit"></i> Düzenle
-                                                    </button><br>
-                                                    <button onclick="deleteClient(1, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                                                        <i class="fa fa-trash"></i> Sil
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr class="listeEleman">
-                                                <td class="text-center align-middle">9876543210</td>
-                                                <td class="text-left align-middle">DEF Gıda Ltd. Şti.</td>
-                                                <td class="text-center align-middle">Beşiktaş VD</td>
-                                                <td class="text-center align-middle">B2_MAS</td>
-                                                <td class="text-center align-middle">
-                                                    <button onclick="editClient(2, '9876543210', 'DEF Gıda Ltd. Şti.', 'Beşiktaş VD', 'B2_MAS', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                                                        <i class="fa fa-edit"></i> Düzenle
-                                                    </button><br>
-                                                    <button onclick="deleteClient(2, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                                                        <i class="fa fa-trash"></i> Sil
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr class="listeEleman">
-                                                <td class="text-center align-middle">5555555555</td>
-                                                <td class="text-left align-middle">GHI Teknoloji A.Ş.</td>
-                                                <td class="text-center align-middle">Şişli VD</td>
-                                                <td class="text-center align-middle">B3_HAKAN</td>
-                                                <td class="text-center align-middle">
-                                                    <button onclick="editClient(3, '5555555555', 'GHI Teknoloji A.Ş.', 'Şişli VD', 'B3_HAKAN', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                                                        <i class="fa fa-edit"></i> Düzenle
-                                                    </button><br>
-                                                    <button onclick="deleteClient(3, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                                                        <i class="fa fa-trash"></i> Sil
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr class="listeEleman">
-                                                <td class="text-center align-middle">1111111111</td>
-                                                <td class="text-left align-middle">JKL Ticaret Ltd. Şti.</td>
-                                                <td class="text-center align-middle">Ümraniye VD</td>
-                                                <td class="text-center align-middle">B1_EDA</td>
-                                                <td class="text-center align-middle">
-                                                    <button onclick="editClient(4, '1111111111', 'JKL Ticaret Ltd. Şti.', 'Ümraniye VD', 'B1_EDA', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                                                        <i class="fa fa-edit"></i> Düzenle
-                                                    </button><br>
-                                                    <button onclick="deleteClient(4, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                                                        <i class="fa fa-trash"></i> Sil
-                                                    </button>
-                                                </td>
-                                            </tr>
+                                            <!-- Dinamik olarak renderClientsFromSupabase() ile doldurulacak -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -664,19 +644,36 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- SheetJS for Excel Import -->
     <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- Supabase Config & JS -->
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
     <!-- Dark Mode -->
     <link rel="stylesheet" href="darkmode.css">
-    <script src="darkmode.js" defer></script>
     <!-- Logout Button -->
     <link rel="stylesheet" href="logout-button.css">
-    <script src="logout-button.js"></script>
     <script>
-        // Check authentication on page load
-        if (!Auth.isAuthenticated()) {
+        // Initialize dark mode IMMEDIATELY before page renders to prevent flash
+        (function() {
+            const darkmode = localStorage.getItem('darkmode');
+            if (darkmode === "active") {
+                document.documentElement.classList.add('darkmode');
+                document.body.classList.add('darkmode');
+            }
+        })();
+    </script>
+    <script src="darkmode.js" defer></script>
+    <script src="logout-button.js" defer></script>
+    <script>
+        // Check authentication on page load (DOMContentLoaded ile geciktir)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
             window.location.href = 'login.html';
         }
+            }, 100);
+        });
         
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
@@ -859,12 +856,11 @@
             
             clients.forEach((client, index) => {
                 const id = index + 1;
+                const clientId = client.id || client.vergi_no || index; // Supabase UUID veya fallback
                 const tr = document.createElement('tr');
                 tr.className = 'listeEleman';
+                tr.setAttribute('data-client-id', clientId);
                 tr.style.cursor = 'pointer';
-                tr.onclick = function() {
-                    window.location.href = 'client-detail.html?id=' + id;
-                };
                 
                 // Handle both Supabase format (vergi_no) and localStorage format (vergiNo)
                 const vergiNo = client.vergi_no || client.vergiNo || '';
@@ -873,11 +869,14 @@
                 const ekip = client.ekip || '';
                 
                 tr.innerHTML = `
+                    <td class="text-center align-middle" onclick="event.stopPropagation();">
+                        <input type="checkbox" class="client-checkbox" data-client-id="${clientId}" data-index="${index}" onchange="updateDeleteButtonState()" style="cursor: pointer;">
+                    </td>
                     <td class="text-center align-middle">${vergiNo}</td>
                     <td class="text-left align-middle">${unvan}</td>
                     <td class="text-center align-middle">${vergiDairesi}</td>
                     <td class="text-center align-middle">${ekip}</td>
-                    <td class="text-center align-middle">
+                    <td class="text-center align-middle" onclick="event.stopPropagation();">
                         <button onclick="editClient(${id}, '${vergiNo.replace(/'/g, "\\'")}', '${unvan.replace(/'/g, "\\'")}', '${vergiDairesi.replace(/'/g, "\\'")}', '${ekip.replace(/'/g, "\\'")}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
                             <i class="fa fa-edit"></i> Düzenle
                         </button><br>
@@ -887,8 +886,115 @@
                     </td>
                 `;
                 
+                // Row click handler (checkbox ve button'lar hariç)
+                tr.onclick = function(e) {
+                    if (e.target.type !== 'checkbox' && !e.target.closest('button')) {
+                        window.location.href = 'client-detail.html?id=' + id;
+                    }
+                };
+                
                 tbody.appendChild(tr);
             });
+            
+            // Reset select all checkbox
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateDeleteButtonState();
+        }
+        
+        // Toplu seçim/silme fonksiyonları
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            const checkboxes = document.querySelectorAll('.client-checkbox');
+            const isChecked = selectAllCheckbox.checked;
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            
+            document.getElementById('selectAllText').textContent = isChecked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+            updateDeleteButtonState();
+        }
+        
+        function updateDeleteButtonState() {
+            const checkboxes = document.querySelectorAll('.client-checkbox:checked');
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            
+            if (checkboxes.length > 0) {
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = `<i class="fa fa-trash"></i> Seçilenleri Sil (${checkboxes.length})`;
+            } else {
+                deleteBtn.disabled = true;
+                deleteBtn.innerHTML = '<i class="fa fa-trash"></i> Seçilenleri Sil';
+            }
+            
+            // Select all checkbox durumunu güncelle
+            const allCheckboxes = document.querySelectorAll('.client-checkbox');
+            const checkedCount = document.querySelectorAll('.client-checkbox:checked').length;
+            const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+            
+            if (allCheckboxes.length === 0) {
+                selectAllCheckbox.checked = false;
+            } else {
+                selectAllCheckbox.checked = checkedCount === allCheckboxes.length;
+            }
+            
+            document.getElementById('selectAllText').textContent = selectAllCheckbox.checked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+        }
+        
+        async function deleteSelectedClients() {
+            const checkboxes = document.querySelectorAll('.client-checkbox:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('Lütfen silmek için en az bir müşteri seçin!');
+                return;
+            }
+            
+            const confirmMessage = `${checkboxes.length} müşteriyi silmek istediğinizden emin misiniz?`;
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+            
+            try {
+                const supabase = getSupabaseClient();
+                const clients = await getClientsFromSupabase();
+                const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-index')));
+                
+                // Seçili client'ları sil
+                if (supabase) {
+                    // Supabase'den toplu silme
+                    const selectedClients = selectedIndices
+                        .map(index => clients[index])
+                        .filter(client => client && client.id);
+                    
+                    if (selectedClients.length > 0) {
+                        const selectedClientIds = selectedClients.map(client => client.id);
+                        const { error } = await supabase
+                            .from('clients')
+                            .delete()
+                            .in('id', selectedClientIds);
+                        
+                        if (error) throw error;
+                    }
+                    
+                    // localStorage fallback için de sil
+                    const localStorageClients = JSON.parse(localStorage.getItem('clients') || '[]');
+                    const filteredClients = localStorageClients.filter((_, index) => !selectedIndices.includes(index));
+                    localStorage.setItem('clients', JSON.stringify(filteredClients));
+                } else {
+                    // Sadece localStorage
+                    const localStorageClients = JSON.parse(localStorage.getItem('clients') || '[]');
+                    const filteredClients = localStorageClients.filter((_, index) => !selectedIndices.includes(index));
+                    localStorage.setItem('clients', JSON.stringify(filteredClients));
+                }
+                
+                // Tabloyu yeniden render et
+                await renderClientsFromSupabase();
+                
+                alert(`${checkboxes.length} müşteri başarıyla silindi!`);
+            } catch (error) {
+                console.error('Error deleting clients:', error);
+                alert('Müşteriler silinirken bir hata oluştu. Lütfen tekrar deneyin.');
+            }
         }
         
         // Load clients from Supabase on page load
@@ -909,9 +1015,15 @@
                 });
             });
             
-            // Tablo sıralama
+            // Tablo sıralama (checkbox sütunu hariç)
             $("#tablebot th").each(function (col) {
+                // İlk sütun (checkbox) için sıralama yapma
+                if (col === 0) return;
+                
                 $(this).click(function () {
+                    // Checkbox sütununa tıklanırsa sıralama yapma
+                    if ($(this).find('input[type="checkbox"]').length > 0) return;
+                    
                     $("#tablebot th i").remove();
                     var sortOrder = $(this).hasClass('asc') ? -1 : 1;
                     $(this).removeClass('asc desc');
@@ -1075,10 +1187,10 @@
                 
                 // Tabloyu yeniden render et
                 await renderClientsFromSupabase();
-                
-                // Modal'ı kapat
-                $('#editClientModal').modal('hide');
-                
+            
+            // Modal'ı kapat
+            $('#editClientModal').modal('hide');
+            
                 alert('Müşteri başarıyla güncellendi ve Supabase\'e kaydedildi!');
             } catch (error) {
                 console.error('Error saving client:', error);
@@ -1100,11 +1212,11 @@
                     // Tabloyu yeniden render et
                     await renderClientsFromSupabase();
                     
-                    alert('Müşteri başarıyla silindi!');
+                        alert('Müşteri başarıyla silindi!');
                 } catch (error) {
                     console.error('Error deleting client:', error);
                     alert('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.');
-                }
+                    }
             }
         }
         
@@ -1134,13 +1246,13 @@
                 
                 // Tabloyu yeniden render et
                 await renderClientsFromSupabase();
-                
-                // Modal'ı kapat
-                $('#addClientModal').modal('hide');
-                
-                // Formu temizle
-                document.getElementById('addClientForm').reset();
-                
+            
+            // Modal'ı kapat
+            $('#addClientModal').modal('hide');
+            
+            // Formu temizle
+            document.getElementById('addClientForm').reset();
+            
                 alert('Müşteri başarıyla eklendi ve Supabase\'e kaydedildi!');
             } catch (error) {
                 console.error('Error adding client:', error);

@@ -230,7 +230,6 @@
                 <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
                     <i class="fa fa-bars"></i>
                 </button>
-                <h3 class="text-dark ml-5 mb-0">ÇEVRİMİÇİ KULLANICILAR</h3>
                 <ul class="navbar-nav ml-auto">
                     <!-- Language Switcher -->
                     <li class="nav-item language-switcher mr-3">
@@ -303,25 +302,95 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Supabase Config & JS -->
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
     <!-- Dark Mode -->
     <link rel="stylesheet" href="darkmode.css">
-    <script src="darkmode.js" defer></script>
     <!-- Logout Button -->
     <link rel="stylesheet" href="logout-button.css">
-    <script src="logout-button.js"></script>
     <script>
-        // Check authentication on page load
-        if (!Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
+        // Initialize dark mode IMMEDIATELY before page renders to prevent flash
+        (function() {
+            const darkmode = localStorage.getItem('darkmode');
+            if (darkmode === "active") {
+                document.documentElement.classList.add('darkmode');
+                document.body.classList.add('darkmode');
+            }
+        })();
+    </script>
+    <script src="darkmode.js" defer></script>
+    <script src="logout-button.js" defer></script>
+    <script>
+        // Check authentication on page load (DOMContentLoaded ile geciktir)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 100);
+        });
         
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
             const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
             $('#userEmail').text(userEmail);
+        }
+        
+        // Get Supabase client helper function
+        function getSupabaseClient() {
+            if (typeof window.supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+                if (!window.SUPABASE_URL.includes('YOUR_') && !window.SUPABASE_ANON_KEY.includes('YOUR_')) {
+                    return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                }
+            }
+            return null;
+        }
+        
+        // Supabase functions for online sessions
+        async function getOnlineSessionsFromSupabase() {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                return onlineUsersData; // Fallback to static data
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('online_sessions')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('last_activity', { ascending: false });
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    return onlineUsersData; // Fallback to static data
+                }
+                
+                // Convert Supabase format to local format
+                return (data || []).map(s => {
+                    const sessionStart = new Date(s.session_start);
+                    const now = new Date();
+                    const diffMs = now - sessionStart;
+                    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                    const onlineTime = diffHours > 0 
+                        ? `${diffHours} saat ${diffMins} dakika`
+                        : `${diffMins} dakika`;
+                    
+                    return {
+                        id: s.id,
+                        fullName: s.full_name || s.user_email,
+                        onlineTime: onlineTime,
+                        activeFiles: s.active_files || []
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching online sessions:', error);
+                return onlineUsersData; // Fallback to static data
+            }
         }
         
         function toggleLanguage() {
@@ -331,8 +400,8 @@
             document.getElementById('langText').textContent = newLang === 'en' ? 'TR' : 'EN';
         }
         
-        // Sample online users data
-        const onlineUsersData = [
+        // Sample online users data (fallback)
+        let onlineUsersData = [
             { 
                 id: 1, 
                 fullName: 'Eda Meric Sefer', 
@@ -444,12 +513,16 @@
         }
         
         // Initialize table
-        populateTable(onlineUsersData);
+        async function initOnlineUsers() {
+            onlineUsersData = await getOnlineSessionsFromSupabase();
+            populateTable(onlineUsersData);
+        }
+        initOnlineUsers();
         
-        // Update online time every minute (simulation)
-        setInterval(function() {
-            // In real app, this would update from server
-            console.log('Updating online times...');
+        // Update online time every minute
+        setInterval(async function() {
+            onlineUsersData = await getOnlineSessionsFromSupabase();
+            populateTable(onlineUsersData);
         }, 60000);
         
         // Update language switcher text on language change

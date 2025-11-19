@@ -107,12 +107,16 @@ function getStateDuration(state, property, fallback) {
 
 function initLogoutButtons() {
   document.querySelectorAll('.logoutButton').forEach(button => {
-    if (button.dataset.initialized === 'true') {
+    // Skip if already initialized and working
+    if (button.dataset.initialized === 'true' && button.state !== undefined) {
+      // Just reset to default state
       resetLogoutButton(button);
       return;
     }
-    button.dataset.initialized = 'true';
+    
+    // Always reset button state first
     resetLogoutButton(button);
+    button.dataset.initialized = 'true';
 
     button.addEventListener('mouseenter', () => {
       if (button.state === 'default') {
@@ -163,23 +167,8 @@ if (document.readyState === 'loading') {
 
 // Reset on page navigation
 window.addEventListener('pageshow', function(event) {
-  document.querySelectorAll('.logoutButton').forEach(button => {
-    button.dataset.initialized = 'false';
-    resetLogoutButton(button);
-    // Force reset all CSS variables
-    button.style.removeProperty('--figure-duration');
-    button.style.removeProperty('--transform-figure');
-    button.style.removeProperty('--walking-duration');
-    button.style.removeProperty('--transform-arm1');
-    button.style.removeProperty('--transform-wrist1');
-    button.style.removeProperty('--transform-arm2');
-    button.style.removeProperty('--transform-wrist2');
-    button.style.removeProperty('--transform-leg1');
-    button.style.removeProperty('--transform-calf1');
-    button.style.removeProperty('--transform-leg2');
-    button.style.removeProperty('--transform-calf2');
-  });
-  setTimeout(initLogoutButtons, 100);
+  // Re-initialize buttons after a short delay to ensure DOM is ready
+  setTimeout(initLogoutButtons, 50);
 });
 
 window.addEventListener('load', function() {

@@ -103,9 +103,24 @@ const Auth = {
     supabaseEnabled: Boolean(supabaseClient),
 
     isAuthenticated: function() {
-        const user = localStorage.getItem('auth_user');
-        const token = localStorage.getItem('auth_token');
-        return Boolean(user && token);
+        try {
+            const user = localStorage.getItem('auth_user');
+            const token = localStorage.getItem('auth_token');
+            // Hem user hem token olmalı ve user geçerli bir JSON olmalı
+            if (!user || !token) {
+                return false;
+            }
+            // User'ın geçerli bir JSON olduğunu kontrol et
+            try {
+                JSON.parse(user);
+            } catch (e) {
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('isAuthenticated error:', error);
+            return false;
+        }
     },
 
     getCurrentUser: function() {
@@ -130,29 +145,36 @@ const Auth = {
     async login(username, password) {
         const normalizedEmail = username ? username.toLowerCase().trim() : '';
 
+        // Önce Supabase'i dene, hata olursa fallback'e geç
         if (supabaseClient) {
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: normalizedEmail,
-                password: password
-            });
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: normalizedEmail,
+                    password: password
+                });
 
-            if (error) {
-                return { success: false, error: error.message };
+                if (!error && data && data.session) {
+                    currentSupabaseSession = data.session;
+                    const supUser = data.user;
+                    const payload = {
+                        username: supUser.email,
+                        fullName: supUser.user_metadata?.full_name || supUser.email,
+                        role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+                        loginTime: new Date().toISOString()
+                    };
+
+                    const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
+                    storeSessionLocally(payload, data.session?.access_token, { requiresPasswordChange });
+
+                    return { success: true, user: payload, requiresPasswordChange };
+                }
+                
+                // Supabase'de hata varsa fallback'e geç (kullanıcı yoksa veya şifre yanlışsa)
+                console.log('Supabase login failed, falling back to local auth:', error?.message);
+            } catch (err) {
+                // Supabase bağlantı hatası varsa fallback'e geç
+                console.log('Supabase connection error, falling back to local auth:', err.message);
             }
-
-            currentSupabaseSession = data.session;
-            const supUser = data.user;
-            const payload = {
-                username: supUser.email,
-                fullName: supUser.user_metadata?.full_name || supUser.email,
-                role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
-                loginTime: new Date().toISOString()
-            };
-
-            const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
-            storeSessionLocally(payload, data.session?.access_token, { requiresPasswordChange });
-
-            return { success: true, user: payload, requiresPasswordChange };
         }
 
         // Fallback: local listed admins
@@ -261,13 +283,28 @@ if (supabaseClient) {
     });
 }
 
+// Global authentication kontrolü - DOMContentLoaded ile geciktir
 if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' && !window.location.pathname.includes('login.html')) {
     const protectedPages = ['dashboard.html', 'client-list.html', 'client-detail.html', 'contracts.html', 'reports.html', 'payments.html', 'offers.html', 'users.html', 'online-users.html'];
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
-        if (!Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
+        // DOMContentLoaded ile kontrol et, script'lerin yüklenmesi için bekle
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                        window.location.href = 'login.html';
+                    }
+                }, 100);
+            });
+        } else {
+            // Sayfa zaten yüklendiyse direkt kontrol et
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 100);
         }
     }
 }

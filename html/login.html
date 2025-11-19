@@ -122,7 +122,7 @@
                         </div>
                         
                         <div class="form-group">
-                            <input type="password" class="form-control form-control-user" id="loginPas" data-i18n-placeholder="password" placeholder="Password..." required autocomplete="current-password" value="12345">
+                            <input type="password" class="form-control form-control-user" id="loginPas" data-i18n-placeholder="password" placeholder="Password..." required autocomplete="current-password">
                         </div>
                         
                         <div class="form-group" id="twoFactorGroup" style="display: none;">
@@ -172,7 +172,7 @@
     <script src="i18n.js"></script>
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script>
         const DEFAULT_ADMIN_PASSWORD = 'Crowe2022!';
         const ADMIN_USERS = [
@@ -330,10 +330,21 @@
             camera.position.set(3, 2.5, 3);
             scene.add(camera);
 
-            const controls = new THREE.OrbitControls(camera, canvas);
-            controls.enableDamping = true;
-            controls.enablePan = false;
-            controls.enableZoom = false;
+            // OrbitControls için fallback
+            let controls = null;
+            if (typeof THREE.OrbitControls !== 'undefined') {
+                controls = new THREE.OrbitControls(camera, canvas);
+            } else if (typeof OrbitControls !== 'undefined') {
+                controls = new OrbitControls(camera, canvas);
+            } else {
+                console.warn('OrbitControls yüklenemedi, animasyon devre dışı');
+            }
+            
+            if (controls) {
+                controls.enableDamping = true;
+                controls.enablePan = false;
+                controls.enableZoom = false;
+            }
 
             const renderer = new THREE.WebGLRenderer({
                 canvas: canvas,
@@ -359,7 +370,9 @@
             const tick = () => {
                 const elapsedTime = clock.getElapsedTime();
 
-                controls.update();
+                if (controls) {
+                    controls.update();
+                }
 
                 camera.position.x = Math.cos(elapsedTime * 0.05) * 3;
                 camera.position.z = Math.sin(elapsedTime * 0.05) * 3;
@@ -376,6 +389,15 @@
     
     <script>
         $(function(){
+            // Check if user is already authenticated, redirect to dashboard
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
+                    console.log('User already authenticated, redirecting to dashboard...');
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+            }, 100);
+            
             var twoFactorRequired = false;
             
             function hataAc(icerik){
@@ -406,26 +428,44 @@
                 }
 
                 try {
+                    console.log('Attempting login for:', kul);
                     const result = await Auth.login(kul, pas.trim());
+                    console.log('Login result:', result);
                 
                     if (!result.success) {
+                        console.error('Login failed:', result.error);
                         hataAc(result.error || i18n.t('loginErrorWrong'));
                         return false;
                     }
 
+                    console.log('Login successful, storing session...');
                     localStorage.setItem('auditorUser', result.user.username);
                     if (typeof Auth.clearPendingPasswordChange === 'function') {
                         Auth.clearPendingPasswordChange();
                     }
                     markPasswordChanged(result.user.username);
-                    onayAc('Giriş başarılı, yönlendiriliyorsunuz...');
-                    setTimeout(function(){
-                        window.location.href = 'dashboard.html';
-                    }, 400);
+                    
+                    // Wait a bit for localStorage to be written, then verify
+                    setTimeout(function() {
+                        // Verify authentication was stored
+                        if (typeof Auth !== 'undefined' && Auth.isAuthenticated()) {
+                            console.log('Authentication verified, redirecting...');
+                            onayAc('Giriş başarılı, yönlendiriliyorsunuz...');
+                            setTimeout(function(){
+                                console.log('Redirecting to dashboard...');
+                                window.location.href = 'dashboard.html';
+                            }, 400);
+                        } else {
+                            console.error('Authentication not stored properly');
+                            console.log('auth_user:', localStorage.getItem('auth_user'));
+                            console.log('auth_token:', localStorage.getItem('auth_token'));
+                            hataAc('Oturum kaydedilemedi. Lütfen tekrar deneyin.');
+                        }
+                    }, 100);
                     return true;
                 } catch (err) {
                     console.error('Login error:', err);
-                    hataAc(i18n.t('loginErrorWrong'));
+                    hataAc(i18n.t('loginErrorWrong') + ': ' + (err.message || 'Bilinmeyen hata'));
                     return false;
                 }
             }

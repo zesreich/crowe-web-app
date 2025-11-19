@@ -216,7 +216,6 @@
                 <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
                     <i class="fa fa-bars"></i>
                 </button>
-                <h3 class="text-dark ml-5 mb-0">KULLANICI LİSTESİ</h3>
                 <ul class="navbar-nav ml-auto">
                     <!-- Language Switcher -->
                     <li class="nav-item language-switcher mr-3">
@@ -293,19 +292,36 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Supabase Config & JS -->
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
     <!-- Dark Mode -->
     <link rel="stylesheet" href="darkmode.css">
-    <script src="darkmode.js" defer></script>
     <!-- Logout Button -->
     <link rel="stylesheet" href="logout-button.css">
-    <script src="logout-button.js"></script>
     <script>
-        // Check authentication on page load
-        if (!Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
+        // Initialize dark mode IMMEDIATELY before page renders to prevent flash
+        (function() {
+            const darkmode = localStorage.getItem('darkmode');
+            if (darkmode === "active") {
+                document.documentElement.classList.add('darkmode');
+                document.body.classList.add('darkmode');
+            }
+        })();
+    </script>
+    <script src="darkmode.js" defer></script>
+    <script src="logout-button.js" defer></script>
+    <script>
+        // Check authentication on page load (DOMContentLoaded ile geciktir)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 100);
+        });
         
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();

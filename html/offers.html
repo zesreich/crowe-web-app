@@ -212,7 +212,6 @@
                 <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
                     <i class="fa fa-bars"></i>
                 </button>
-                <h3 class="text-dark ml-5 mb-0">TEKLİF LİSTESİ</h3>
                 <ul class="navbar-nav ml-auto">
                     <!-- Language Switcher -->
                     <li class="nav-item language-switcher mr-3">
@@ -289,25 +288,87 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Supabase Config & JS -->
+    <script src="supabase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
     <!-- Dark Mode -->
     <link rel="stylesheet" href="darkmode.css">
-    <script src="darkmode.js" defer></script>
     <!-- Logout Button -->
     <link rel="stylesheet" href="logout-button.css">
-    <script src="logout-button.js"></script>
     <script>
-        // Check authentication on page load
-        if (!Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
+        // Initialize dark mode IMMEDIATELY before page renders to prevent flash
+        (function() {
+            const darkmode = localStorage.getItem('darkmode');
+            if (darkmode === "active") {
+                document.documentElement.classList.add('darkmode');
+                document.body.classList.add('darkmode');
+            }
+        })();
+    </script>
+    <script src="darkmode.js" defer></script>
+    <script src="logout-button.js" defer></script>
+    <script>
+        // Check authentication on page load (DOMContentLoaded ile geciktir)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 100);
+        });
         
         // Update user info in topbar
         const currentUser = Auth.getCurrentUser();
         if (currentUser) {
             const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
             $('#userEmail').text(userEmail);
+        }
+        
+        // Get Supabase client helper function
+        function getSupabaseClient() {
+            if (typeof window.supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+                if (!window.SUPABASE_URL.includes('YOUR_') && !window.SUPABASE_ANON_KEY.includes('YOUR_')) {
+                    return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+                }
+            }
+            return null;
+        }
+        
+        // Supabase functions for offers
+        async function getOffersFromSupabase() {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                return offersData; // Fallback to static data
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('offers')
+                    .select('*')
+                    .order('send_date', { ascending: false });
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    return offersData; // Fallback to static data
+                }
+                
+                // Convert Supabase format to local format
+                return (data || []).map(o => ({
+                    id: o.id,
+                    offerNo: o.offer_no,
+                    clientName: o.client_name,
+                    offerType: o.offer_type,
+                    sendDate: o.send_date,
+                    status: o.status,
+                    pptFiles: o.ppt_files || [],
+                    pdfFiles: o.pdf_files || []
+                }));
+            } catch (error) {
+                console.error('Error fetching offers:', error);
+                return offersData; // Fallback to static data
+            }
         }
         
         function toggleLanguage() {
@@ -317,8 +378,8 @@
             document.getElementById('langText').textContent = newLang === 'en' ? 'TR' : 'EN';
         }
         
-        // Sample offer data
-        const offersData = [
+        // Sample offer data (fallback)
+        let offersData = [
             { id: 1, offerNo: 'OFF-2024-001', clientName: 'ABC Construction Inc.', offerType: 'Denetim Hizmetleri', sendDate: '2024-01-15', status: 'Onay Bekliyor', pptFiles: ['presentation_001.pptx'], pdfFiles: ['offer_001.pdf'] },
             { id: 2, offerNo: 'OFF-2024-002', clientName: 'DEF Food Ltd.', offerType: 'Mali Müşavirlik', sendDate: '2024-02-20', status: 'Kabul Edildi', pptFiles: ['presentation_002.pptx'], pdfFiles: ['offer_002.pdf', 'terms_002.pdf'] },
             { id: 3, offerNo: 'OFF-2024-003', clientName: 'GHI Technology', offerType: 'Danışmanlık', sendDate: '2024-03-10', status: 'Reddedildi', pptFiles: ['presentation_003.pptx'], pdfFiles: ['offer_003.pdf'] },
@@ -398,7 +459,11 @@
         }
         
         // Initialize table
-        populateTable(offersData);
+        async function initOffers() {
+            offersData = await getOffersFromSupabase();
+            populateTable(offersData);
+        }
+        initOffers();
         
         // Update language switcher text on language change
         document.addEventListener('languageChanged', function() {
