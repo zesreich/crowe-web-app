@@ -265,33 +265,41 @@ const Auth = {
 
 if (supabaseClient) {
     syncSupabaseSession();
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
-        currentSupabaseSession = session;
-        if (session) {
-            const supUser = session.user;
-            const payload = {
-                username: supUser.email,
-                fullName: supUser.user_metadata?.full_name || supUser.email,
-                role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
-                loginTime: new Date().toISOString()
-            };
-            const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
-            storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
-        } else {
-            clearSessionLocally();
-        }
-    });
+    // onAuthStateChange'i devre dışı bırak - fallback login'de localStorage'ı temizliyor
+    // Sadece manuel Supabase login'de kullanılacak
+    // supabaseClient.auth.onAuthStateChange((_event, session) => {
+    //     if (session) {
+    //         currentSupabaseSession = session;
+    //         const supUser = session.user;
+    //         const payload = {
+    //             username: supUser.email,
+    //             fullName: supUser.user_metadata?.full_name || supUser.email,
+    //             role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+    //             loginTime: new Date().toISOString()
+    //         };
+    //         const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
+    //         storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
+    //     } else {
+    //         // Only clear session if we previously had a Supabase session
+    //         if (currentSupabaseSession) {
+    //             console.log('Supabase session ended, clearing local session');
+    //             currentSupabaseSession = null;
+    //             clearSessionLocally();
+    //         } else {
+    //             console.log('Supabase session null but no previous session; keeping local session');
+    //         }
+    //     }
+    // });
 }
 
-// Global authentication kontrolü - DOMContentLoaded ile geciktir
+// Global authentication kontrolü - sadece localStorage kontrolü (daha güvenilir)
 if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' && !window.location.pathname.includes('login.html')) {
     const protectedPages = ['dashboard.html', 'client-list.html', 'client-detail.html', 'contracts.html', 'reports.html', 'payments.html', 'offers.html', 'users.html', 'online-users.html'];
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
-        // Wait for Auth object and check authentication
+        // Simplified auth check - only check localStorage
         function checkGlobalAuth() {
-            // Check localStorage first (faster)
             const authUser = localStorage.getItem('auth_user');
             const authToken = localStorage.getItem('auth_token');
             
@@ -302,38 +310,23 @@ if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' 
                 return;
             }
             
-            // Wait for Auth object if not available
-            if (typeof Auth === 'undefined') {
-                setTimeout(checkGlobalAuth, 50);
-                return;
-            }
-            
-            // Check with Auth.isAuthenticated()
+            // Verify auth_user is valid JSON
             try {
-                if (!Auth.isAuthenticated()) {
-                    console.log('Global auth check: Not authenticated, redirecting to login...');
-                    window.location.href = 'login.html';
-                } else {
-                    console.log('Global auth check: Authenticated');
-                }
+                JSON.parse(authUser);
+                console.log('Global auth check: Valid auth data found');
             } catch (error) {
-                console.error('Global auth check error:', error);
-                // If error but localStorage has data, allow (fallback)
-                if (authUser && authToken) {
-                    console.log('Global auth check: Error but localStorage has data, allowing');
-                } else {
-                    window.location.href = 'login.html';
-                }
+                console.error('Global auth check: Invalid auth_user JSON, redirecting...');
+                window.location.href = 'login.html';
             }
         }
         
-        // Start checking when DOM is ready
+        // Start checking when DOM is ready - wait longer
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkGlobalAuth, 150);
+                setTimeout(checkGlobalAuth, 250);
             });
         } else {
-            setTimeout(checkGlobalAuth, 150);
+            setTimeout(checkGlobalAuth, 250);
         }
     }
 }

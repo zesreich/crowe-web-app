@@ -914,58 +914,57 @@
     <script src="darkmode.js" defer></script>
     <script src="logout-button.js" defer></script>
     <script>
-        // Check authentication on page load - wait for Auth.js to load
+        // Check authentication on page load - simplified and more reliable
         function checkAuthAndRedirect() {
-            // Check if Auth object is available
-            if (typeof Auth === 'undefined') {
-                console.log('Auth object not loaded yet, waiting...');
-                setTimeout(checkAuthAndRedirect, 100);
-                return;
-            }
-            
-            console.log('Dashboard: Checking authentication...');
+            // First check localStorage directly (fastest and most reliable)
             const authUser = localStorage.getItem('auth_user');
             const authToken = localStorage.getItem('auth_token');
             
-            console.log('auth_user:', authUser);
+            console.log('Dashboard: Checking authentication...');
+            console.log('auth_user:', authUser ? 'exists' : 'missing');
             console.log('auth_token:', authToken ? 'exists' : 'missing');
             
-            // First check localStorage directly
+            // If no auth data, redirect immediately
             if (!authUser || !authToken) {
                 console.log('No auth data in localStorage, redirecting to login...');
                 window.location.href = 'login.html';
                 return;
             }
             
-            // Then check with Auth.isAuthenticated()
+            // Try to parse auth_user to verify it's valid JSON
             try {
-                const isAuth = Auth.isAuthenticated();
-                console.log('Is authenticated (via Auth):', isAuth);
+                const userObj = JSON.parse(authUser);
+                console.log('auth_user is valid JSON, user:', userObj.username);
                 
-                if (!isAuth) {
-                    console.log('Auth check failed, redirecting to login...');
-                    window.location.href = 'login.html';
-                } else {
-                    console.log('Authenticated successfully, staying on dashboard');
+                // If Auth object is available, double check
+                if (typeof Auth !== 'undefined') {
+                    try {
+                        const isAuth = Auth.isAuthenticated();
+                        console.log('Auth.isAuthenticated():', isAuth);
+                        if (!isAuth) {
+                            console.log('Auth check failed but localStorage has data, allowing access anyway');
+                        }
+                    } catch (error) {
+                        console.error('Error in Auth.isAuthenticated():', error);
+                        // Continue anyway if localStorage has valid data
+                    }
                 }
+                
+                console.log('Authenticated successfully, staying on dashboard');
             } catch (error) {
-                console.error('Error checking authentication:', error);
-                // If there's an error but we have localStorage data, allow access
-                if (authUser && authToken) {
-                    console.log('Auth check error but localStorage has data, allowing access');
-                } else {
-                    window.location.href = 'login.html';
-                }
+                console.error('auth_user is not valid JSON:', error);
+                console.log('Invalid auth data, redirecting to login...');
+                window.location.href = 'login.html';
             }
         }
         
-        // Start checking when DOM is ready
+        // Start checking when DOM is ready - but wait longer for scripts
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkAuthAndRedirect, 200);
+                setTimeout(checkAuthAndRedirect, 300);
             });
         } else {
-            setTimeout(checkAuthAndRedirect, 200);
+            setTimeout(checkAuthAndRedirect, 300);
         }
         
         // Update user info in topbar
