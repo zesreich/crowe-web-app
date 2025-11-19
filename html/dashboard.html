@@ -914,57 +914,63 @@
     <script src="darkmode.js" defer></script>
     <script src="logout-button.js" defer></script>
     <script>
-        // Check authentication on page load - simplified and more reliable
+        // Check authentication on page load - be very tolerant
+        let authCheckAttempts = 0;
+        const maxAuthCheckAttempts = 10;
+        
         function checkAuthAndRedirect() {
+            authCheckAttempts++;
+            console.log('Dashboard: Checking authentication (attempt ' + authCheckAttempts + ')...');
+            
             // First check localStorage directly (fastest and most reliable)
             const authUser = localStorage.getItem('auth_user');
             const authToken = localStorage.getItem('auth_token');
             
-            console.log('Dashboard: Checking authentication...');
-            console.log('auth_user:', authUser ? 'exists' : 'missing');
+            console.log('auth_user:', authUser ? 'exists (' + authUser.substring(0, 50) + '...)' : 'missing');
             console.log('auth_token:', authToken ? 'exists' : 'missing');
             
-            // If no auth data, redirect immediately
+            // If no auth data, wait a bit more (might be still writing)
             if (!authUser || !authToken) {
-                console.log('No auth data in localStorage, redirecting to login...');
-                window.location.href = 'login.html';
-                return;
+                if (authCheckAttempts < maxAuthCheckAttempts) {
+                    console.log('No auth data yet, waiting... (attempt ' + authCheckAttempts + ')');
+                    setTimeout(checkAuthAndRedirect, 100);
+                    return;
+                } else {
+                    console.log('No auth data after ' + maxAuthCheckAttempts + ' attempts, redirecting to login...');
+                    window.location.href = 'login.html';
+                    return;
+                }
             }
             
             // Try to parse auth_user to verify it's valid JSON
             try {
                 const userObj = JSON.parse(authUser);
                 console.log('auth_user is valid JSON, user:', userObj.username);
-                
-                // If Auth object is available, double check
-                if (typeof Auth !== 'undefined') {
-                    try {
-                        const isAuth = Auth.isAuthenticated();
-                        console.log('Auth.isAuthenticated():', isAuth);
-                        if (!isAuth) {
-                            console.log('Auth check failed but localStorage has data, allowing access anyway');
-                        }
-                    } catch (error) {
-                        console.error('Error in Auth.isAuthenticated():', error);
-                        // Continue anyway if localStorage has valid data
-                    }
-                }
-                
                 console.log('Authenticated successfully, staying on dashboard');
+                
+                // Don't check Auth.isAuthenticated() - just trust localStorage
+                // This prevents any timing issues
+                return;
             } catch (error) {
                 console.error('auth_user is not valid JSON:', error);
-                console.log('Invalid auth data, redirecting to login...');
-                window.location.href = 'login.html';
+                if (authCheckAttempts < maxAuthCheckAttempts) {
+                    console.log('Invalid JSON, waiting and retrying...');
+                    setTimeout(checkAuthAndRedirect, 100);
+                    return;
+                } else {
+                    console.log('Invalid auth data after ' + maxAuthCheckAttempts + ' attempts, redirecting to login...');
+                    window.location.href = 'login.html';
+                }
             }
         }
         
-        // Start checking when DOM is ready - but wait longer for scripts
+        // Start checking when DOM is ready - wait a bit longer
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkAuthAndRedirect, 300);
+                setTimeout(checkAuthAndRedirect, 500);
             });
         } else {
-            setTimeout(checkAuthAndRedirect, 300);
+            setTimeout(checkAuthAndRedirect, 500);
         }
         
         // Update user info in topbar

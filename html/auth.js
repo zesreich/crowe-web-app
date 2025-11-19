@@ -298,16 +298,25 @@ if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' 
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
-        // Simplified auth check - only check localStorage
+        // Simplified auth check - only check localStorage, be tolerant
+        let globalAuthCheckAttempts = 0;
+        const maxGlobalAuthCheckAttempts = 10;
+        
         function checkGlobalAuth() {
+            globalAuthCheckAttempts++;
             const authUser = localStorage.getItem('auth_user');
             const authToken = localStorage.getItem('auth_token');
             
-            // If no auth data, redirect immediately
+            // If no auth data, wait a bit (might be still writing from login)
             if (!authUser || !authToken) {
-                console.log('Global auth check: No auth data, redirecting to login...');
-                window.location.href = 'login.html';
-                return;
+                if (globalAuthCheckAttempts < maxGlobalAuthCheckAttempts) {
+                    setTimeout(checkGlobalAuth, 100);
+                    return;
+                } else {
+                    console.log('Global auth check: No auth data after ' + maxGlobalAuthCheckAttempts + ' attempts, redirecting...');
+                    window.location.href = 'login.html';
+                    return;
+                }
             }
             
             // Verify auth_user is valid JSON
@@ -315,18 +324,23 @@ if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' 
                 JSON.parse(authUser);
                 console.log('Global auth check: Valid auth data found');
             } catch (error) {
-                console.error('Global auth check: Invalid auth_user JSON, redirecting...');
-                window.location.href = 'login.html';
+                if (globalAuthCheckAttempts < maxGlobalAuthCheckAttempts) {
+                    setTimeout(checkGlobalAuth, 100);
+                    return;
+                } else {
+                    console.error('Global auth check: Invalid auth_user JSON after ' + maxGlobalAuthCheckAttempts + ' attempts, redirecting...');
+                    window.location.href = 'login.html';
+                }
             }
         }
         
         // Start checking when DOM is ready - wait longer
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkGlobalAuth, 250);
+                setTimeout(checkGlobalAuth, 400);
             });
         } else {
-            setTimeout(checkGlobalAuth, 250);
+            setTimeout(checkGlobalAuth, 400);
         }
     }
 }

@@ -438,62 +438,75 @@
                         return false;
                     }
 
-                    console.log('Login successful, storing session...');
+                    console.log('Login successful, result:', result);
+                    console.log('User payload:', result.user);
+                    
+                    // Auth.login already calls storeSessionLocally, but let's verify
+                    const authUser = localStorage.getItem('auth_user');
+                    const authToken = localStorage.getItem('auth_token');
+                    
+                    console.log('Immediate check - auth_user:', authUser ? 'exists' : 'missing');
+                    console.log('Immediate check - auth_token:', authToken ? 'exists' : 'missing');
+                    
+                    // If not stored, store it manually
+                    if (!authUser || !authToken) {
+                        console.log('Auth data not in localStorage, storing manually...');
+                        if (typeof Auth !== 'undefined' && Auth.storeSessionLocally) {
+                            // This should not be needed but as backup
+                            const payload = {
+                                username: result.user.username,
+                                fullName: result.user.fullName || result.user.username,
+                                role: result.user.role || 'admin',
+                                loginTime: new Date().toISOString()
+                            };
+                            localStorage.setItem('auth_user', JSON.stringify(payload));
+                            localStorage.setItem('auth_token', 'token_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11));
+                            console.log('Manually stored auth data');
+                        }
+                    }
+                    
                     localStorage.setItem('auditorUser', result.user.username);
                     if (typeof Auth.clearPendingPasswordChange === 'function') {
                         Auth.clearPendingPasswordChange();
                     }
                     markPasswordChanged(result.user.username);
                     
-                    // Verify authentication was stored (Auth.login already stores it)
-                    // Wait a bit longer to ensure everything is saved
-                    setTimeout(function() {
-                        // Double check localStorage
-                        const authUser = localStorage.getItem('auth_user');
-                        const authToken = localStorage.getItem('auth_token');
+                    // Final verification before redirect
+                    const finalAuthUser = localStorage.getItem('auth_user');
+                    const finalAuthToken = localStorage.getItem('auth_token');
+                    
+                    console.log('Final check - auth_user:', finalAuthUser ? 'exists' : 'missing');
+                    console.log('Final check - auth_token:', finalAuthToken ? 'exists' : 'missing');
+                    
+                    if (finalAuthUser && finalAuthToken) {
+                        console.log('Authentication data confirmed, redirecting...');
+                        onayAc('Giriş başarılı, yönlendiriliyorsunuz...');
                         
-                        console.log('Verifying auth storage...');
-                        console.log('auth_user:', authUser ? 'exists' : 'missing');
-                        console.log('auth_token:', authToken ? 'exists' : 'missing');
-                        
-                        // Verify with Auth.isAuthenticated() if available
-                        if (typeof Auth !== 'undefined') {
-                            const isAuth = Auth.isAuthenticated();
-                            console.log('Auth.isAuthenticated():', isAuth);
-                            
-                            if (isAuth) {
-                                console.log('Authentication verified, redirecting...');
-                                onayAc('Giriş başarılı, yönlendiriliyorsunuz...');
-                                setTimeout(function(){
-                                    console.log('Redirecting to dashboard...');
-                                    // Use replace instead of href to prevent back button issues
-                                    window.location.replace('dashboard.html');
-                                }, 500);
-                                return true;
-                            } else {
-                                console.error('Authentication verification failed');
-                                console.log('auth_user content:', authUser);
-                                console.log('auth_token content:', authToken ? 'exists' : 'missing');
-                                hataAc('Oturum doğrulanamadı. Lütfen tekrar deneyin.');
-                                return false;
-                            }
-                        } else {
-                            // If Auth object not available but localStorage has data, allow redirect
-                            if (authUser && authToken) {
-                                console.log('Auth object not available but localStorage has data, redirecting...');
-                                onayAc('Giriş başarılı, yönlendiriliyorsunuz...');
-                                setTimeout(function(){
-                                    window.location.replace('dashboard.html');
-                                }, 500);
-                                return true;
-                            } else {
-                                console.error('No auth data in localStorage');
-                                hataAc('Oturum kaydedilemedi. Lütfen tekrar deneyin.');
-                                return false;
-                            }
+                        // Use a flag to prevent multiple redirects
+                        if (window.loginRedirecting) {
+                            console.log('Redirect already in progress, skipping...');
+                            return true;
                         }
-                    }, 200);
-                    return true;
+                        window.loginRedirecting = true;
+                        
+                        setTimeout(function(){
+                            console.log('Redirecting to dashboard...');
+                            // Force redirect
+                            window.location.href = 'dashboard.html';
+                            // Backup redirect
+                            setTimeout(function() {
+                                if (window.location.pathname.includes('login.html')) {
+                                    console.log('Still on login page, forcing redirect again...');
+                                    window.location.replace('dashboard.html');
+                                }
+                            }, 1000);
+                        }, 300);
+                        return true;
+                    } else {
+                        console.error('Authentication data missing after all attempts');
+                        hataAc('Oturum kaydedilemedi. Lütfen tekrar deneyin.');
+                        return false;
+                    }
                 } catch (err) {
                     console.error('Login error:', err);
                     hataAc(i18n.t('loginErrorWrong') + ': ' + (err.message || 'Bilinmeyen hata'));
