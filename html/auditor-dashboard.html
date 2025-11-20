@@ -1108,8 +1108,9 @@
             currentDriveId = null; // Drive ID'yi sıfırla
 
             try {
-                // Önce /me/drive/shared endpoint'ini dene (daha güncel ve güvenilir)
-                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=999&$orderby=name";
+                // Önce /me/drive/sharedWithMe endpoint'ini dene (daha güvenilir)
+                // $top=200 (maksimum) kullanıyoruz, pagination ile devam edeceğiz
+                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=200";
                 console.log("Paylaşılan dosyalar yükleniyor (yöntem 1):", endpoint);
                 
                 let response = await fetch(endpoint, {
@@ -1120,10 +1121,10 @@
 
                 console.log("API yanıt durumu:", response.status, response.statusText);
 
-                // Eğer /me/drive/shared çalışmazsa, /me/drive/sharedWithMe'yi dene
-                if (!response.ok || response.status === 404) {
+                // Eğer /me/drive/sharedWithMe çalışmazsa, /me/drive/shared'ı dene
+                if (!response.ok || response.status === 404 || response.status === 400) {
                     console.log("Yöntem 1 başarısız, alternatif endpoint deneniyor...");
-                    endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=999";
+                    endpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=200";
                     console.log("Paylaşılan dosyalar yükleniyor (yöntem 2):", endpoint);
                     
                     response = await fetch(endpoint, {
@@ -1197,20 +1198,47 @@
                 }
 
                 const data = await response.json();
-                console.log("✅ Paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
+                console.log("İlk yüklemede paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
                 
-                // Debug: İlk dosyanın yapısını göster
-                if (data.value && data.value.length > 0) {
-                    console.log("🔍 İlk paylaşılan dosya yapısı:", data.value[0]);
-                    console.log("🔍 remoteItem var mı?", data.value[0].remoteItem !== undefined);
-                    console.log("🔍 webUrl:", data.value[0].webUrl);
-                    if (data.value[0].remoteItem) {
-                        console.log("🔍 remoteItem.id:", data.value[0].remoteItem.id);
-                        console.log("🔍 remoteItem.driveId:", data.value[0].remoteItem.parentReference?.driveId);
+                let allFiles = data.value || [];
+                
+                // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
+                let nextLink = data['@odata.nextLink'];
+                let pageCount = 1;
+                while (nextLink && pageCount < 50) { // Maksimum 50 sayfa (10,000 dosya)
+                    console.log(`Paylaşılan dosyalar - Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                        pageCount++;
+                        console.log(`Toplam paylaşılan dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
+                    } else {
+                        console.warn("Pagination hatası:", nextResponse.status);
+                        break;
                     }
                 }
                 
-                displayFiles(data.value || []);
+                console.log("✅ Toplam paylaşılan dosya:", allFiles.length, `(${pageCount} sayfa)`);
+                
+                // Debug: İlk dosyanın yapısını göster
+                if (allFiles.length > 0) {
+                    console.log("🔍 İlk paylaşılan dosya yapısı:", allFiles[0]);
+                    console.log("🔍 remoteItem var mı?", allFiles[0].remoteItem !== undefined);
+                    console.log("🔍 webUrl:", allFiles[0].webUrl);
+                    if (allFiles[0].remoteItem) {
+                        console.log("🔍 remoteItem.id:", allFiles[0].remoteItem.id);
+                        console.log("🔍 remoteItem.driveId:", allFiles[0].remoteItem.parentReference?.driveId);
+                    }
+                }
+                
+                displayFiles(allFiles);
                 loadStorageInfo();
                 showFilesArea();
             } catch (error) {
