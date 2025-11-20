@@ -72,3 +72,4 @@ SELECT
     COUNT(*) as row_count
 FROM online_sessions;
 
+

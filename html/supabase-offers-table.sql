@@ -92,3 +92,4 @@ SELECT
     COUNT(*) as row_count
 FROM offers;
 
+

@@ -265,82 +265,46 @@ const Auth = {
 
 if (supabaseClient) {
     syncSupabaseSession();
-    // onAuthStateChange'i devre dışı bırak - fallback login'de localStorage'ı temizliyor
-    // Sadece manuel Supabase login'de kullanılacak
-    // supabaseClient.auth.onAuthStateChange((_event, session) => {
-    //     if (session) {
-    //         currentSupabaseSession = session;
-    //         const supUser = session.user;
-    //         const payload = {
-    //             username: supUser.email,
-    //             fullName: supUser.user_metadata?.full_name || supUser.email,
-    //             role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
-    //             loginTime: new Date().toISOString()
-    //         };
-    //         const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
-    //         storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
-    //     } else {
-    //         // Only clear session if we previously had a Supabase session
-    //         if (currentSupabaseSession) {
-    //             console.log('Supabase session ended, clearing local session');
-    //             currentSupabaseSession = null;
-    //             clearSessionLocally();
-    //         } else {
-    //             console.log('Supabase session null but no previous session; keeping local session');
-    //         }
-    //     }
-    // });
+    supabaseClient.auth.onAuthStateChange((_event, session) => {
+        currentSupabaseSession = session;
+        if (session) {
+            const supUser = session.user;
+            const payload = {
+                username: supUser.email,
+                fullName: supUser.user_metadata?.full_name || supUser.email,
+                role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+                loginTime: new Date().toISOString()
+            };
+            const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
+            storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
+        } else {
+            clearSessionLocally();
+        }
+    });
 }
 
-// Global authentication kontrolü - sadece localStorage kontrolü (daha güvenilir)
+// Global authentication kontrolü - DOMContentLoaded ile geciktir
 if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' && !window.location.pathname.includes('login.html')) {
     const protectedPages = ['dashboard.html', 'client-list.html', 'client-detail.html', 'contracts.html', 'reports.html', 'payments.html', 'offers.html', 'users.html', 'online-users.html'];
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
-        // Simplified auth check - only check localStorage, be tolerant
-        let globalAuthCheckAttempts = 0;
-        const maxGlobalAuthCheckAttempts = 10;
-        
-        function checkGlobalAuth() {
-            globalAuthCheckAttempts++;
-            const authUser = localStorage.getItem('auth_user');
-            const authToken = localStorage.getItem('auth_token');
-            
-            // If no auth data, wait a bit (might be still writing from login)
-            if (!authUser || !authToken) {
-                if (globalAuthCheckAttempts < maxGlobalAuthCheckAttempts) {
-                    setTimeout(checkGlobalAuth, 100);
-                    return;
-                } else {
-                    console.log('Global auth check: No auth data after ' + maxGlobalAuthCheckAttempts + ' attempts, redirecting...');
-                    window.location.href = 'login.html';
-                    return;
-                }
-            }
-            
-            // Verify auth_user is valid JSON
-            try {
-                JSON.parse(authUser);
-                console.log('Global auth check: Valid auth data found');
-            } catch (error) {
-                if (globalAuthCheckAttempts < maxGlobalAuthCheckAttempts) {
-                    setTimeout(checkGlobalAuth, 100);
-                    return;
-                } else {
-                    console.error('Global auth check: Invalid auth_user JSON after ' + maxGlobalAuthCheckAttempts + ' attempts, redirecting...');
-                    window.location.href = 'login.html';
-                }
-            }
-        }
-        
-        // Start checking when DOM is ready - wait longer
+        // DOMContentLoaded ile kontrol et, script'lerin yüklenmesi için bekle
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(checkGlobalAuth, 400);
+                setTimeout(function() {
+                    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                        window.location.href = 'login.html';
+                    }
+                }, 100);
             });
         } else {
-            setTimeout(checkGlobalAuth, 400);
+            // Sayfa zaten yüklendiyse direkt kontrol et
+            setTimeout(function() {
+                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                    window.location.href = 'login.html';
+                }
+            }, 100);
         }
     }
 }

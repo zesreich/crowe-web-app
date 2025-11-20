@@ -15,13 +15,7 @@
   "author": "Crowe HSY",
   "license": "ISC",
   "dependencies": {
+    "@supabase/supabase-js": "^2.83.0",
     "bcrypt": "^5.1.1"
   }
 }
-
-
-
-
-
-
-

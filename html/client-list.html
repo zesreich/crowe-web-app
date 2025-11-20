@@ -17,16 +17,54 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     
+    <!-- Dark Mode CSS - Load early to prevent FOUC -->
+    <link rel="stylesheet" href="darkmode.css">
+    
+    <!-- Inline script to apply dark mode before page renders -->
+    <script>
+        // Apply dark mode immediately before page renders to prevent FOUC
+        // This runs before body is rendered, so we use documentElement
+        (function() {
+            try {
+                const darkmode = localStorage.getItem('darkmode');
+                if (darkmode === 'active') {
+                    // Add class to html element (always exists)
+                    document.documentElement.classList.add('darkmode');
+                    // Also try to add to body if it exists (for immediate effect)
+                    if (document.body) {
+                        document.body.classList.add('darkmode');
+                    } else {
+                        // If body doesn't exist yet, wait for it
+                        const observer = new MutationObserver(function(mutations) {
+                            if (document.body) {
+                                document.body.classList.add('darkmode');
+                                observer.disconnect();
+                            }
+                        });
+                        observer.observe(document.documentElement, { childList: true });
+                    }
+                }
+            } catch (e) {
+                // Silently fail if localStorage is not available
+                console.warn('Could not apply dark mode:', e);
+            }
+        })();
+    </script>
+    
     <style>
         * {
             box-sizing: border-box;
         }
         
         body {
-            background: radial-gradient(circle at top, #1f2933, #050608 55%);
-            color: #e5e7eb;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 'Nunito', sans-serif;
             min-height: 100vh;
+        }
+        
+        /* Dark mode styles - only apply when darkmode class is present */
+        body.darkmode {
+            background: radial-gradient(circle at top, #1f2933, #050608 55%);
+            color: #e5e7eb;
         }
         
         .sidebar {
@@ -35,15 +73,26 @@
             bottom: 0;
             left: 0;
             z-index: 100;
-            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
-            border-right: 1px solid rgba(148, 163, 184, 0.2);
-            color: #e5e7eb;
             width: 260px;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 20px 18px;
             gap: 20px;
+        }
+        
+        /* Light mode sidebar styles */
+        body:not(.darkmode) .sidebar {
+            background: #002060;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        /* Dark mode sidebar styles */
+        body.darkmode .sidebar {
+            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
+            border-right: 1px solid rgba(148, 163, 184, 0.2);
+            color: #e5e7eb;
         }
         
         #accordionSidebar::after {
@@ -58,11 +107,20 @@
             font-weight: 800;
             padding: 1.5rem 1rem;
             text-align: center;
-            color: white;
             text-decoration: none;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        
+        /* Light mode sidebar brand styles */
+        body:not(.darkmode) .sidebar-brand {
+            color: white;
+        }
+        
+        /* Dark mode sidebar brand styles */
+        body.darkmode .sidebar-brand {
+            color: white;
         }
         
         .sidebar-brand img {
@@ -73,7 +131,6 @@
         }
         
         .sidebar .nav-link {
-            color: rgba(229, 231, 235, 0.8);
             padding: 8px 10px;
             font-weight: 500;
             font-size: 13px;
@@ -84,17 +141,46 @@
             text-decoration: none;
         }
         
-        .sidebar .nav-link:hover {
+        /* Light mode sidebar nav link styles */
+        body:not(.darkmode) .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        body:not(.darkmode) .sidebar .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 1);
+        }
+        
+        body:not(.darkmode) .sidebar .nav-link.active,
+        body:not(.darkmode) .sidebar .nav-link.active-link-disabled {
+            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Dark mode sidebar nav link styles */
+        body.darkmode .sidebar .nav-link {
+            color: rgba(229, 231, 235, 0.8);
+        }
+        
+        body.darkmode .sidebar .nav-link:hover {
             background: rgba(15, 23, 42, 0.9);
             border-color: rgba(148, 163, 184, 0.5);
             color: rgba(229, 231, 235, 1);
         }
         
-        .sidebar .nav-link.active {
+        body.darkmode .sidebar .nav-link.active,
+        body.darkmode .sidebar .nav-link.active-link-disabled {
             background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 1));
             border: 1px solid rgba(56, 189, 248, 0.7);
             box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
             color: rgba(229, 231, 235, 1);
+        }
+        
+        /* Active link disabled - prevent cursor change */
+        .sidebar .nav-link.active-link-disabled {
+            cursor: default !important;
+            pointer-events: auto !important;
         }
         
         .sidebar .nav-link i {
@@ -109,57 +195,87 @@
         }
         
         .topbar {
+            padding: 1rem 1.5rem;
+        }
+        
+        /* Dark mode topbar styles */
+        body.darkmode .topbar {
             background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
             border-bottom: 1px solid rgba(148, 163, 184, 0.35);
             box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
-            padding: 1rem 1.5rem;
             color: #e5e7eb;
         }
         
-        .topbar h3 {
+        body.darkmode .topbar h3 {
             color: #e5e7eb !important;
         }
         
-        .topbar .text-gray-600 {
+        body.darkmode .topbar .text-gray-600 {
             color: #9ca3af !important;
         }
         
-        .topbar .dropdown-menu {
+        body.darkmode .topbar .dropdown-menu {
             background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 1));
             border: 1px solid rgba(148, 163, 184, 0.5);
             color: #e5e7eb;
         }
         
-        .topbar .dropdown-item {
+        body.darkmode .topbar .dropdown-item {
             color: #e5e7eb;
         }
         
-        .topbar .dropdown-item:hover {
+        body.darkmode .topbar .dropdown-item:hover {
             background: rgba(15, 23, 42, 0.9);
             color: #e5e7eb;
         }
         
+        /* Topbar logout button styles */
+        body:not(.darkmode) .topbar .nav-link {
+            color: #5a5c69;
+        }
+        
+        body:not(.darkmode) .topbar .nav-link:hover {
+            color: #002060;
+        }
+        
+        body.darkmode .topbar .nav-link {
+            color: #e5e7eb;
+        }
+        
+        body.darkmode .topbar .nav-link:hover {
+            color: rgba(56, 189, 248, 1);
+        }
+        
         .card {
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
             border-radius: 16px;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
             margin-bottom: 1.5rem;
         }
         
+        /* Dark mode card styles */
+        body.darkmode .card {
+            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
+        }
+        
         .card-header {
-            background: transparent;
-            color: #e5e7eb;
             font-weight: 600;
             padding: 12px 12px 10px;
+        }
+        
+        /* Dark mode card header styles */
+        body.darkmode .card-header {
+            background: transparent;
+            color: #e5e7eb;
             border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
         
-        .table {
+        /* Dark mode table styles */
+        body.darkmode .table {
             color: #e5e7eb;
         }
         
-        .table thead th {
+        body.darkmode .table thead th {
             background: rgba(15, 23, 42, 0.98);
             color: #6b7280;
             font-weight: 600;
@@ -171,20 +287,20 @@
             padding: 6px 12px;
         }
         
-        .table tbody tr {
+        body.darkmode .table tbody tr {
             border-bottom: 1px solid rgba(51, 65, 85, 1);
         }
         
-        .table tbody tr:nth-child(even) {
+        body.darkmode .table tbody tr:nth-child(even) {
             background: rgba(15, 23, 42, 0.8);
         }
         
-        .table tbody tr:hover {
+        body.darkmode .table tbody tr:hover {
             background: rgba(15, 23, 42, 0.96);
             cursor: pointer;
         }
         
-        .table td {
+        body.darkmode .table td {
             color: #e5e7eb;
             padding: 8px 12px;
             font-size: 11px;
@@ -192,21 +308,25 @@
         
         .btn {
             border-radius: 999px;
-            border: 1px solid rgba(148, 163, 184, 0.6);
-            background: rgba(15, 23, 42, 0.9);
-            color: #e5e7eb;
             font-size: 11px;
             padding: 5px 9px;
             transition: all 0.18s ease-out;
         }
         
-        .btn:hover {
+        /* Dark mode button styles */
+        body.darkmode .btn {
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            background: rgba(15, 23, 42, 0.9);
+            color: #e5e7eb;
+        }
+        
+        body.darkmode .btn:hover {
             border-color: rgba(56, 189, 248, 0.9);
             background: rgba(15, 23, 42, 1);
             color: #e5e7eb;
         }
         
-        .btn-primary {
+        body.darkmode .btn-primary {
             border-color: rgba(56, 189, 248, 0.9);
             background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.2));
         }
@@ -341,40 +461,6 @@
                     <span>Sözleşmeler</span>
                 </a>
             </li>
-            <li class="nav-item" style="padding: 1rem; display: flex; justify-content: center;">
-                <button class="logoutButton">
-                    <svg class="doorway" viewBox="0 0 100 100">
-                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
-                        <path class="bang" d="M40.5 43.7L26.6 31.4l-2.5 6.7zM41.9 50.4l-19.5-4-1.4 6.3zM40 57.4l-17.7 3.9 3.9 5.7z" />
-                    </svg>
-                    <svg class="figure" viewBox="0 0 100 100">
-                        <circle cx="52.1" cy="32.4" r="6.4" />
-                        <path d="M50.7 62.8c-1.2 2.5-3.6 5-7.2 4-3.2-.9-4.9-3.5-4-7.8.7-3.4 3.1-13.8 4.1-15.8 1.7-3.4 1.6-4.6 7-3.7 4.3.7 4.6 2.5 4.3 5.4-.4 3.7-2.8 15.1-4.2 17.9z" />
-                        <g class="arm1">
-                            <path d="M55.5 56.5l-6-9.5c-1-1.5-.6-3.5.9-4.4 1.5-1 3.7-1.1 4.6.4l6.1 10c1 1.5.3 3.5-1.1 4.4-1.5.9-3.5.5-4.5-.9z" />
-                            <path class="wrist1" d="M69.4 59.9L58.1 58c-1.7-.3-2.9-1.9-2.6-3.7.3-1.7 1.9-2.9 3.7-2.6l11.4 1.9c1.7.3 2.9 1.9 2.6 3.7-.4 1.7-2 2.9-3.8 2.6z" />
-                        </g>
-                        <g class="arm2">
-                            <path d="M34.2 43.6L45 40.3c1.7-.6 3.5.3 4 2 .6 1.7-.3 4-2 4.5l-10.8 2.8c-1.7.6-3.5-.3-4-2-.6-1.6.3-3.4 2-4z" />
-                            <path class="wrist2" d="M27.1 56.2L32 45.7c.7-1.6 2.6-2.3 4.2-1.6 1.6.7 2.3 2.6 1.6 4.2L33 58.8c-.7 1.6-2.6 2.3-4.2 1.6-1.7-.7-2.4-2.6-1.7-4.2z" />
-                        </g>
-                        <g class="leg1">
-                            <path d="M52.1 73.2s-7-5.7-7.9-6.5c-.9-.9-1.2-3.5-.1-4.9 1.1-1.4 3.8-1.9 5.2-.9l7.9 7c1.4 1.1 1.7 3.5.7 4.9-1.1 1.4-4.4 1.5-5.8.4z" />
-                            <path class="calf1" d="M52.6 84.4l-1-12.8c-.1-1.9 1.5-3.6 3.5-3.7 2-.1 3.7 1.4 3.8 3.4l1 12.8c.1 1.9-1.5 3.6-3.5 3.7-2 0-3.7-1.5-3.8-3.4z" />
-                        </g>
-                        <g class="leg2">
-                            <path d="M37.8 72.7s1.3-10.2 1.6-11.4 2.4-2.8 4.1-2.6c1.7.2 3.6 2.3 3.4 4l-1.8 11.1c-.2 1.7-1.7 3.3-3.4 3.1-1.8-.2-4.1-2.4-3.9-4.2z" />
-                            <path class="calf2" d="M29.5 82.3l9.6-10.9c1.3-1.4 3.6-1.5 5.1-.1 1.5 1.4.4 4.9-.9 6.3l-8.5 9.6c-1.3 1.4-3.6 1.5-5.1.1-1.4-1.3-1.5-3.5-.2-5z" />
-                        </g>
-                    </svg>
-                    <svg class="door" viewBox="0 0 100 100">
-                        <path d="M93.4 86.3H58.6c-1.9 0-3.4-1.5-3.4-3.4V17.1c0-1.9 1.5-3.4 3.4-3.4h34.8c1.9 0 3.4 1.5 3.4 3.4v65.8c0 1.9-1.5 3.4-3.4 3.4z" />
-                        <circle cx="66" cy="50" r="3.7" />
-                    </svg>
-                    <span class="button-text">Çıkış</span>
-                </button>
-            </li>
-            <hr class="sidebar-divider d-none d-md-block">
         </ul>
 
         <!-- Content Wrapper -->
@@ -395,11 +481,13 @@
                                 Profil
                             </a>
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="#" onclick="Auth.logout(); return false;">
-                                <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Çıkış
-                            </a>
                         </div>
+                    </li>
+                    <li class="nav-item" style="margin-right: 1rem;">
+                        <a class="nav-link" href="#" onclick="Auth.logout(); return false;" style="cursor: pointer;">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            <span class="d-none d-lg-inline">Çıkış</span>
+                        </a>
                     </li>
                     <!-- Dark Mode Switcher -->
                     <li class="nav-item">
@@ -649,22 +737,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
-    <!-- Dark Mode -->
-    <link rel="stylesheet" href="darkmode.css">
-    <!-- Logout Button -->
-    <link rel="stylesheet" href="logout-button.css">
-    <script>
-        // Initialize dark mode IMMEDIATELY before page renders to prevent flash
-        (function() {
-            const darkmode = localStorage.getItem('darkmode');
-            if (darkmode === "active") {
-                document.documentElement.classList.add('darkmode');
-                document.body.classList.add('darkmode');
-            }
-        })();
-    </script>
+    <!-- Dark Mode JS - Already loaded CSS in head -->
     <script src="darkmode.js" defer></script>
-    <script src="logout-button.js" defer></script>
+    <!-- Prevent Active Link Reload -->
+    <script src="prevent-active-link-reload.js"></script>
     <script>
         // Check authentication on page load (DOMContentLoaded ile geciktir)
         document.addEventListener('DOMContentLoaded', function() {
@@ -675,11 +751,33 @@
             }, 100);
         });
         
-        // Update user info in topbar
-        const currentUser = Auth.getCurrentUser();
-        if (currentUser) {
-            const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-            $('#userEmail').text(userEmail);
+        // Update user info in topbar (same as other pages)
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    // username field contains the email address
+                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+                    const userEmailElement = document.getElementById('userEmail');
+                    if (userEmailElement) {
+                        userEmailElement.textContent = userEmail;
+                    }
+                }
+            }, 100);
+        });
+        
+        // Also update immediately if DOM is already loaded
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(function() {
+                const currentUser = Auth.getCurrentUser();
+                if (currentUser) {
+                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
+                    const userEmailElement = document.getElementById('userEmail');
+                    if (userEmailElement) {
+                        userEmailElement.textContent = userEmail;
+                    }
+                }
+            }, 100);
         }
         
         // Get Supabase client from auth.js
@@ -764,32 +862,35 @@
             }
         }
         
-        async function updateClientInSupabase(id, client) {
+        async function updateClientInSupabase(clientId, client) {
             const supabase = getSupabaseClient();
             if (!supabase) {
                 // Fallback to localStorage
                 const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                if (clients[id - 1]) {
-                    clients[id - 1] = client;
+                const index = clients.findIndex(c => (c.id || c.vergi_no || `local_${clients.indexOf(c)}`) === clientId);
+                if (index !== -1) {
+                    clients[index] = { ...clients[index], ...client };
                     localStorage.setItem('clients', JSON.stringify(clients));
                 }
                 return { success: true };
             }
             
             try {
-                // Get all clients to find the UUID
-                const { data: allClients, error: fetchError } = await supabase
-                    .from('clients')
-                    .select('id')
-                    .order('created_at', { ascending: false });
+                // UUID kontrolü - eğer UUID formatında değilse localStorage fallback
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clientId);
                 
-                if (fetchError) throw fetchError;
-                
-                const clientToUpdate = allClients[id - 1];
-                if (!clientToUpdate) {
-                    throw new Error('Client not found');
+                if (!isUUID && clientId.startsWith('local_')) {
+                    // localStorage fallback
+                    const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                    const index = parseInt(clientId.replace('local_', ''));
+                    if (clients[index]) {
+                        clients[index] = { ...clients[index], ...client };
+                        localStorage.setItem('clients', JSON.stringify(clients));
+                    }
+                    return { success: true };
                 }
                 
+                // Direkt UUID ile güncelleme (verimsiz tüm client'ları çekmeye gerek yok)
                 const { error } = await supabase
                     .from('clients')
                     .update({
@@ -798,7 +899,7 @@
                         vergi_dairesi: client.vergiDairesi,
                         ekip: client.ekip
                     })
-                    .eq('id', clientToUpdate.id);
+                    .eq('id', clientId);
                 
                 if (error) throw error;
                 
@@ -809,36 +910,39 @@
             }
         }
         
-        async function deleteClientFromSupabase(id) {
+        async function deleteClientFromSupabase(clientId) {
             const supabase = getSupabaseClient();
             if (!supabase) {
                 // Fallback to localStorage
                 const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                if (clients[id - 1]) {
-                    clients.splice(id - 1, 1);
+                const index = clients.findIndex(c => (c.id || c.vergi_no || `local_${clients.indexOf(c)}`) === clientId);
+                if (index !== -1) {
+                    clients.splice(index, 1);
                     localStorage.setItem('clients', JSON.stringify(clients));
                 }
                 return { success: true };
             }
             
             try {
-                // Get all clients to find the UUID
-                const { data: allClients, error: fetchError } = await supabase
-                    .from('clients')
-                    .select('id')
-                    .order('created_at', { ascending: false });
+                // UUID kontrolü - eğer UUID formatında değilse localStorage fallback
+                const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(clientId);
                 
-                if (fetchError) throw fetchError;
-                
-                const clientToDelete = allClients[id - 1];
-                if (!clientToDelete) {
-                    throw new Error('Client not found');
+                if (!isUUID && clientId.startsWith('local_')) {
+                    // localStorage fallback
+                    const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+                    const index = parseInt(clientId.replace('local_', ''));
+                    if (clients[index]) {
+                        clients.splice(index, 1);
+                        localStorage.setItem('clients', JSON.stringify(clients));
+                    }
+                    return { success: true };
                 }
                 
+                // Direkt UUID ile silme (verimsiz tüm client'ları çekmeye gerek yok)
                 const { error } = await supabase
                     .from('clients')
                     .delete()
-                    .eq('id', clientToDelete.id);
+                    .eq('id', clientId);
                 
                 if (error) throw error;
                 
@@ -849,17 +953,30 @@
             }
         }
         
+        // XSS koruması için HTML escape fonksiyonu
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return String(text || '').replace(/[&<>"']/g, m => map[m]);
+        }
+        
         async function renderClientsFromSupabase() {
             const clients = await getClientsFromSupabase();
             const tbody = document.querySelector('#tablebot tbody');
             tbody.innerHTML = '';
             
             clients.forEach((client, index) => {
-                const id = index + 1;
-                const clientId = client.id || client.vergi_no || index; // Supabase UUID veya fallback
+                const displayId = index + 1; // Sadece görüntüleme için
+                const clientId = client.id || client.vergi_no || `local_${index}`; // Supabase UUID veya fallback
                 const tr = document.createElement('tr');
                 tr.className = 'listeEleman';
                 tr.setAttribute('data-client-id', clientId);
+                tr.setAttribute('data-index', index);
                 tr.style.cursor = 'pointer';
                 
                 // Handle both Supabase format (vergi_no) and localStorage format (vergiNo)
@@ -868,28 +985,73 @@
                 const vergiDairesi = client.vergi_dairesi || client.vergiDairesi || '';
                 const ekip = client.ekip || '';
                 
-                tr.innerHTML = `
-                    <td class="text-center align-middle" onclick="event.stopPropagation();">
-                        <input type="checkbox" class="client-checkbox" data-client-id="${clientId}" data-index="${index}" onchange="updateDeleteButtonState()" style="cursor: pointer;">
-                    </td>
-                    <td class="text-center align-middle">${vergiNo}</td>
-                    <td class="text-left align-middle">${unvan}</td>
-                    <td class="text-center align-middle">${vergiDairesi}</td>
-                    <td class="text-center align-middle">${ekip}</td>
-                    <td class="text-center align-middle" onclick="event.stopPropagation();">
-                        <button onclick="editClient(${id}, '${vergiNo.replace(/'/g, "\\'")}', '${unvan.replace(/'/g, "\\'")}', '${vergiDairesi.replace(/'/g, "\\'")}', '${ekip.replace(/'/g, "\\'")}', event)" class="btn btn-warning btn-sm mb-1" style="width: 90px;">
-                            <i class="fa fa-edit"></i> Düzenle
-                        </button><br>
-                        <button onclick="deleteClient(${id}, event)" class="btn btn-danger btn-sm" style="width: 90px;">
-                            <i class="fa fa-trash"></i> Sil
-                        </button>
-                    </td>
-                `;
+                // Güvenli HTML oluşturma (XSS koruması)
+                const checkboxTd = document.createElement('td');
+                checkboxTd.className = 'text-center align-middle';
+                checkboxTd.onclick = (e) => e.stopPropagation();
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'client-checkbox';
+                checkbox.setAttribute('data-client-id', clientId);
+                checkbox.setAttribute('data-index', index);
+                checkbox.onchange = updateDeleteButtonState;
+                checkbox.style.cursor = 'pointer';
+                checkboxTd.appendChild(checkbox);
+                
+                const vergiNoTd = document.createElement('td');
+                vergiNoTd.className = 'text-center align-middle';
+                vergiNoTd.textContent = vergiNo;
+                
+                const unvanTd = document.createElement('td');
+                unvanTd.className = 'text-left align-middle';
+                unvanTd.textContent = unvan;
+                
+                const vergiDairesiTd = document.createElement('td');
+                vergiDairesiTd.className = 'text-center align-middle';
+                vergiDairesiTd.textContent = vergiDairesi;
+                
+                const ekipTd = document.createElement('td');
+                ekipTd.className = 'text-center align-middle';
+                ekipTd.textContent = ekip;
+                
+                const actionsTd = document.createElement('td');
+                actionsTd.className = 'text-center align-middle';
+                actionsTd.onclick = (e) => e.stopPropagation();
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn btn-warning btn-sm mb-1';
+                editBtn.style.width = '90px';
+                editBtn.innerHTML = '<i class="fa fa-edit"></i> Düzenle';
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    editClient(clientId, vergiNo, unvan, vergiDairesi, ekip, e);
+                };
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-danger btn-sm';
+                deleteBtn.style.width = '90px';
+                deleteBtn.innerHTML = '<i class="fa fa-trash"></i> Sil';
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteClient(clientId, e);
+                };
+                
+                actionsTd.appendChild(editBtn);
+                actionsTd.appendChild(document.createElement('br'));
+                actionsTd.appendChild(deleteBtn);
+                
+                tr.appendChild(checkboxTd);
+                tr.appendChild(vergiNoTd);
+                tr.appendChild(unvanTd);
+                tr.appendChild(vergiDairesiTd);
+                tr.appendChild(ekipTd);
+                tr.appendChild(actionsTd);
                 
                 // Row click handler (checkbox ve button'lar hariç)
                 tr.onclick = function(e) {
                     if (e.target.type !== 'checkbox' && !e.target.closest('button')) {
-                        window.location.href = 'client-detail.html?id=' + id;
+                        window.location.href = 'client-detail.html?id=' + displayId;
                     }
                 };
                 
@@ -998,12 +1160,10 @@
         }
         
         // Load clients from Supabase on page load
-        $(document).ready(function() {
-            renderClientsFromSupabase();
-        });
-        
-        // Tablo arama fonksiyonu
-        $(document).ready(function() {
+        $(document).ready(async function() {
+            await renderClientsFromSupabase();
+            
+            // Tablo arama fonksiyonu
             $("#search").on("keyup", function() {
                 var value = $(this).val().toLowerCase();
                 $("#tablebot tbody tr").filter(function() {
@@ -1071,6 +1231,11 @@
                     
                     // Excel'den client'ları parse et
                     const newClients = [];
+                    const skippedClients = [];
+                    const existingClients = await getClientsFromSupabase();
+                    const existingVergiNos = new Set(
+                        existingClients.map(c => (c.vergi_no || c.vergiNo || '').toString().trim().toLowerCase())
+                    );
                     
                     // İlk satır başlık olduğu için 1'den başla
                     for (let i = 1; i < jsonData.length; i++) {
@@ -1079,13 +1244,24 @@
                         // Boş satırları atla
                         if (!row[0] && !row[1]) continue;
                         
+                        const vergiNo = (row[0] || '').toString().trim();
+                        const vergiNoLower = vergiNo.toLowerCase();
+                        
+                        // Duplicate kontrolü - aynı vergi no'lu müşteri varsa atla
+                        if (existingVergiNos.has(vergiNoLower)) {
+                            skippedClients.push(vergiNo);
+                            continue;
+                        }
+                        
                         const client = {
-                            vergiNo: (row[0] || '').toString(),
-                            unvan: (row[1] || '').toString(),
-                            vergiDairesi: (row[2] || '').toString(),
-                            ekip: (row[3] || '').toString()
+                            vergiNo: vergiNo,
+                            unvan: (row[1] || '').toString().trim(),
+                            vergiDairesi: (row[2] || '').toString().trim(),
+                            ekip: (row[3] || '').toString().trim()
                         };
                         
+                        // Yeni client'ı existing listesine ekle (duplicate kontrolü için)
+                        existingVergiNos.add(vergiNoLower);
                         newClients.push(client);
                     }
                     
@@ -1114,7 +1290,11 @@
                             // Tabloyu yeniden render et
                             await renderClientsFromSupabase();
                             
-                            alert(`${newClients.length} müşteri başarıyla içe aktarıldı ve Supabase'e kaydedildi!`);
+                            let message = `${newClients.length} müşteri başarıyla içe aktarıldı ve Supabase'e kaydedildi!`;
+                            if (skippedClients.length > 0) {
+                                message += `\n\n${skippedClients.length} müşteri atlandı (zaten mevcut): ${skippedClients.slice(0, 5).join(', ')}${skippedClients.length > 5 ? '...' : ''}`;
+                            }
+                            alert(message);
                         } catch (error) {
                             console.error('Error importing to Supabase:', error);
                             alert('Supabase\'e kaydedilirken bir hata oluştu. Veriler localStorage\'a kaydedildi.');
@@ -1130,7 +1310,11 @@
                         const allClients = [...existingClients, ...newClients];
                         localStorage.setItem('clients', JSON.stringify(allClients));
                         await renderClientsFromSupabase();
-                        alert(`${newClients.length} müşteri başarıyla içe aktarıldı ve localStorage'a kaydedildi!`);
+                        let message = `${newClients.length} müşteri başarıyla içe aktarıldı ve localStorage'a kaydedildi!`;
+                        if (skippedClients.length > 0) {
+                            message += `\n\n${skippedClients.length} müşteri atlandı (zaten mevcut): ${skippedClients.slice(0, 5).join(', ')}${skippedClients.length > 5 ? '...' : ''}`;
+                        }
+                        alert(message);
                     }
                     
                     // Input'u sıfırla
@@ -1146,12 +1330,12 @@
         });
         
         // Edit client
-        function editClient(id, vergiNo, unvan, vergiDairesi, ekip, event) {
+        function editClient(clientId, vergiNo, unvan, vergiDairesi, ekip, event) {
             if (event) {
                 event.stopPropagation();
             }
             
-            document.getElementById('editClientId').value = id;
+            document.getElementById('editClientId').value = clientId;
             document.getElementById('editVergiNo').value = vergiNo;
             document.getElementById('editUnvan').value = unvan;
             document.getElementById('editVergiDairesi').value = vergiDairesi;
@@ -1162,7 +1346,7 @@
         
         // Save edited client
         async function saveEditClient() {
-            const id = parseInt(document.getElementById('editClientId').value);
+            const clientId = document.getElementById('editClientId').value;
             const vergiNo = document.getElementById('editVergiNo').value.trim();
             const unvan = document.getElementById('editUnvan').value.trim();
             const vergiDairesi = document.getElementById('editVergiDairesi').value.trim();
@@ -1183,13 +1367,13 @@
             
             try {
                 // Supabase'e kaydet
-                await updateClientInSupabase(id, client);
+                await updateClientInSupabase(clientId, client);
                 
                 // Tabloyu yeniden render et
                 await renderClientsFromSupabase();
             
-            // Modal'ı kapat
-            $('#editClientModal').modal('hide');
+                // Modal'ı kapat
+                $('#editClientModal').modal('hide');
             
                 alert('Müşteri başarıyla güncellendi ve Supabase\'e kaydedildi!');
             } catch (error) {
@@ -1199,7 +1383,7 @@
         }
         
         // Delete client
-        async function deleteClient(id, event) {
+        async function deleteClient(clientId, event) {
             if (event) {
                 event.stopPropagation();
             }
@@ -1207,16 +1391,16 @@
             if (confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
                 try {
                     // Supabase'den sil
-                    await deleteClientFromSupabase(id);
+                    await deleteClientFromSupabase(clientId);
                     
                     // Tabloyu yeniden render et
                     await renderClientsFromSupabase();
                     
-                        alert('Müşteri başarıyla silindi!');
+                    alert('Müşteri başarıyla silindi!');
                 } catch (error) {
                     console.error('Error deleting client:', error);
                     alert('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.');
-                    }
+                }
             }
         }
         

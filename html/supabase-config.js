@@ -23,3 +23,4 @@ window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 // 4. "Project API keys" bölümünde "anon" veya "public" key'i kopyalayın
 
 
+

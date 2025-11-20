@@ -434,3 +434,50 @@ body:not(.darkmode) .stat-icon {
   background: #ffffff !important;
 }
 
+/* Topbar logout button styles - applies to all pages */
+body:not(.darkmode) .topbar .nav-link {
+  color: #5a5c69;
+}
+
+body:not(.darkmode) .topbar .nav-link:hover {
+  color: #002060;
+}
+
+body.darkmode .topbar .nav-link {
+  color: #e5e7eb;
+}
+
+body.darkmode .topbar .nav-link:hover {
+  color: rgba(56, 189, 248, 1);
+}
+
+/* Topbar user email styles - consistent across all pages */
+body:not(.darkmode) .topbar #userDropdown,
+body:not(.darkmode) .topbar #userEmail {
+  color: #5a5c69 !important;
+}
+
+body:not(.darkmode) .topbar #userDropdown:hover,
+body:not(.darkmode) .topbar #userDropdown:hover #userEmail {
+  color: #002060 !important;
+}
+
+body.darkmode .topbar #userDropdown,
+body.darkmode .topbar #userEmail {
+  color: #e5e7eb !important;
+}
+
+body.darkmode .topbar #userDropdown:hover,
+body.darkmode .topbar #userDropdown:hover #userEmail {
+  color: rgba(56, 189, 248, 1) !important;
+}
+
+/* Ensure text-gray-600 class works correctly in both modes */
+body:not(.darkmode) .topbar .text-gray-600 {
+  color: #5a5c69 !important;
+}
+
+body.darkmode .topbar .text-gray-600 {
+  color: #9ca3af !important;
+}
+
