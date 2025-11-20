@@ -651,7 +651,10 @@
                 // Tenant-specific endpoint kullanılıyor (sadece CROWE HSY organizasyonu)
                 // Multi-tenant için: "https://login.microsoftonline.com/common"
                 authority: "https://login.microsoftonline.com/organizations",
-                redirectUri: window.location.origin + window.location.pathname
+                // Sabit redirect URI kullan (Azure AD'de kayıtlı olmalı)
+                redirectUri: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? window.location.origin + window.location.pathname
+                    : 'https://www.crowehsy.com/auditor-dashboard.html'
             },
             cache: {
                 cacheLocation: "localStorage",
@@ -1067,6 +1070,25 @@
             window.location.href = 'auditor-login.html';
         }
 
+        // Kullanıcının kendi drive ID'sini al
+        async function getMyDriveId() {
+            try {
+                const response = await fetch("https://graph.microsoft.com/v1.0/me/drive", {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.id;
+                }
+            } catch (error) {
+                console.warn("Drive ID alınamadı:", error);
+            }
+            return null;
+        }
+
         async function loadSharedFiles() {
             if (!accessToken) {
                 try {
@@ -1086,10 +1108,11 @@
             currentDriveId = null; // Drive ID'yi sıfırla
 
             try {
-                const endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=999";
-                console.log("Paylaşılan dosyalar yükleniyor:", endpoint);
+                // Önce /me/drive/shared endpoint'ini dene (daha güncel ve güvenilir)
+                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=999&$orderby=name";
+                console.log("Paylaşılan dosyalar yükleniyor (yöntem 1):", endpoint);
                 
-                const response = await fetch(endpoint, {
+                let response = await fetch(endpoint, {
                     headers: {
                         'Authorization': 'Bearer ' + accessToken
                     }
@@ -1097,9 +1120,79 @@
 
                 console.log("API yanıt durumu:", response.status, response.statusText);
 
+                // Eğer /me/drive/shared çalışmazsa, /me/drive/sharedWithMe'yi dene
+                if (!response.ok || response.status === 404) {
+                    console.log("Yöntem 1 başarısız, alternatif endpoint deneniyor...");
+                    endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=999";
+                    console.log("Paylaşılan dosyalar yükleniyor (yöntem 2):", endpoint);
+                    
+                    response = await fetch(endpoint, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    console.log("Alternatif API yanıt durumu:", response.status, response.statusText);
+                }
+
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("API Hatası:", errorText);
+                    
+                    // Son çare: /me/drives ile tüm drive'ları listele
+                    console.log("Son çare: Tüm drive'lar listeleniyor...");
+                    const drivesResponse = await fetch("https://graph.microsoft.com/v1.0/me/drives", {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (drivesResponse.ok) {
+                        const drivesData = await drivesResponse.json();
+                        console.log("✅ Bulunan drive sayısı:", drivesData.value ? drivesData.value.length : 0);
+                        
+                        // Paylaşılan drive'ları filtrele (kendi drive'ımız dışındakiler)
+                        const myDriveId = await getMyDriveId();
+                        const sharedDrives = (drivesData.value || []).filter(drive => drive.id !== myDriveId);
+                        
+                        if (sharedDrives.length > 0) {
+                            console.log("✅ Paylaşılan drive sayısı:", sharedDrives.length);
+                            // Paylaşılan drive'ların root klasörlerini göster
+                            const sharedItems = [];
+                            for (const drive of sharedDrives) {
+                                try {
+                                    const driveRootResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${drive.id}/root/children?$top=50`, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (driveRootResponse.ok) {
+                                        const driveRootData = await driveRootResponse.json();
+                                        const items = (driveRootData.value || []).map(item => ({
+                                            ...item,
+                                            remoteItem: {
+                                                ...item,
+                                                parentReference: {
+                                                    driveId: drive.id
+                                                }
+                                            },
+                                            sharedDriveName: drive.name || drive.owner?.user?.displayName || 'Paylaşılan Drive'
+                                        }));
+                                        sharedItems.push(...items);
+                                    }
+                                } catch (err) {
+                                    console.warn(`Drive ${drive.id} yüklenemedi:`, err);
+                                }
+                            }
+                            
+                            displayFiles(sharedItems);
+                            loadStorageInfo();
+                            showFilesArea();
+                            return;
+                        }
+                    }
+                    
                     throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
 
@@ -1122,7 +1215,7 @@
                 showFilesArea();
             } catch (error) {
                 console.error("Paylaşılan dosyalar yükleme hatası:", error);
-                alert("Paylaşılan dosyalar yüklenirken hata oluştu: " + error.message);
+                showError("Paylaşılan dosyalar yüklenirken hata oluştu: " + error.message);
                 // Ana klasöre geri dön ama oturumu kapatma
                 loadFiles('root');
             }
@@ -1152,10 +1245,11 @@
             currentDriveId = null; // Kendi drive'ımıza döndük
 
             try {
-                // OneDrive API çağrısı - $top=999 ile daha fazla dosya iste
+                // OneDrive API çağrısı - $top=200 (maksimum) ile dosyaları yükle
+                // Microsoft Graph API maksimum 200 öğe döndürebilir
                 const endpoint = folderId === "root" 
-                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=999&$orderby=name"
-                    : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=999&$orderby=name`;
+                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=200&$orderby=name"
+                    : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=200&$orderby=name`;
 
                 console.log("OneDrive API isteği gönderiliyor:", endpoint);
                 
@@ -1170,18 +1264,76 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("API Hatası:", errorText);
+                    
+                    // Alternatif: Tüm öğeleri almak için farklı bir yöntem dene
+                    console.log("Alternatif yöntem deneniyor: /me/drive/root/children (filtresiz)");
+                    const altEndpoint = folderId === "root"
+                        ? "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                        : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`;
+                    
+                    const altResponse = await fetch(altEndpoint, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (altResponse.ok) {
+                        const altData = await altResponse.json();
+                        console.log("Alternatif yöntem başarılı, dosya sayısı:", altData.value ? altData.value.length : 0);
+                        let allFiles = altData.value || [];
+                        
+                        // Pagination ile tüm dosyaları yükle
+                        let nextLink = altData['@odata.nextLink'];
+                        while (nextLink) {
+                            console.log("Daha fazla dosya yükleniyor...", nextLink.substring(0, 100) + "...");
+                            const nextResponse = await fetch(nextLink, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (nextResponse.ok) {
+                                const nextData = await nextResponse.json();
+                                allFiles = allFiles.concat(nextData.value || []);
+                                nextLink = nextData['@odata.nextLink'];
+                                console.log("Toplam dosya sayısı:", allFiles.length);
+                            } else {
+                                console.warn("Pagination hatası:", nextResponse.status);
+                                break;
+                            }
+                        }
+                        
+                        console.log("✅ Toplam yüklenen dosya:", allFiles.length);
+                        displayFiles(allFiles);
+                        loadStorageInfo();
+                        showFilesArea();
+                        return;
+                    }
+                    
                     throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
                 }
 
                 const data = await response.json();
-                console.log("Yüklenen dosya sayısı:", data.value ? data.value.length : 0);
+                console.log("İlk yüklemede dosya sayısı:", data.value ? data.value.length : 0);
+                
+                // Debug: İlk dosyanın yapısını göster
+                if (data.value && data.value.length > 0) {
+                    console.log("🔍 İlk dosya örneği:", {
+                        name: data.value[0].name,
+                        id: data.value[0].id,
+                        folder: data.value[0].folder !== undefined,
+                        size: data.value[0].size,
+                        webUrl: data.value[0].webUrl
+                    });
+                }
                 
                 let allFiles = data.value || [];
                 
                 // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
                 let nextLink = data['@odata.nextLink'];
-                while (nextLink) {
-                    console.log("Daha fazla dosya yükleniyor...", nextLink);
+                let pageCount = 1;
+                while (nextLink && pageCount < 50) { // Maksimum 50 sayfa (10,000 dosya)
+                    console.log(`Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
                     const nextResponse = await fetch(nextLink, {
                         headers: {
                             'Authorization': 'Bearer ' + accessToken
@@ -1192,13 +1344,18 @@
                         const nextData = await nextResponse.json();
                         allFiles = allFiles.concat(nextData.value || []);
                         nextLink = nextData['@odata.nextLink'];
-                        console.log("Toplam dosya sayısı:", allFiles.length);
+                        pageCount++;
+                        console.log(`Toplam dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
                     } else {
+                        console.warn("Pagination hatası:", nextResponse.status);
                         break;
                     }
                 }
                 
-                console.log("✅ Toplam yüklenen dosya:", allFiles.length);
+                console.log("✅ Toplam yüklenen dosya:", allFiles.length, `(${pageCount} sayfa)`);
+                
+                // Dosyaları filtrele: Gizli dosyaları ve sistem dosyalarını göster
+                // (Şimdilik tüm dosyaları göster, filtreleme yapmıyoruz)
                 displayFiles(allFiles);
                 
                 // Storage bilgisini al
@@ -1336,7 +1493,19 @@
         }
 
         function displayFiles(files) {
+            console.log("📋 displayFiles çağrıldı:", {
+                dosyaSayisi: files ? files.length : 0,
+                currentFolderId: currentFolderId,
+                isViewingShared: isViewingShared
+            });
+            
             const fileListContainer = document.getElementById('fileList');
+            
+            if (!fileListContainer) {
+                console.error("❌ fileListContainer bulunamadı!");
+                return;
+            }
+            
             currentFiles = files; // Dosyaları sakla
             
             if (files.length === 0 && currentFolderId === "shared") {

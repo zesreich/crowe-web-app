@@ -7,7 +7,8 @@
 ## Adım 1: Azure AD'de Uygulama Kaydı Oluşturma
 
 1. **Azure Portal**'a gidin: https://portal.azure.com
-2. Sol menüden **Azure Active Directory** seçin
+2. Sol menüden **Microsoft Entra ID** seçin (eski adı: Azure Active Directory)
+   - Alternatif: Portal'ın üst kısmındaki arama çubuğuna "App registrations" yazın
 3. **App registrations** (Uygulama kayıtları) tıklayın
 4. **New registration** (Yeni kayıt) butonuna tıklayın
 
@@ -62,10 +63,10 @@ const msalConfig = {
 
 Eğer farklı bir URL kullanıyorsanız:
 
-1. Azure Portal'da uygulamanıza gidin
-2. **Authentication** seçin
+1. Azure Portal'da **Microsoft Entra ID** → **App registrations** → uygulamanıza gidin
+2. Sol menüden **Authentication** seçin
 3. **Single-page application** bölümünde **Add URI** tıklayın
-4. Yeni URL'nizi ekleyin (örnek: `https://yourdomain.com/auditor-dashboard.html`)
+4. Yeni URL'nizi ekleyin (örnek: `https://www.crowehsy.com/auditor-dashboard.html`)
 5. **Save** butonuna tıklayın
 
 ## Adım 5: Test Etme
