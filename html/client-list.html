@@ -532,11 +532,6 @@
                                             <i class="fa fa-trash"></i> Seçilenleri Sil
                                         </button>
                                     </div>
-                                    <div class="col-md-2">
-                                        <button class="btn btn-secondary btn-block" onclick="toggleSelectAll()">
-                                            <i class="fa fa-check-square"></i> <span id="selectAllText">Tümünü Seç</span>
-                                        </button>
-                                    </div>
                                 </div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped" id="tablebot" style="font-weight: bold; font-size: 14px;">
@@ -726,6 +721,9 @@
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div class="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+    
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
@@ -754,8 +752,8 @@
         // Update user info in topbar (same as other pages)
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
+        const currentUser = Auth.getCurrentUser();
+        if (currentUser) {
                     // username field contains the email address
                     const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
                     const userEmailElement = document.getElementById('userEmail');
@@ -778,6 +776,54 @@
                     }
                 }
             }, 100);
+        }
+        
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const container = document.querySelector('.toast-container');
+            if (!container) return;
+            
+            const toastId = 'toast-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast ${bgColor} text-white` + (type === 'error' ? ' border-0' : '');
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.style.minWidth = '300px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.borderRadius = '8px';
+            toast.style.overflow = 'hidden';
+            
+            toast.innerHTML = `
+                <div class="toast-header ${bgColor} text-white border-0" style="padding: 12px 16px;">
+                    <i class="fas ${icon} mr-2"></i>
+                    <strong class="mr-auto">${type === 'success' ? 'Başarılı' : type === 'error' ? 'Hata' : 'Bilgi'}</strong>
+                    <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close" style="opacity: 0.8;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body" style="padding: 12px 16px; background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};">
+                    ${message}
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Bootstrap 4 toast initialization
+            $(toast).toast({
+                autohide: true,
+                delay: type === 'error' ? 5000 : 3000
+            });
+            
+            $(toast).toast('show');
+            
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
         }
         
         // Get Supabase client from auth.js
@@ -1073,7 +1119,10 @@
                 checkbox.checked = isChecked;
             });
             
-            document.getElementById('selectAllText').textContent = isChecked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+            const selectAllText = document.getElementById('selectAllText');
+            if (selectAllText) {
+                selectAllText.textContent = isChecked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+            }
             updateDeleteButtonState();
         }
         
@@ -1100,14 +1149,17 @@
                 selectAllCheckbox.checked = checkedCount === allCheckboxes.length;
             }
             
-            document.getElementById('selectAllText').textContent = selectAllCheckbox.checked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+            const selectAllText = document.getElementById('selectAllText');
+            if (selectAllText) {
+                selectAllText.textContent = selectAllCheckbox.checked ? 'Seçimi Kaldır' : 'Tümünü Seç';
+            }
         }
         
         async function deleteSelectedClients() {
             const checkboxes = document.querySelectorAll('.client-checkbox:checked');
             
             if (checkboxes.length === 0) {
-                alert('Lütfen silmek için en az bir müşteri seçin!');
+                showToast('Lütfen silmek için en az bir müşteri seçin!', 'error');
                 return;
             }
             
@@ -1152,18 +1204,18 @@
                 // Tabloyu yeniden render et
                 await renderClientsFromSupabase();
                 
-                alert(`${checkboxes.length} müşteri başarıyla silindi!`);
+                showToast(`${checkboxes.length} müşteri başarıyla silindi!`, 'success');
             } catch (error) {
                 console.error('Error deleting clients:', error);
-                alert('Müşteriler silinirken bir hata oluştu. Lütfen tekrar deneyin.');
+                showToast('Müşteriler silinirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
             }
         }
         
         // Load clients from Supabase on page load
         $(document).ready(async function() {
             await renderClientsFromSupabase();
-            
-            // Tablo arama fonksiyonu
+        
+        // Tablo arama fonksiyonu
             $("#search").on("keyup", function() {
                 var value = $(this).val().toLowerCase();
                 $("#tablebot tbody tr").filter(function() {
@@ -1225,7 +1277,7 @@
                     const jsonData = XLSX.utils.sheet_to_json(firstSheet, {header: 1});
                     
                     if (jsonData.length < 2) {
-                        alert('Excel dosyası boş veya geçersiz!');
+                        showToast('Excel dosyası boş veya geçersiz!', 'error');
                         return;
                     }
                     
@@ -1294,10 +1346,10 @@
                             if (skippedClients.length > 0) {
                                 message += `\n\n${skippedClients.length} müşteri atlandı (zaten mevcut): ${skippedClients.slice(0, 5).join(', ')}${skippedClients.length > 5 ? '...' : ''}`;
                             }
-                            alert(message);
+                            showToast(message.replace(/\n/g, '<br>'), 'success');
                         } catch (error) {
                             console.error('Error importing to Supabase:', error);
-                            alert('Supabase\'e kaydedilirken bir hata oluştu. Veriler localStorage\'a kaydedildi.');
+                            showToast('Supabase\'e kaydedilirken bir hata oluştu. Veriler localStorage\'a kaydedildi.', 'error');
                             // Fallback to localStorage
                             const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
                             const allClients = [...existingClients, ...newClients];
@@ -1322,7 +1374,7 @@
                     
                 } catch (error) {
                     console.error('Excel okuma hatası:', error);
-                    alert('Excel dosyası okunurken bir hata oluştu. Lütfen dosya formatını kontrol edin.');
+                    showToast('Excel dosyası okunurken bir hata oluştu. Lütfen dosya formatını kontrol edin.', 'error');
                 }
             };
             
@@ -1372,13 +1424,13 @@
                 // Tabloyu yeniden render et
                 await renderClientsFromSupabase();
             
-                // Modal'ı kapat
-                $('#editClientModal').modal('hide');
+            // Modal'ı kapat
+            $('#editClientModal').modal('hide');
             
-                alert('Müşteri başarıyla güncellendi ve Supabase\'e kaydedildi!');
+                showToast('Müşteri başarıyla güncellendi ve Supabase\'e kaydedildi!', 'success');
             } catch (error) {
                 console.error('Error saving client:', error);
-                alert('Müşteri güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
+                showToast('Müşteri güncellenirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
             }
         }
         
@@ -1396,11 +1448,11 @@
                     // Tabloyu yeniden render et
                     await renderClientsFromSupabase();
                     
-                    alert('Müşteri başarıyla silindi!');
+                        showToast('Müşteri başarıyla silindi!', 'success');
                 } catch (error) {
                     console.error('Error deleting client:', error);
-                    alert('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.');
-                }
+                    showToast('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                    }
             }
         }
         
@@ -1437,10 +1489,10 @@
             // Formu temizle
             document.getElementById('addClientForm').reset();
             
-                alert('Müşteri başarıyla eklendi ve Supabase\'e kaydedildi!');
+                showToast('Müşteri başarıyla eklendi ve Supabase\'e kaydedildi!', 'success');
             } catch (error) {
                 console.error('Error adding client:', error);
-                alert('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.');
+                showToast('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
             }
         }
     </script>

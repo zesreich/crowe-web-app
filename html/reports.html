@@ -436,7 +436,16 @@
                                             Başlangıç Tarihi
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" class="form-control" id="startDate" required>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="startDate"
+                                            required
+                                            inputmode="numeric"
+                                            maxlength="10"
+                                            pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
+                                            placeholder="gg/aa/yyyy"
+                                            title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -446,7 +455,16 @@
                                             Bitiş Tarihi
                                             <span class="text-danger">*</span>
                                         </label>
-                                        <input type="date" class="form-control" id="endDate" required>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            id="endDate"
+                                            required
+                                            inputmode="numeric"
+                                            maxlength="10"
+                                            pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
+                                            placeholder="gg/aa/yyyy"
+                                            title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -580,6 +598,67 @@
                 }
             }
             return null;
+        }
+
+        const DATE_INPUT_REGEX = /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])\/(\d{1,4})$/;
+
+        function normalizeDisplayDate(value) {
+            if (!value) return null;
+            const normalized = value.trim().replace(/[.\-]/g, '/').replace(/\s+/g, '');
+            const match = normalized.match(DATE_INPUT_REGEX);
+            if (!match) return null;
+            const day = match[1].padStart(2, '0');
+            const month = match[2].padStart(2, '0');
+            const year = match[3];
+            return `${day}/${month}/${year}`;
+        }
+
+        function parseDisplayDate(value) {
+            const normalized = normalizeDisplayDate(value);
+            if (!normalized) return null;
+            const parts = normalized.split('/');
+            const day = parts[0];
+            const month = parts[1];
+            const year = parts[2].padStart(4, '0');
+            const iso = `${year}-${month}-${day}`;
+            const testDate = new Date(iso);
+            if (isNaN(testDate.getTime())) {
+                return null;
+            }
+            return { iso, display: normalized };
+        }
+
+        function formatISODateForDisplay(value) {
+            if (!value) return '-';
+            if (value.includes('/')) {
+                const normalized = normalizeDisplayDate(value);
+                return normalized || value;
+            }
+            const dateObj = new Date(value);
+            if (!isNaN(dateObj.getTime())) {
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const year = dateObj.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+            const parts = value.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return value;
+        }
+
+        function getSortableDateValue(value) {
+            if (!value) return 0;
+            const parsed = parseDisplayDate(value);
+            if (parsed) {
+                return new Date(parsed.iso).getTime();
+            }
+            const dateObj = new Date(value);
+            if (!isNaN(dateObj.getTime())) {
+                return dateObj.getTime();
+            }
+            return 0;
         }
         
         // Supabase CRUD functions for reports
@@ -770,7 +849,7 @@
             }
             
             // Sort by date (newest first)
-            reports.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            reports.sort((a, b) => getSortableDateValue(b.startDate) - getSortableDateValue(a.startDate));
             
             tbody.innerHTML = '';
             reports.forEach((report, index) => {
@@ -795,8 +874,8 @@
                         <td>${report.company}</td>
                         <td>${report.service}</td>
                         <td class="text-center"><span class="badge ${typeBadge}">${report.reportType}</span></td>
-                        <td class="text-center">${new Date(report.startDate).toLocaleDateString('tr-TR')}</td>
-                        <td class="text-center">${new Date(report.endDate).toLocaleDateString('tr-TR')}</td>
+                        <td class="text-center">${formatISODateForDisplay(report.startDate)}</td>
+                        <td class="text-center">${formatISODateForDisplay(report.endDate)}</td>
                         <td>${report.team}</td>
                         <td class="text-center"><span class="badge ${statusBadge}">${report.status}</span></td>
                         <td class="text-center">
@@ -818,13 +897,33 @@
         document.getElementById('reportForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            const startParsed = parseDisplayDate(startInput.value);
+            const endParsed = parseDisplayDate(endInput.value);
+
+            if (!startParsed) {
+                alert('Lütfen başlangıç tarihini gg/aa/yyyy formatında girin (örn: 25/04/2024).');
+                startInput.focus();
+                return;
+            }
+
+            if (!endParsed) {
+                alert('Lütfen bitiş tarihini gg/aa/yyyy formatında girin (örn: 25/04/2024).');
+                endInput.focus();
+                return;
+            }
+
+            startInput.value = startParsed.display;
+            endInput.value = endParsed.display;
+
             const report = {
                 id: Date.now(),
                 company: document.getElementById('companyName').value,
                 service: document.getElementById('reportService').value,
                 reportType: document.getElementById('reportTypeSelect').value,
-                startDate: document.getElementById('startDate').value,
-                endDate: document.getElementById('endDate').value,
+                startDate: startParsed.iso,
+                endDate: endParsed.iso,
                 team: document.getElementById('teamName').value,
                 status: document.getElementById('statusSelect').value,
                 createdAt: new Date().toISOString()

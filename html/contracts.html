@@ -809,13 +809,31 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Başlangıç Tarihi <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="startDate" required>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="startDate"
+                                        required
+                                        inputmode="numeric"
+                                        maxlength="10"
+                                        pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
+                                        placeholder="gg/aa/yyyy"
+                                        title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label>Bitiş Tarihi <span class="text-danger">*</span></label>
-                                    <input type="date" class="form-control" id="endDate" required>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="endDate"
+                                        required
+                                        inputmode="numeric"
+                                        maxlength="10"
+                                        pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
+                                        placeholder="gg/aa/yyyy"
+                                        title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
                                 </div>
                             </div>
                         </div>
@@ -856,6 +874,9 @@
             </div>
         </div>
     </div>
+    
+    <!-- Toast Notification Container -->
+    <div class="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
     
     <!-- PDF Viewer Modal -->
     <div class="modal fade" id="pdfModal" tabindex="-1" role="dialog">
@@ -949,6 +970,19 @@
                 }
             }
             return null;
+        }
+
+        const DISPLAY_DATE_REGEX = /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[0-2])\/(\d{1,4})$/;
+
+        function normalizeDisplayDate(value) {
+            if (!value) return null;
+            const normalized = value.trim().replace(/[.\-]/g, '/').replace(/\s+/g, '');
+            const match = normalized.match(DISPLAY_DATE_REGEX);
+            if (!match) return null;
+            const day = match[1].padStart(2, '0');
+            const month = match[2].padStart(2, '0');
+            const year = match[3];
+            return `${day}/${month}/${year}`;
         }
         
         // Supabase CRUD functions for contracts
@@ -1182,41 +1216,190 @@
         
         // Set contract type when adding new contract
         let currentContractType = '';
-        function setContractType(type) {
+        window.setContractType = function(type) {
             currentContractType = type;
-            document.getElementById('contractType').value = type;
+            const contractTypeInput = document.getElementById('contractType');
+            if (contractTypeInput) {
+                contractTypeInput.value = type;
+            }
             const categoryField = document.getElementById('contractCategory');
             if (categoryField) {
                 const matchingOption = Array.from(categoryField.options).find(option => option.value === type);
                 categoryField.value = matchingOption ? type : '';
             }
+        };
+        
+        // Toast notification system
+        function showToast(message, type = 'success') {
+            const container = document.querySelector('.toast-container');
+            if (!container) return;
+            
+            const toastId = 'toast-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+            
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.className = `toast ${bgColor} text-white` + (type === 'error' ? ' border-0' : '');
+            toast.setAttribute('role', 'alert');
+            toast.setAttribute('aria-live', 'assertive');
+            toast.setAttribute('aria-atomic', 'true');
+            toast.style.minWidth = '300px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            toast.style.borderRadius = '8px';
+            toast.style.overflow = 'hidden';
+            
+            toast.innerHTML = `
+                <div class="toast-header ${bgColor} text-white border-0" style="padding: 12px 16px;">
+                    <i class="fas ${icon} mr-2"></i>
+                    <strong class="mr-auto">${type === 'success' ? 'Başarılı' : type === 'error' ? 'Hata' : 'Bilgi'}</strong>
+                    <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close" style="opacity: 0.8;">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body" style="padding: 12px 16px; background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};">
+                    ${message}
+                </div>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Bootstrap 4 toast initialization
+            $(toast).toast({
+                autohide: true,
+                delay: type === 'error' ? 5000 : 3000
+            });
+            
+            $(toast).toast('show');
+            
+            toast.addEventListener('hidden.bs.toast', function() {
+                toast.remove();
+            });
         }
         
         // Save contract
-        function saveContract() {
-            const companyName = document.getElementById('companyName').value.trim();
-            const contractName = document.getElementById('contractName').value.trim();
-            const contractCategory = document.getElementById('contractCategory').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            const team = document.getElementById('team').value;
-            
-            if (!companyName || !contractName || !contractCategory || !startDate || !endDate || !team) {
-                alert('Lütfen tüm zorunlu alanları doldurun!');
-                return;
+        window.saveContract = async function() {
+            try {
+                console.log('saveContract called');
+                
+                const companyName = document.getElementById('companyName');
+                const contractName = document.getElementById('contractName');
+                const contractCategory = document.getElementById('contractCategory');
+                const startDate = document.getElementById('startDate');
+                const endDate = document.getElementById('endDate');
+                const team = document.getElementById('team');
+                
+                if (!companyName || !contractName || !contractCategory || !startDate || !endDate || !team) {
+                    showToast('Form alanları bulunamadı. Sayfayı yenileyin.', 'error');
+                    return;
+                }
+                
+                const companyNameValue = companyName.value.trim();
+                const contractNameValue = contractName.value.trim();
+                const contractCategoryValue = contractCategory.value;
+                const startDateValue = startDate.value;
+                const endDateValue = endDate.value;
+                const teamValue = team.value;
+                
+                // Get contract type from hidden input or currentContractType
+                const contractTypeInput = document.getElementById('contractType');
+                const contractType = contractTypeInput ? contractTypeInput.value : (typeof currentContractType !== 'undefined' ? currentContractType : '');
+                
+                console.log('Contract type:', contractType);
+                console.log('Form values:', { companyNameValue, contractNameValue, contractCategoryValue, startDateValue, endDateValue, teamValue });
+                
+                if (!companyNameValue || !contractNameValue || !contractCategoryValue || !startDateValue || !endDateValue || !teamValue) {
+                    showToast('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                    return;
+                }
+
+                const normalizedStartDate = normalizeDisplayDate(startDateValue);
+                if (!normalizedStartDate) {
+                    showToast('Başlangıç tarihi gg/aa/yyyy formatında olmalıdır.', 'error');
+                    startDate.focus();
+                    return;
+                }
+
+                const normalizedEndDate = normalizeDisplayDate(endDateValue);
+                if (!normalizedEndDate) {
+                    showToast('Bitiş tarihi gg/aa/yyyy formatında olmalıdır.', 'error');
+                    endDate.focus();
+                    return;
+                }
+
+                startDate.value = normalizedStartDate;
+                endDate.value = normalizedEndDate;
+                
+                if (!contractType) {
+                    showToast('Sözleşme tipi seçilmedi. Lütfen sayfayı yenileyin ve tekrar deneyin.', 'error');
+                    return;
+                }
+                
+                // Check if contractType is a spreadsheet type
+                const isSpreadsheetType = spreadsheetConfigs && spreadsheetConfigs[contractType];
+                
+                // Initialize contractData for this type if it doesn't exist
+                if (!contractData[contractType]) {
+                    contractData[contractType] = [];
+                }
+                
+                if (isSpreadsheetType) {
+                    // For spreadsheet types, add to contractData
+                    contractData[contractType].push({
+                        company: companyNameValue,
+                        contract: contractNameValue,
+                        period: `${normalizedStartDate} - ${normalizedEndDate}`,
+                        auditor1: '',
+                        auditor2: '',
+                        auditor3: '',
+                        team: teamValue,
+                        hours: '',
+                        contractReceived: '',
+                        kgkReported: ''
+                    });
+                    
+                    console.log('Added to spreadsheet type, contractData:', contractData[contractType]);
+                    
+                    // Save to Supabase
+                    await saveContractsToSupabase(contractType, contractData[contractType]);
+                    
+                    // Refresh spreadsheet if it exists
+                    if (spreadsheetInstances && spreadsheetInstances[contractType]) {
+                        renderContractSpreadsheet(contractType);
+                    }
+                } else {
+                    // For non-spreadsheet types (like Değerleme), add to contractData
+                    contractData[contractType].push({
+                        company: companyNameValue,
+                        contract: contractNameValue,
+                        start: normalizedStartDate,
+                        end: normalizedEndDate,
+                        team: teamValue
+                    });
+                    
+                    console.log('Added to non-spreadsheet type, contractData:', contractData[contractType]);
+                    
+                    // Save to Supabase
+                    await saveContractsToSupabase(contractType, contractData[contractType]);
+                    
+                    // For Değerleme type, refresh the table manually
+                    if (contractType === 'Değerleme') {
+                        // Reload the page or refresh the table
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }
+                }
+                
+                showToast(`Sözleşme başarıyla eklendi!<br><small>Şirket: ${companyNameValue}<br>Sözleşme: ${contractNameValue}</small>`, 'success');
+                
+                $('#addContractModal').modal('hide');
+                document.getElementById('addContractForm').reset();
+            } catch (error) {
+                console.error('Error saving contract:', error);
+                showToast('Sözleşme kaydedilirken bir hata oluştu: ' + error.message, 'error');
             }
-            
-            alert(
-                'Sözleşme başarıyla eklendi!' +
-                '\n\nŞirket: ' + companyName +
-                '\nSözleşme: ' + contractName +
-                '\nTür: ' + currentContractType +
-                '\nSözleşme Türü: ' + contractCategory
-            );
-            
-            $('#addContractModal').modal('hide');
-            document.getElementById('addContractForm').reset();
-        }
+        };
         
         // View PDF
         function viewPDF(contractName) {
@@ -1277,11 +1460,15 @@
                                 contract: row[9] || ''
                             });
                         } else {
+                            const rawStart = row[2] ? row[2].toString() : '';
+                            const rawEnd = row[3] ? row[3].toString() : '';
+                            const normalizedStart = normalizeDisplayDate(rawStart) || rawStart;
+                            const normalizedEnd = normalizeDisplayDate(rawEnd) || rawEnd;
                             importedContracts.push({
                                 company: row[0] || '',
                                 contract: row[1] || '',
-                                start: row[2] || '',
-                                end: row[3] || '',
+                                start: normalizedStart,
+                                end: normalizedEnd,
                                 team: row[4] || ''
                             });
                         }
@@ -1590,7 +1777,7 @@
             renderContractSpreadsheet(type);
         }
 
-        function handleContractAction(action, type, index) {
+        async function handleContractAction(action, type, index) {
             const contracts = contractData[type] || [];
             const contract = contracts[index];
             if (!contract) {

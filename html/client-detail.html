@@ -73,6 +73,18 @@
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
             padding: 1rem 1.5rem;
         }
+        .assigned-user-selector {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+        }
+        .assigned-user-selector .custom-control-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        #ekipKisileri {
+            gap: 0.5rem;
+        }
         .card {
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, .15);
             border: none;
@@ -224,74 +236,64 @@
                                 <div class="col-xl-6">
                                     <div class="card-body collapse show" id="demo">
                                         <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Title:</div>
-                                            <div class="col-lg-8" id="unvan">ABC Construction Inc.</div>
+                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Unvan:</div>
+                                            <div class="col-lg-8" id="unvan">ABC İnşaat A.Ş.</div>
                                         </div>
                                         
                                         <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Business Partner:</div>
-                                            <div class="col-lg-8" id="isortagi">Partner 1</div>
+                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Vergi Dairesi:</div>
+                                            <div class="col-lg-8" id="vergiDairesi">Kadıköy VD</div>
                                         </div>
                                         
                                         <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Tax Office:</div>
-                                            <div class="col-lg-8" id="vergiDairesi">Kadıköy Tax Office</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Tax No:</div>
+                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Vergi Numarası:</div>
                                             <div class="col-lg-8" id="vergiNo">1234567890</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Address:</div>
-                                            <div class="col-lg-8" id="adres">Istanbul, Turkey</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Phone:</div>
-                                            <div class="col-lg-8" id="telefon">0212 555 1234</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Fax:</div>
-                                            <div class="col-lg-8" id="faks">0212 555 1235</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Email:</div>
-                                            <div class="col-lg-8" id="email">info@abcconstruction.com</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-gray-800 align-self-center text-right">Web:</div>
-                                            <div class="col-lg-8" id="web">www.abcconstruction.com</div>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="col-xl-6">
                                     <div class="card-body">
-                                        <h6 class="font-weight-bold text-gray-800 mb-3">Assigned Users to Client</h6>
+                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+                                            <div>
+                                                <h6 class="font-weight-bold text-gray-800 mb-1">Seçilen Ekip Çalışanları</h6>
+                                                <small class="text-muted">Ekip listelerinden çalışan seçip listeye ekleyin.</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="assigned-user-selector p-3 mb-3">
+                                            <div class="form-row">
+                                                <div class="form-group col-md-4">
+                                                    <label for="ekipSecimi" class="font-weight-bold text-gray-700">Ekip</label>
+                                                    <select id="ekipSecimi" class="form-control">
+                                                        <option value="B3">B3 Ekibi</option>
+                                                        <option value="B2">B2 Ekibi</option>
+                                                        <option value="B1">B1 Ekibi</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group col-md-8">
+                                                    <label class="font-weight-bold text-gray-700 d-block">Çalışanlar</label>
+                                                    <div id="ekipKisileri" class="d-flex flex-wrap"></div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm mr-2" id="clearSelectionsBtn">Seçimleri Temizle</button>
+                                                <button type="button" class="btn btn-primary btn-sm" id="addTeamMembersBtn">Seçilenleri Ekle</button>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-striped">
                                                 <thead>
                                                     <tr>
                                                         <th class="bg-gray-700 text-gray-200 text-center">Full Name</th>
                                                         <th class="bg-gray-700 text-gray-200 text-center">Email</th>
-                                                        <th class="bg-gray-700 text-gray-200 text-center">Phone</th>
+                                                        <th class="bg-gray-700 text-gray-200 text-center" style="width: 80px;">İşlem</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="kullanicilarListesi">
                                                     <tr>
-                                                        <td>Ayşe Yılmaz</td>
-                                                        <td>ayse@sirket.com</td>
-                                                        <td>0532 123 4567</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Mehmet Öztürk</td>
-                                                        <td>mehmet@sirket.com</td>
-                                                        <td>0532 234 5678</td>
+                                                        <td colspan="3" class="text-center text-muted">Henüz çalışan eklenmedi.</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -379,95 +381,257 @@
             return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
         }
         
-        // Müşteri verileri
-        var musteriler = {
-            '1': {
-                unvan: 'ABC İnşaat A.Ş.',
-                isortagi: 'İş Ortağı 1',
-                vergiDairesi: 'Kadıköy VD',
-                vergiNo: '1234567890',
-                adres: 'İstanbul, Türkiye',
-                telefon: '0212 555 1234',
-                faks: '0212 555 1235',
-                email: 'info@abcinsaat.com',
-                web: 'www.abcinsaat.com',
-                kullanicilar: [
-                    {ad: 'Ayşe Yılmaz', email: 'ayse@sirket.com', telefon: '0532 123 4567'},
-                    {ad: 'Mehmet Öztürk', email: 'mehmet@sirket.com', telefon: '0532 234 5678'}
-                ]
-            },
-            '2': {
-                unvan: 'DEF Gıda Ltd. Şti.',
-                isortagi: 'İş Ortağı 2',
-                vergiDairesi: 'Beşiktaş VD',
-                vergiNo: '9876543210',
-                adres: 'Ankara, Türkiye',
-                telefon: '0312 555 5678',
-                faks: '0312 555 5679',
-                email: 'info@defgida.com',
-                web: 'www.defgida.com',
-                kullanicilar: [
-                    {ad: 'Fatma Kaya', email: 'fatma@sirket.com', telefon: '0532 345 6789'}
-                ]
-            },
-            '3': {
-                unvan: 'GHI Teknoloji A.Ş.',
-                isortagi: 'İş Ortağı 1',
-                vergiDairesi: 'Şişli VD',
-                vergiNo: '5555555555',
-                adres: 'İzmir, Türkiye',
-                telefon: '0232 555 9012',
-                faks: '0232 555 9013',
-                email: 'info@ghiteknoloji.com',
-                web: 'www.ghiteknoloji.com',
-                kullanicilar: [
-                    {ad: 'Ali Demir', email: 'ali@sirket.com', telefon: '0532 456 7890'}
-                ]
-            },
-            '4': {
-                unvan: 'JKL Ticaret Ltd. Şti.',
-                isortagi: 'İş Ortağı 2',
-                vergiDairesi: 'Ümraniye VD',
-                vergiNo: '1111111111',
-                adres: 'Bursa, Türkiye',
-                telefon: '0224 555 3456',
-                faks: '0224 555 3457',
-                email: 'info@jklticaret.com',
-                web: 'www.jklticaret.com',
-                kullanicilar: [
-                    {ad: 'Zeynep Yıldız', email: 'zeynep@sirket.com', telefon: '0532 567 8901'}
-                ]
+        // Get Supabase client helper function
+        function getSupabaseClient() {
+            // Check if supabaseClient is available from auth.js
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                return supabaseClient;
             }
+            // Fallback: Try to create client if available
+            if (typeof window.supabase !== 'undefined') {
+                const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
+                const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
+                if (!SUPABASE_URL.includes('YOUR_') && !SUPABASE_ANON_KEY.includes('YOUR_')) {
+                    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                }
+            }
+            return null;
+        }
+        
+        // Get clients from Supabase
+        async function getClientsFromSupabase() {
+            const supabase = getSupabaseClient();
+            if (!supabase) {
+                // Fallback to localStorage if Supabase not available
+                const clients = localStorage.getItem('clients');
+                return clients ? JSON.parse(clients) : [];
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('clients')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Supabase error:', error);
+                    // Fallback to localStorage
+                    const clients = localStorage.getItem('clients');
+                    return clients ? JSON.parse(clients) : [];
+                }
+                
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching clients:', error);
+                // Fallback to localStorage
+                const clients = localStorage.getItem('clients');
+                return clients ? JSON.parse(clients) : [];
+            }
+        }
+        
+        const ekipListeleri = {
+            B3: [
+                'Gözde Kızıleniş',
+                'Servet Aykanat',
+                'Aykan Altıntel',
+                'Elif Girgin',
+                'Şilan Korkmaz'
+            ],
+            B2: [
+                'İbrahim Kuvvet',
+                'Yunus Emre Durmuş',
+                'Fatih Şentürk',
+                'Kasım Durmuş',
+                'Yaprak Tosun',
+                'Ece Karaçalı',
+                'Beste Darcan',
+                'Nida Çetin'
+            ],
+            B1: [
+                'Berki Özkan',
+                'Hasan Bozkaya',
+                'Mehmet Molla',
+                'Dilek Çınar'
+            ]
         };
         
-        // Sayfa yüklendiğinde müşteri bilgilerini göster
-        $(document).ready(function() {
-            var musteriId = getUrlParameter('id') || '1';
-            var musteri = musteriler[musteriId];
+        let assignedUsers = [];
+        
+        function generateCroweEmail(fullName) {
+            const replacements = {
+                'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
+                'Ç': 'c', 'Ğ': 'g', 'İ': 'i', 'Ö': 'o', 'Ş': 's', 'Ü': 'u'
+            };
+            let normalized = fullName
+                .split('')
+                .map(char => replacements[char] || char)
+                .join('')
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '.')
+                .replace(/[^a-z0-9.]/g, '');
+            if (!normalized.includes('.')) {
+                normalized = normalized.replace(/[^a-z0-9]/g, '');
+            }
+            return normalized + '@crowe.com.tr';
+        }
+        
+        function renderAssignedUsers() {
+            const tbody = document.getElementById('kullanicilarListesi');
+            if (!tbody) return;
             
-            if (musteri) {
-                $('#musteriUnvan').text(musteri.unvan);
-                $('#musteriAdi').text(musteri.unvan);
-                $('#unvan').text(musteri.unvan);
-                $('#isortagi').text(musteri.isortagi);
-                $('#vergiDairesi').text(musteri.vergiDairesi);
-                $('#vergiNo').text(musteri.vergiNo);
-                $('#adres').text(musteri.adres);
-                $('#telefon').text(musteri.telefon);
-                $('#faks').text(musteri.faks);
-                $('#email').text(musteri.email);
-                $('#web').text(musteri.web);
-                
-                // Kullanıcıları listele
-                var kullanicilarHtml = '';
-                musteri.kullanicilar.forEach(function(kullanici) {
-                    kullanicilarHtml += '<tr>' +
-                        '<td>' + kullanici.ad + '</td>' +
-                        '<td>' + kullanici.email + '</td>' +
-                        '<td>' + kullanici.telefon + '</td>' +
-                        '</tr>';
+            if (!assignedUsers.length) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Henüz çalışan eklenmedi.</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = assignedUsers.map(function(user, index) {
+                const email = user.email || generateCroweEmail(user.ad);
+                return '<tr>' +
+                    '<td>' + user.ad + '</td>' +
+                    '<td>' + email + '</td>' +
+                    '<td class="text-center">' +
+                        '<button type="button" class="btn btn-sm btn-outline-danger remove-assigned-user" data-index="' + index + '">' +
+                            '<i class="fas fa-trash-alt"></i>' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+            
+            tbody.querySelectorAll('.remove-assigned-user').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'), 10);
+                    removeAssignedUser(index);
                 });
-                $('#kullanicilarListesi').html(kullanicilarHtml);
+            });
+        }
+        
+        function renderTeamMemberCheckboxes(teamKey) {
+            const container = document.getElementById('ekipKisileri');
+            if (!container) return;
+            
+            const members = ekipListeleri[teamKey] || [];
+            if (!members.length) {
+                container.innerHTML = '<span class="text-muted">Bu ekip için kayıtlı kişi bulunamadı.</span>';
+                return;
+            }
+            
+            container.innerHTML = members.map(function(member, index) {
+                const checkboxId = 'ekip-' + teamKey + '-' + index;
+                return (
+                    '<div class="custom-control custom-checkbox mr-3 mb-2">' +
+                        '<input type="checkbox" class="custom-control-input ekip-kisi-checkbox" id="' + checkboxId + '" value="' + member + '">' +
+                        '<label class="custom-control-label" for="' + checkboxId + '">' + member + '</label>' +
+                    '</div>'
+                );
+            }).join('');
+        }
+        
+        function clearTeamSelections() {
+            document.querySelectorAll('#ekipKisileri .ekip-kisi-checkbox').forEach(function(checkbox) {
+                checkbox.checked = false;
+            });
+        }
+        
+        function addSelectedTeamMembers() {
+            const selectedMembers = Array.from(document.querySelectorAll('#ekipKisileri .ekip-kisi-checkbox:checked')).map(function(checkbox) {
+                return checkbox.value;
+            });
+            
+            if (!selectedMembers.length) {
+                return;
+            }
+            
+            selectedMembers.forEach(function(member) {
+                if (!assignedUsers.some(function(user) { return user.ad === member; })) {
+                    assignedUsers.push({
+                        ad: member,
+                        email: generateCroweEmail(member)
+                    });
+                }
+            });
+            
+            renderAssignedUsers();
+            clearTeamSelections();
+        }
+        
+        function removeAssignedUser(index) {
+            if (index > -1 && index < assignedUsers.length) {
+                assignedUsers.splice(index, 1);
+                renderAssignedUsers();
+            }
+        }
+        
+        // Sayfa yüklendiğinde müşteri bilgilerini göster
+        $(document).ready(async function() {
+            var musteriIndex = parseInt(getUrlParameter('id') || '1', 10) - 1; // URL'deki id index+1 formatında
+            
+            try {
+                const clients = await getClientsFromSupabase();
+                
+                if (clients.length === 0) {
+                    console.warn('No clients found');
+                    return;
+                }
+                
+                if (musteriIndex < 0 || musteriIndex >= clients.length) {
+                    console.error('Invalid client index:', musteriIndex);
+                    alert('Müşteri bulunamadı!');
+                    window.location.href = 'client-list.html';
+                    return;
+                }
+                
+                const musteri = clients[musteriIndex];
+                
+                // Handle both Supabase format (vergi_no, vergi_dairesi) and localStorage format (vergiNo, vergiDairesi)
+                const unvan = musteri.unvan || '';
+                const vergiDairesi = musteri.vergi_dairesi || musteri.vergiDairesi || '';
+                const vergiNo = musteri.vergi_no || musteri.vergiNo || '';
+                
+                // Müşteri bilgilerini göster
+                $('#musteriUnvan').text(unvan);
+                $('#musteriAdi').text(unvan);
+                $('#unvan').text(unvan);
+                $('#vergiDairesi').text(vergiDairesi);
+                $('#vergiNo').text(vergiNo);
+                
+                // Kullanıcıları yükle (eğer varsa)
+                if (musteri.kullanicilar && Array.isArray(musteri.kullanicilar)) {
+                    assignedUsers = musteri.kullanicilar.map(function(kullanici) {
+                        return {
+                            ad: kullanici.ad || kullanici.name || kullanici.full_name || '',
+                            email: kullanici.email || generateCroweEmail(kullanici.ad || kullanici.name || kullanici.full_name || '')
+                        };
+                    });
+                } else {
+                    assignedUsers = [];
+                }
+                renderAssignedUsers();
+                
+                // Ekip seçimi ve çalışan ekleme fonksiyonlarını başlat
+                var teamSelect = document.getElementById('ekipSecimi');
+                if (teamSelect) {
+                    renderTeamMemberCheckboxes(teamSelect.value);
+                    teamSelect.addEventListener('change', function() {
+                        renderTeamMemberCheckboxes(this.value);
+                    });
+                }
+                
+                var addBtn = document.getElementById('addTeamMembersBtn');
+                if (addBtn) {
+                    addBtn.addEventListener('click', addSelectedTeamMembers);
+                }
+                
+                var clearBtn = document.getElementById('clearSelectionsBtn');
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function() {
+                        clearTeamSelections();
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading client:', error);
+                alert('Müşteri bilgileri yüklenirken bir hata oluştu!');
             }
         });
     </script>

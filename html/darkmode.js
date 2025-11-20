@@ -53,13 +53,18 @@
   }
   
   // Apply theme based on localStorage
+  // Use a flag to prevent infinite loops
+  let isApplyingTheme = false;
   const applyTheme = () => {
+    if (isApplyingTheme) return; // Prevent re-entry
+    isApplyingTheme = true;
     darkmode = localStorage.getItem('darkmode')
     if (darkmode === "active") {
       enableDarkmode()
     } else {
       disableDarkmode()
     }
+    setTimeout(() => { isApplyingTheme = false; }, 50);
   }
   
   // Initialize dark mode on page load
@@ -106,9 +111,20 @@
   
   // Listen for custom theme change events (same window/tab)
   // This ensures theme changes are reflected immediately in the same window
+  // Note: We don't call applyTheme() here because it would cause infinite loop
+  // The theme is already applied when enableDarkmode/disableDarkmode is called
   window.addEventListener('themeChanged', (e) => {
-    // Theme already changed via localStorage, just update UI
-    applyTheme();
+    // Theme already changed, just update UI elements if needed
+    const switchBtn = getThemeSwitch();
+    if (switchBtn) {
+      const isDark = e.detail.theme === 'dark';
+      switchBtn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+      const svgs = switchBtn.querySelectorAll('svg');
+      if (svgs.length >= 2) {
+        svgs[0].style.display = isDark ? 'none' : 'block';
+        svgs[1].style.display = isDark ? 'block' : 'none';
+      }
+    }
   });
   
   // Listen for pageshow event (when navigating between pages in same tab)
@@ -126,6 +142,7 @@
   // Poll localStorage periodically to catch changes (fallback for same-tab sync)
   // This is a backup mechanism in case events don't fire
   setInterval(() => {
+    if (isApplyingTheme) return;
     const currentTheme = localStorage.getItem('darkmode');
     const isDarkActive = document.body.classList.contains('darkmode');
     const shouldBeDark = currentTheme === 'active';
