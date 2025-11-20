@@ -1229,16 +1229,39 @@
                 
                 // Debug: İlk dosyanın yapısını göster
                 if (allFiles.length > 0) {
-                    console.log("🔍 İlk paylaşılan dosya yapısı:", allFiles[0]);
+                    console.log("🔍 İlk paylaşılan dosya yapısı (TAM):", JSON.stringify(allFiles[0], null, 2));
                     console.log("🔍 remoteItem var mı?", allFiles[0].remoteItem !== undefined);
-                    console.log("🔍 webUrl:", allFiles[0].webUrl);
+                    console.log("🔍 file.name:", allFiles[0].name);
+                    console.log("🔍 file.webUrl:", allFiles[0].webUrl);
                     if (allFiles[0].remoteItem) {
+                        console.log("🔍 remoteItem.name:", allFiles[0].remoteItem.name);
                         console.log("🔍 remoteItem.id:", allFiles[0].remoteItem.id);
                         console.log("🔍 remoteItem.driveId:", allFiles[0].remoteItem.parentReference?.driveId);
+                        console.log("🔍 remoteItem.lastModifiedDateTime:", allFiles[0].remoteItem.lastModifiedDateTime);
+                        console.log("🔍 remoteItem.size:", allFiles[0].remoteItem.size);
                     }
+                } else {
+                    console.warn("⚠️ Paylaşılan dosya bulunamadı! API yanıtı boş olabilir.");
                 }
                 
-                displayFiles(allFiles);
+                // Veri formatını kontrol et ve düzelt
+                const processedFiles = allFiles.map(file => {
+                    // sharedWithMe endpoint'i remoteItem içinde tüm bilgileri döndürür
+                    // Ancak file.name direkt olarak da olabilir
+                    if (file.remoteItem) {
+                        return {
+                            ...file,
+                            name: file.name || file.remoteItem.name, // İsim için öncelik sırası
+                            lastModifiedDateTime: file.remoteItem.lastModifiedDateTime || file.lastModifiedDateTime,
+                            size: file.remoteItem.size || file.size,
+                            webUrl: file.webUrl || file.remoteItem.webUrl
+                        };
+                    }
+                    return file;
+                });
+                
+                console.log("📋 İşlenmiş dosya sayısı:", processedFiles.length);
+                displayFiles(processedFiles);
                 loadStorageInfo();
                 showFilesArea();
             } catch (error) {
@@ -1586,9 +1609,15 @@
                 // Shared item ise remoteItem'dan bilgileri al
                 const fileData = isSharedItem ? file.remoteItem : file;
                 const isFolder = fileData.folder !== undefined;
-                const iconHTML = getFileIconFromName(file.name, isFolder);
+                
+                // Dosya adı: sharedWithMe'de file.name direkt olabilir veya remoteItem.name olabilir
+                const fileName = file.name || fileData.name || 'İsimsiz';
+                const iconHTML = getFileIconFromName(fileName, isFolder);
                 const size = isFolder ? (fileData.folder?.childCount + ' öğe' || 'Klasör') : formatBytes(fileData.size || file.size || 0);
-                const modified = new Date(file.lastModifiedDateTime).toLocaleDateString('tr-TR');
+                
+                // lastModifiedDateTime: sharedWithMe'de remoteItem içinde olabilir
+                const modifiedDate = file.lastModifiedDateTime || fileData.lastModifiedDateTime || file.modifiedDateTime || fileData.modifiedDateTime;
+                const modified = modifiedDate ? new Date(modifiedDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
                 
                 // ID ve Drive bilgilerini al
                 const actualId = isSharedItem ? fileData.id : file.id;
@@ -1606,15 +1635,18 @@
                 
                 const webUrl = file.webUrl || fileData.webUrl || '';
                 
-                // Debug log (ilk dosya için)
-                if (files.indexOf(file) === 0) {
-                    console.log("🔍 Dosya render:", {
-                        name: file.name,
+                // Debug log (ilk 3 dosya için)
+                if (files.indexOf(file) < 3) {
+                    console.log(`🔍 Dosya render [${files.indexOf(file)}]:`, {
+                        fileName: fileName,
+                        file_name: file.name,
+                        remoteItem_name: fileData.name,
                         isSharedItem,
                         isFolder,
                         actualId,
                         driveId,
-                        currentDriveId,
+                        modified,
+                        size,
                         webUrl: webUrl ? webUrl.substring(0, 50) + '...' : 'yok'
                     });
                 }
@@ -1633,23 +1665,23 @@
                     if (isFolder) {
                         // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
                         if (isInSharedDrive || isSharedItem) {
-                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')`;
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')`;
                         } else {
                             clickAction = `loadFiles('${safeActualId}')`;
                         }
                     } else {
                         // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
                         if (isInSharedDrive || isSharedItem) {
-                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}', '${safeWebUrl}')`;
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}', '${safeWebUrl}')`;
                         } else {
-                            clickAction = `openFile('${safeActualId}', '${escapeHtml(file.name)}')`;
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(fileName)}')`;
                         }
                     }
                     
                     html += `
                         <div class="file-card" onclick="${clickAction}">
                             <div class="file-card-icon">${iconHTML}</div>
-                            <div class="file-card-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</div>
+                            <div class="file-card-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
                             <div class="file-card-meta">${size}</div>
                         </div>
                     `;
@@ -1659,16 +1691,16 @@
                     if (isFolder) {
                         // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
                         if (isInSharedDrive || isSharedItem) {
-                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')`;
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')`;
                         } else {
                             clickAction = `loadFiles('${safeActualId}')`;
                         }
                     } else {
                         // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
                         if (isInSharedDrive || isSharedItem) {
-                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}', '${safeWebUrl}')`;
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}', '${safeWebUrl}')`;
                         } else {
-                            clickAction = `openFile('${safeActualId}', '${escapeHtml(file.name)}')`;
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(fileName)}')`;
                         }
                     }
                     
@@ -1676,12 +1708,12 @@
                         <div class="file-item" onclick="${clickAction}">
                             ${iconHTML}
                             <div class="file-info">
-                                <div class="file-name">${escapeHtml(file.name)}${isSharedItem ? ' <span style="color: #0078d4; font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
+                                <div class="file-name">${escapeHtml(fileName)}${isSharedItem ? ' <span style="color: #0078d4; font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
                                 <div class="file-meta">${size} • ${modified}</div>
                             </div>
                             <div class="file-actions">
                                 ${!isFolder ? `
-                                <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); ${(isInSharedDrive || isSharedItem) ? `downloadSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(file.name)}')` : `downloadFile('${safeActualId}', '${escapeHtml(file.name)}')`}">
+                                <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); ${(isInSharedDrive || isSharedItem) ? `downloadSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')` : `downloadFile('${safeActualId}', '${escapeHtml(fileName)}')`}">
                                     <i class="fas fa-download"></i>
                                 </button>
                                 ` : ''}
