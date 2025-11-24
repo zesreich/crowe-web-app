@@ -1050,7 +1050,7 @@
             }
         }
 
-        async function getTokenSilent() {
+        async function getTokenSilent(forceRefresh = false) {
             const account = msalInstance.getActiveAccount();
             if (!account) {
                 throw new Error("No active account");
@@ -1058,18 +1058,28 @@
 
             const silentRequest = {
                 scopes: loginRequest.scopes,
-                account: account
+                account: account,
+                forceRefresh: forceRefresh // Token'ı zorla yenile
             };
 
             try {
                 const response = await msalInstance.acquireTokenSilent(silentRequest);
                 accessToken = response.accessToken;
+                console.log("✅ Token alındı (scopes:", response.scopes, ")");
                 document.getElementById('oneDriveTitle').textContent = 
                     'Microsoft OneDrive - ' + response.account.name;
                 return accessToken;
             } catch (error) {
+                console.warn("Silent token alınamadı, popup ile deneniyor...", error);
                 if (error instanceof msal.InteractionRequiredAuthError) {
-                    return await msalInstance.acquireTokenPopup(silentRequest);
+                    const popupRequest = {
+                        scopes: loginRequest.scopes,
+                        account: account
+                    };
+                    const popupResponse = await msalInstance.acquireTokenPopup(popupRequest);
+                    accessToken = popupResponse.accessToken;
+                    console.log("✅ Token popup ile alındı (scopes:", popupResponse.scopes, ")");
+                    return accessToken;
                 }
                 throw error;
             }
@@ -1130,6 +1140,14 @@
                     showError("Token alınamadı. Lütfen tekrar giriş yapın.");
                     showLoginPrompt();
                     return;
+                }
+            } else {
+                // Mevcut token'ı zorla yenile (yeni izinler için)
+                try {
+                    console.log("🔄 Token yenileniyor (yeni izinler için)...");
+                    await getTokenSilent(true);
+                } catch (error) {
+                    console.warn("Token yenileme hatası (devam ediliyor):", error);
                 }
             }
 
@@ -1230,9 +1248,28 @@
                 }
 
                 const data = await response.json();
+                console.log("📦 API Yanıtı (TAM):", JSON.stringify(data, null, 2));
                 console.log("İlk yüklemede paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
                 
-                let allFiles = data.value || [];
+                // Eğer data.value boşsa veya undefined ise, alternatif formatları kontrol et
+                let allFiles = [];
+                if (!data.value || data.value.length === 0) {
+                    console.warn("⚠️ data.value boş! Alternatif formatlar kontrol ediliyor...");
+                    console.log("data:", data);
+                    console.log("data.value:", data.value);
+                    console.log("data['value']:", data['value']);
+                    
+                    // Eğer direkt array ise
+                    if (Array.isArray(data)) {
+                        console.log("✅ Veri direkt array formatında:", data.length, "dosya");
+                        allFiles = data;
+                    } else {
+                        allFiles = [];
+                        console.warn("⚠️ Paylaşılan dosya bulunamadı! Token'ı yenilemek için çıkış yapıp tekrar giriş yapın.");
+                    }
+                } else {
+                    allFiles = data.value || [];
+                }
                 
                 // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
                 let nextLink = data['@odata.nextLink'];
