@@ -2418,6 +2418,19 @@
         async function openSharedFile(driveId, itemId, fileName, webUrl) {
             console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
             
+            // Token kontrolü ve yenileme
+            if (!accessToken) {
+                console.log("🔄 Access token yok, token alınıyor...");
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("❌ Token alınamadı:", error);
+                    showError("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            }
+            
             // itemId formatı "drives/{driveId}/items/{itemId}" olabilir, parse et
             if (itemId && itemId.includes('drives/') && itemId.includes('/items/')) {
                 console.log("🔍 itemId formatı parse ediliyor:", itemId);
@@ -2530,6 +2543,83 @@
                     if (!response.ok) {
                         const errorText = await response.text();
                         console.error("❌ API Hatası:", errorText);
+                        
+                        // 401 Unauthorized hatası: Token süresi dolmuş olabilir, yenile
+                        if (response.status === 401) {
+                            console.log("🔄 401 hatası, token yenileniyor...");
+                            try {
+                                await getTokenSilent(true); // Force refresh
+                                // Token yenilendikten sonra tekrar dene
+                                const retryResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                    headers: {
+                                        'Authorization': 'Bearer ' + accessToken
+                                    }
+                                });
+                                
+                                if (!retryResponse.ok) {
+                                    const retryErrorText = await retryResponse.text();
+                                    console.error("❌ Retry API Hatası:", retryErrorText);
+                                    throw new Error("Paylaşılan dosya bilgisi alınamadı: " + retryResponse.status);
+                                }
+                                
+                                // Retry başarılı, devam et
+                                const data = await retryResponse.json();
+                                // Aşağıdaki kod bloğuna devam et
+                                const actualFileName = data.name || fileName;
+                                const downloadUrl = data['@microsoft.graph.downloadUrl'];
+                                
+                                console.log("✅ Paylaşılan dosya URL'si alındı (retry):", {
+                                    downloadUrl: downloadUrl ? 'var' : 'yok',
+                                    webUrl: data.webUrl ? 'var' : 'yok',
+                                    fileName: actualFileName
+                                });
+                                
+                                if (downloadUrl) {
+                                    openPreview(actualFileName, downloadUrl, {
+                                        driveId, 
+                                        itemId, 
+                                        fileName: actualFileName, 
+                                        webUrl: data.webUrl, 
+                                        downloadUrl: downloadUrl
+                                    });
+                                } else {
+                                    console.warn("⚠️ downloadUrl yok, dosya içeriği blob olarak yükleniyor...");
+                                    try {
+                                        const blobResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                            headers: {
+                                                'Authorization': 'Bearer ' + accessToken
+                                            }
+                                        });
+                                        
+                                        if (!blobResponse.ok) {
+                                            throw new Error("Blob yükleme hatası: " + blobResponse.status);
+                                        }
+                                        
+                                        const blob = await blobResponse.blob();
+                                        const blobUrl = URL.createObjectURL(blob);
+                                        openPreview(actualFileName, blobUrl, {
+                                            driveId, 
+                                            itemId, 
+                                            fileName: actualFileName, 
+                                            webUrl: data.webUrl
+                                        });
+                                    } catch (blobError) {
+                                        console.error("Blob yükleme hatası:", blobError);
+                                        alert("Dosya içeriği yüklenemedi. Dosya yeni sekmede açılacak.");
+                                        if (data.webUrl) {
+                                            window.open(data.webUrl, '_blank');
+                                        }
+                                    }
+                                }
+                                return;
+                            } catch (tokenError) {
+                                console.error("Token yenileme hatası:", tokenError);
+                                showError("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+                                showLoginPrompt();
+                                return;
+                            }
+                        }
+                        
                         throw new Error("Paylaşılan dosya bilgisi alınamadı: " + response.status);
                     }
 
@@ -2612,8 +2702,8 @@
                         console.log("🔄 WebUrl ile açılıyor:", webUrl);
                         window.open(webUrl, '_blank');
                     } else {
-                        alert("Paylaşılan dosya açılamadı: " + error.message + "\n\nBu dosya için direkt SharePoint'ten erişmeyi deneyin.");
-                    }
+                    alert("Paylaşılan dosya açılamadı: " + error.message + "\n\nBu dosya için direkt SharePoint'ten erişmeyi deneyin.");
+                }
                 }
             }
         }
@@ -2871,6 +2961,20 @@
             error.hide();
             fileNameElement.text(fileName);
             
+            // Token kontrolü ve yenileme
+            if (!accessToken) {
+                console.log("🔄 Access token yok, token alınıyor...");
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("❌ Token alınamadı:", error);
+                    loading.hide();
+                    error.text("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.").show();
+                    showLoginPrompt();
+                    return;
+                }
+            }
+            
             // DriveId ve ItemId kontrolü
             if (!driveId || driveId === 'null' || driveId === '' || !itemId || itemId === 'null' || itemId === '') {
                 console.error("❌ Drive ID veya Item ID eksik:", {driveId, itemId});
@@ -2894,6 +2998,41 @@
                     const errorText = await response.text();
                     console.error("❌ İzin API Hatası:", errorText);
                     
+                    // 401 Unauthorized hatası: Token süresi dolmuş olabilir, yenile
+                    if (response.status === 401) {
+                        console.log("🔄 401 hatası, token yenileniyor...");
+                        try {
+                            await getTokenSilent(true); // Force refresh
+                            // Token yenilendikten sonra tekrar dene
+                            const retryResponse = await fetch(endpoint, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (!retryResponse.ok) {
+                                const retryErrorText = await retryResponse.text();
+                                console.error("❌ Retry İzin API Hatası:", retryErrorText);
+                                
+                                if (retryResponse.status === 400) {
+                                    throw new Error("Dosya bilgileri geçersiz. Bu dosya için izin bilgileri alınamıyor.");
+                                }
+                                throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+                            }
+                            
+                            // Retry başarılı, devam et
+                            const permissionsData = await retryResponse.json();
+                            displayPermissionsData(permissionsData, permissionsList, loading, content);
+                            return;
+                        } catch (tokenError) {
+                            console.error("Token yenileme hatası:", tokenError);
+                            loading.hide();
+                            error.text("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.").show();
+                            showLoginPrompt();
+                            return;
+                        }
+                    }
+                    
                     // 400 hatası genelde driveId formatı yanlış olduğunda olur
                     if (response.status === 400) {
                         throw new Error("Dosya bilgileri geçersiz. Bu dosya için izin bilgileri alınamıyor.");
@@ -2904,57 +3043,8 @@
                 const data = await response.json();
                 console.log("✅ İzin bilgileri alındı:", data);
                 
-                const permissions = data.value || [];
-                
-                if (permissions.length === 0) {
-                    permissionsList.html('<p class="text-muted">Bu dosya için izin bilgisi bulunamadı.</p>');
-                } else {
-                    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
-                    html += '<thead class="thead-light"><tr><th>Kullanıcı/Grup</th><th>E-posta</th><th>İzin Türü</th><th>Rol</th><th>Paylaşım Tarihi</th></tr></thead>';
-                    html += '<tbody>';
-                    
-                    permissions.forEach(perm => {
-                        const grantTo = perm.grantedTo || perm.grantedToV2 || {};
-                        const user = grantTo.user || grantTo.siteUser || {};
-                        const displayName = user.displayName || perm.grantedToIdentities?.[0]?.displayName || 'Bilinmeyen';
-                        const email = user.email || perm.grantedToIdentities?.[0]?.email || user.userPrincipalName || '-';
-                        
-                        // İzin türlerini Türkçe'ye çevir
-                        const roles = perm.roles || [];
-                        const roleLabels = roles.map(role => {
-                            const roleMap = {
-                                'read': 'Oku',
-                                'write': 'Yaz',
-                                'owner': 'Sahip',
-                                'member': 'Üye',
-                                'editor': 'Düzenleyici',
-                                'viewer': 'Görüntüleyici'
-                            };
-                            return roleMap[role] || role;
-                        }).join(', ') || '-';
-                        
-                        // İzin türü (link veya direct)
-                        const linkType = perm.link ? 'Link Paylaşımı' : 'Doğrudan Paylaşım';
-                        const shareId = perm.link?.scope || perm.shareId || '-';
-                        
-                        // Paylaşım tarihi
-                        const sharedDate = perm.shareId ? (new Date(perm.shared?.dateTime || Date.now()).toLocaleDateString('tr-TR')) : '-';
-                        
-                        html += `<tr>`;
-                        html += `<td>${escapeHtml(displayName)}</td>`;
-                        html += `<td>${escapeHtml(email)}</td>`;
-                        html += `<td><span class="badge badge-info">${linkType}</span></td>`;
-                        html += `<td><span class="badge badge-primary">${roleLabels}</span></td>`;
-                        html += `<td>${sharedDate}</td>`;
-                        html += `</tr>`;
-                    });
-                    
-                    html += '</tbody></table></div>';
-                    permissionsList.html(html);
-                }
-                
-                loading.hide();
-                content.show();
+                // İzinleri göster (helper fonksiyon)
+                displayPermissionsData(data, permissionsList, loading, content);
                 
             } catch (error) {
                 console.error("İzin bilgileri yükleme hatası:", error);
@@ -2962,6 +3052,61 @@
                 const errorMessage = error.message || error.toString() || "Bilinmeyen hata";
                 error.text(`İzin bilgileri yüklenirken hata oluştu: ${errorMessage}`).show();
             }
+        }
+        
+        // İzinleri gösteren helper fonksiyon
+        function displayPermissionsData(data, permissionsList, loading, content) {
+            const permissions = data.value || [];
+            
+            if (permissions.length === 0) {
+                permissionsList.html('<p class="text-muted">Bu dosya için izin bilgisi bulunamadı.</p>');
+            } else {
+                let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                html += '<thead class="thead-light"><tr><th>Kullanıcı/Grup</th><th>E-posta</th><th>İzin Türü</th><th>Rol</th><th>Paylaşım Tarihi</th></tr></thead>';
+                html += '<tbody>';
+                
+                permissions.forEach(perm => {
+                    const grantTo = perm.grantedTo || perm.grantedToV2 || {};
+                    const user = grantTo.user || grantTo.siteUser || {};
+                    const displayName = user.displayName || perm.grantedToIdentities?.[0]?.displayName || 'Bilinmeyen';
+                    const email = user.email || perm.grantedToIdentities?.[0]?.email || user.userPrincipalName || '-';
+                    
+                    // İzin türlerini Türkçe'ye çevir
+                    const roles = perm.roles || [];
+                    const roleLabels = roles.map(role => {
+                        const roleMap = {
+                            'read': 'Oku',
+                            'write': 'Yaz',
+                            'owner': 'Sahip',
+                            'member': 'Üye',
+                            'editor': 'Düzenleyici',
+                            'viewer': 'Görüntüleyici'
+                        };
+                        return roleMap[role] || role;
+                    }).join(', ') || '-';
+                    
+                    // İzin türü (link veya direct)
+                    const linkType = perm.link ? 'Link Paylaşımı' : 'Doğrudan Paylaşım';
+                    const shareId = perm.link?.scope || perm.shareId || '-';
+                    
+                    // Paylaşım tarihi
+                    const sharedDate = perm.shareId ? (new Date(perm.shared?.dateTime || Date.now()).toLocaleDateString('tr-TR')) : '-';
+                    
+                    html += `<tr>`;
+                    html += `<td>${escapeHtml(displayName)}</td>`;
+                    html += `<td>${escapeHtml(email)}</td>`;
+                    html += `<td><span class="badge badge-info">${linkType}</span></td>`;
+                    html += `<td><span class="badge badge-primary">${roleLabels}</span></td>`;
+                    html += `<td>${sharedDate}</td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                permissionsList.html(html);
+            }
+            
+            loading.hide();
+            content.show();
         }
 
         function formatBytes(bytes) {
