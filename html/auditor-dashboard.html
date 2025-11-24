@@ -2088,7 +2088,22 @@
                 const modified = modifiedDate ? new Date(modifiedDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
                 
                 // ID ve Drive bilgilerini al
-                const actualId = isSharedItem ? (file._itemId || fileData.id || file.id) : (file.id || file._itemId || '');
+                let actualId = isSharedItem ? (file._itemId || fileData.id || file.id) : (file.id || file._itemId || '');
+                
+                // Eğer actualId "drives/{driveId}/items/{itemId}" formatındaysa parse et
+                if (actualId && actualId.includes('drives/') && actualId.includes('/items/')) {
+                    const match = actualId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                    if (match) {
+                        const parsedDriveId = match[1];
+                        const parsedItemId = match[2];
+                        console.log("🔍 actualId parse edildi:", {original: actualId, parsedDriveId, parsedItemId});
+                        actualId = parsedItemId;
+                        // Parse edilen driveId'yi de sakla
+                        if (!file._driveId) {
+                            file._driveId = parsedDriveId;
+                        }
+                    }
+                }
                 
                 // Drive ID'yi belirle: 
                 // 1. Shared item ise remoteItem'dan al
@@ -2403,6 +2418,19 @@
         async function openSharedFile(driveId, itemId, fileName, webUrl) {
             console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
             
+            // itemId formatı "drives/{driveId}/items/{itemId}" olabilir, parse et
+            if (itemId && itemId.includes('drives/') && itemId.includes('/items/')) {
+                console.log("🔍 itemId formatı parse ediliyor:", itemId);
+                const match = itemId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                if (match) {
+                    const parsedDriveId = match[1];
+                    const parsedItemId = match[2];
+                    console.log("✅ Parse edildi:", {parsedDriveId, parsedItemId});
+                    driveId = parsedDriveId;
+                    itemId = parsedItemId;
+                }
+            }
+            
             // Eğer driveId veya itemId eksikse, currentFiles'dan dosyayı bul ve _driveId/_itemId'yi kullan
             if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
                 console.warn("⚠️ Drive ID veya Item ID eksik, currentFiles'dan aranıyor:", {driveId, itemId, fileName});
@@ -2410,21 +2438,47 @@
                 // currentFiles'dan bu dosyayı bul
                 const foundFile = currentFiles.find(f => {
                     const fName = f.name || f.remoteItem?.name || '';
-                    return fName === fileName || f.id === itemId || f.remoteItem?.id === itemId;
+                    const fId = f.id || f._itemId || f.remoteItem?.id || '';
+                    // itemId hala "drives/..." formatındaysa, sadece itemId kısmını karşılaştır
+                    const searchItemId = itemId && itemId.includes('/items/') ? itemId.split('/items/')[1] : itemId;
+                    return fName === fileName || fId === itemId || fId === searchItemId || f._itemId === searchItemId;
                 });
                 
                 if (foundFile) {
                     // _driveId ve _itemId varsa onları kullan
-                    const foundDriveId = foundFile._driveId || foundFile.remoteItem?.parentReference?.driveId;
-                    const foundItemId = foundFile._itemId || foundFile.remoteItem?.id || foundFile.id;
+                    const foundDriveId = foundFile._driveId || foundFile.remoteItem?.parentReference?.driveId || foundFile.parentReference?.driveId;
+                    let foundItemId = foundFile._itemId || foundFile.remoteItem?.id || foundFile.id;
+                    
+                    // Eğer foundItemId "drives/..." formatındaysa parse et
+                    if (foundItemId && foundItemId.includes('drives/') && foundItemId.includes('/items/')) {
+                        const match = foundItemId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                        if (match) {
+                            foundItemId = match[2];
+                            if (!foundDriveId) {
+                                driveId = match[1];
+                            }
+                        }
+                    }
+                    
+                    console.log("🔍 Bulunan dosya detayları:", {
+                        _driveId: foundFile._driveId,
+                        _itemId: foundFile._itemId,
+                        remoteItem_parentReference_driveId: foundFile.remoteItem?.parentReference?.driveId,
+                        remoteItem_id: foundFile.remoteItem?.id,
+                        file_id: foundFile.id,
+                        foundDriveId,
+                        foundItemId
+                    });
                     
                     if (foundDriveId && foundItemId) {
                         console.log("✅ Dosya currentFiles'da bulundu, driveId ve itemId kullanılıyor:", {foundDriveId, foundItemId});
                         driveId = foundDriveId;
                         itemId = foundItemId;
                     } else {
-                        console.warn("⚠️ Dosya bulundu ama driveId/itemId yok:", foundFile);
+                        console.warn("⚠️ Dosya bulundu ama driveId/itemId yok. Dosya objesi:", JSON.stringify(foundFile, null, 2));
                     }
+                } else {
+                    console.warn("⚠️ Dosya currentFiles'da bulunamadı. Aranan:", fileName, "Toplam dosya sayısı:", currentFiles.length);
                 }
                 
                 // Hala eksikse, webUrl'den parse etmeyi dene
