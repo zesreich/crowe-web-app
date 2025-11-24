@@ -1323,24 +1323,119 @@
                             const insightsData = await insightsResponse.json();
                             console.log("✅ Insights endpoint başarılı, dosya sayısı:", insightsData.value ? insightsData.value.length : 0);
                             if (insightsData.value && insightsData.value.length > allFiles.length) {
-                                console.log("✅ Insights endpoint daha fazla dosya buldu, kullanılıyor...");
+                                console.log("✅ Insights endpoint daha fazla dosya buldu, detaylı bilgiler alınıyor...");
                                 // Insights formatını sharedWithMe formatına dönüştür
-                                const convertedFiles = insightsData.value.map(insight => {
-                                    const resource = insight.resourceReference || insight.resourceVisualization || {};
-                                    return {
-                                        name: resource.title || insight.id,
-                                        id: resource.id,
-                                        webUrl: resource.webUrl,
-                                        remoteItem: {
-                                            id: resource.id,
-                                            name: resource.title || insight.id,
-                                            webUrl: resource.webUrl,
-                                            parentReference: {
-                                                driveId: resource.driveId
+                                // Her dosya için detaylı bilgi al
+                                const convertedFiles = [];
+                                for (const insight of insightsData.value) {
+                                    try {
+                                        const resource = insight.resourceReference || insight.resourceVisualization || {};
+                                        const resourceId = resource.id;
+                                        
+                                        if (!resourceId) {
+                                            console.warn("⚠️ Resource ID bulunamadı:", insight);
+                                            continue;
+                                        }
+                                        
+                                        // Resource ID'den driveId ve itemId'yi parse et
+                                        // Format: "SPO@driveId,itemId" veya direkt itemId
+                                        let driveId = resource.driveId;
+                                        let itemId = resourceId;
+                                        
+                                        if (resourceId.includes('@') && resourceId.includes(',')) {
+                                            // SPO@driveId,itemId formatı
+                                            const parts = resourceId.split(',');
+                                            if (parts.length >= 2) {
+                                                driveId = parts[0].split('@')[1];
+                                                itemId = parts[1];
                                             }
                                         }
-                                    };
-                                });
+                                        
+                                        // Eğer driveId yoksa, resourceId'den çıkar
+                                        if (!driveId && resourceId.includes(',')) {
+                                            const parts = resourceId.split(',');
+                                            driveId = parts[0].replace('SPO@', '');
+                                            itemId = parts[1];
+                                        }
+                                        
+                                        // Dosya detaylarını al
+                                        if (driveId && itemId) {
+                                            try {
+                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (detailResponse.ok) {
+                                                    const detailData = await detailResponse.json();
+                                                    convertedFiles.push({
+                                                        name: detailData.name || resource.title || 'İsimsiz',
+                                                        id: detailData.id,
+                                                        webUrl: detailData.webUrl || resource.webUrl,
+                                                        size: detailData.size || 0,
+                                                        lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                        remoteItem: {
+                                                            ...detailData,
+                                                            parentReference: {
+                                                                driveId: driveId,
+                                                                id: detailData.parentReference?.id
+                                                            }
+                                                        }
+                                                    });
+                                                } else {
+                                                    // Detay alınamazsa, mevcut bilgileri kullan
+                                                    console.warn("⚠️ Dosya detayı alınamadı:", resourceId, detailResponse.status);
+                                                    convertedFiles.push({
+                                                        name: resource.title || resourceId,
+                                                        id: resourceId,
+                                                        webUrl: resource.webUrl,
+                                                        remoteItem: {
+                                                            id: resourceId,
+                                                            name: resource.title || resourceId,
+                                                            webUrl: resource.webUrl,
+                                                            parentReference: {
+                                                                driveId: driveId
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            } catch (detailError) {
+                                                console.warn("Dosya detayı hatası:", detailError);
+                                                // Hata durumunda mevcut bilgileri kullan
+                                                convertedFiles.push({
+                                                    name: resource.title || resourceId,
+                                                    id: resourceId,
+                                                    webUrl: resource.webUrl,
+                                                    remoteItem: {
+                                                        id: resourceId,
+                                                        name: resource.title || resourceId,
+                                                        webUrl: resource.webUrl,
+                                                        parentReference: {
+                                                            driveId: driveId
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        } else {
+                                            // DriveId veya itemId yoksa, mevcut bilgileri kullan
+                                            convertedFiles.push({
+                                                name: resource.title || resourceId,
+                                                id: resourceId,
+                                                webUrl: resource.webUrl,
+                                                remoteItem: {
+                                                    id: resourceId,
+                                                    name: resource.title || resourceId,
+                                                    webUrl: resource.webUrl
+                                                }
+                                            });
+                                        }
+                                    } catch (error) {
+                                        console.warn("Insight işleme hatası:", error);
+                                    }
+                                }
+                                
+                                console.log("✅ Insights'tan", convertedFiles.length, "dosya detayı alındı");
                                 allFiles = convertedFiles;
                                 
                                 // Pagination ile devam et
@@ -1355,22 +1450,97 @@
                                     
                                     if (insightsNextResponse.ok) {
                                         const insightsNextData = await insightsNextResponse.json();
-                                        const nextConverted = insightsNextData.value.map(insight => {
-                                            const resource = insight.resourceReference || insight.resourceVisualization || {};
-                                            return {
-                                                name: resource.title || insight.id,
-                                                id: resource.id,
-                                                webUrl: resource.webUrl,
-                                                remoteItem: {
-                                                    id: resource.id,
-                                                    name: resource.title || insight.id,
-                                                    webUrl: resource.webUrl,
-                                                    parentReference: {
-                                                        driveId: resource.driveId
+                                        const nextConverted = [];
+                                        
+                                        for (const insight of insightsNextData.value) {
+                                            try {
+                                                const resource = insight.resourceReference || insight.resourceVisualization || {};
+                                                const resourceId = resource.id;
+                                                
+                                                if (!resourceId) continue;
+                                                
+                                                let driveId = resource.driveId;
+                                                let itemId = resourceId;
+                                                
+                                                if (resourceId.includes('@') && resourceId.includes(',')) {
+                                                    const parts = resourceId.split(',');
+                                                    if (parts.length >= 2) {
+                                                        driveId = parts[0].split('@')[1];
+                                                        itemId = parts[1];
                                                     }
                                                 }
-                                            };
-                                        });
+                                                
+                                                if (driveId && itemId) {
+                                                    try {
+                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                                            headers: {
+                                                                'Authorization': 'Bearer ' + accessToken
+                                                            }
+                                                        });
+                                                        
+                                                        if (detailResponse.ok) {
+                                                            const detailData = await detailResponse.json();
+                                                            nextConverted.push({
+                                                                name: detailData.name || resource.title || 'İsimsiz',
+                                                                id: detailData.id,
+                                                                webUrl: detailData.webUrl || resource.webUrl,
+                                                                size: detailData.size || 0,
+                                                                lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                                remoteItem: {
+                                                                    ...detailData,
+                                                                    parentReference: {
+                                                                        driveId: driveId,
+                                                                        id: detailData.parentReference?.id
+                                                                    }
+                                                                }
+                                                            });
+                                                        } else {
+                                                            nextConverted.push({
+                                                                name: resource.title || resourceId,
+                                                                id: resourceId,
+                                                                webUrl: resource.webUrl,
+                                                                remoteItem: {
+                                                                    id: resourceId,
+                                                                    name: resource.title || resourceId,
+                                                                    webUrl: resource.webUrl,
+                                                                    parentReference: {
+                                                                        driveId: driveId
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                    } catch (detailError) {
+                                                        nextConverted.push({
+                                                            name: resource.title || resourceId,
+                                                            id: resourceId,
+                                                            webUrl: resource.webUrl,
+                                                            remoteItem: {
+                                                                id: resourceId,
+                                                                name: resource.title || resourceId,
+                                                                webUrl: resource.webUrl,
+                                                                parentReference: {
+                                                                    driveId: driveId
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                } else {
+                                                    nextConverted.push({
+                                                        name: resource.title || resourceId,
+                                                        id: resourceId,
+                                                        webUrl: resource.webUrl,
+                                                        remoteItem: {
+                                                            id: resourceId,
+                                                            name: resource.title || resourceId,
+                                                            webUrl: resource.webUrl
+                                                        }
+                                                    });
+                                                }
+                                            } catch (error) {
+                                                console.warn("Insight işleme hatası:", error);
+                                            }
+                                        }
+                                        
                                         allFiles = allFiles.concat(nextConverted);
                                         insightsNextLink = insightsNextData['@odata.nextLink'];
                                         insightsPageCount++;
