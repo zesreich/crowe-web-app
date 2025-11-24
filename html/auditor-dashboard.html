@@ -1306,50 +1306,155 @@
                 console.log("✅ Toplam paylaşılan dosya:", allFiles.length, `(${pageCount} sayfa)`);
                 
                 // Eğer sadece 1 dosya varsa ama daha fazla olması gerekiyorsa, alternatif endpoint'leri dene
-                if (allFiles.length === 1) {
-                    console.warn("⚠️ Sadece 1 dosya bulundu, alternatif endpoint'ler deneniyor...");
+                if (allFiles.length <= 1) {
+                    console.warn("⚠️ Sadece", allFiles.length, "dosya bulundu, alternatif endpoint'ler deneniyor...");
                     
-                    // Alternatif 1: /me/drive/shared endpoint'i
+                    // Alternatif 1: /me/insights/shared endpoint'i (daha kapsamlı)
                     try {
-                        const altEndpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=200";
-                        console.log("🔄 Alternatif endpoint deneniyor:", altEndpoint);
-                        const altResponse = await fetch(altEndpoint, {
+                        const insightsEndpoint = "https://graph.microsoft.com/v1.0/me/insights/shared?$top=200";
+                        console.log("🔄 Alternatif endpoint 1 deneniyor (insights):", insightsEndpoint);
+                        const insightsResponse = await fetch(insightsEndpoint, {
                             headers: {
                                 'Authorization': 'Bearer ' + accessToken
                             }
                         });
                         
-                        if (altResponse.ok) {
-                            const altData = await altResponse.json();
-                            console.log("✅ Alternatif endpoint başarılı, dosya sayısı:", altData.value ? altData.value.length : 0);
-                            if (altData.value && altData.value.length > allFiles.length) {
-                                console.log("✅ Alternatif endpoint daha fazla dosya buldu, kullanılıyor...");
-                                allFiles = altData.value || [];
+                        if (insightsResponse.ok) {
+                            const insightsData = await insightsResponse.json();
+                            console.log("✅ Insights endpoint başarılı, dosya sayısı:", insightsData.value ? insightsData.value.length : 0);
+                            if (insightsData.value && insightsData.value.length > allFiles.length) {
+                                console.log("✅ Insights endpoint daha fazla dosya buldu, kullanılıyor...");
+                                // Insights formatını sharedWithMe formatına dönüştür
+                                const convertedFiles = insightsData.value.map(insight => {
+                                    const resource = insight.resourceReference || insight.resourceVisualization || {};
+                                    return {
+                                        name: resource.title || insight.id,
+                                        id: resource.id,
+                                        webUrl: resource.webUrl,
+                                        remoteItem: {
+                                            id: resource.id,
+                                            name: resource.title || insight.id,
+                                            webUrl: resource.webUrl,
+                                            parentReference: {
+                                                driveId: resource.driveId
+                                            }
+                                        }
+                                    };
+                                });
+                                allFiles = convertedFiles;
                                 
                                 // Pagination ile devam et
-                                let altNextLink = altData['@odata.nextLink'];
-                                let altPageCount = 1;
-                                while (altNextLink && altPageCount < 50) {
-                                    const altNextResponse = await fetch(altNextLink, {
+                                let insightsNextLink = insightsData['@odata.nextLink'];
+                                let insightsPageCount = 1;
+                                while (insightsNextLink && insightsPageCount < 50) {
+                                    const insightsNextResponse = await fetch(insightsNextLink, {
                                         headers: {
                                             'Authorization': 'Bearer ' + accessToken
                                         }
                                     });
                                     
-                                    if (altNextResponse.ok) {
-                                        const altNextData = await altNextResponse.json();
-                                        allFiles = allFiles.concat(altNextData.value || []);
-                                        altNextLink = altNextData['@odata.nextLink'];
-                                        altPageCount++;
-                                        console.log(`✅ Alternatif yöntem - Toplam dosya (sayfa ${altPageCount}):`, allFiles.length);
+                                    if (insightsNextResponse.ok) {
+                                        const insightsNextData = await insightsNextResponse.json();
+                                        const nextConverted = insightsNextData.value.map(insight => {
+                                            const resource = insight.resourceReference || insight.resourceVisualization || {};
+                                            return {
+                                                name: resource.title || insight.id,
+                                                id: resource.id,
+                                                webUrl: resource.webUrl,
+                                                remoteItem: {
+                                                    id: resource.id,
+                                                    name: resource.title || insight.id,
+                                                    webUrl: resource.webUrl,
+                                                    parentReference: {
+                                                        driveId: resource.driveId
+                                                    }
+                                                }
+                                            };
+                                        });
+                                        allFiles = allFiles.concat(nextConverted);
+                                        insightsNextLink = insightsNextData['@odata.nextLink'];
+                                        insightsPageCount++;
+                                        console.log(`✅ Insights yöntem - Toplam dosya (sayfa ${insightsPageCount}):`, allFiles.length);
                                     } else {
                                         break;
                                     }
                                 }
                             }
+                        } else {
+                            console.warn("⚠️ Insights endpoint hatası:", insightsResponse.status);
                         }
-                    } catch (altError) {
-                        console.warn("Alternatif endpoint hatası:", altError);
+                    } catch (insightsError) {
+                        console.warn("Insights endpoint hatası:", insightsError);
+                    }
+                    
+                    // Alternatif 2: /me/drives ile tüm paylaşılan drive'ları listele
+                    if (allFiles.length <= 1) {
+                        try {
+                            console.log("🔄 Alternatif endpoint 2 deneniyor (drives): /me/drives");
+                            const drivesResponse = await fetch("https://graph.microsoft.com/v1.0/me/drives", {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (drivesResponse.ok) {
+                                const drivesData = await drivesResponse.json();
+                                const myDriveId = await getMyDriveId();
+                                const sharedDrives = (drivesData.value || []).filter(drive => drive.id !== myDriveId);
+                                
+                                if (sharedDrives.length > 0) {
+                                    console.log("✅ Paylaşılan drive sayısı:", sharedDrives.length);
+                                    const sharedItems = [];
+                                    
+                                    for (const drive of sharedDrives) {
+                                        try {
+                                            // Drive'ın root klasöründeki tüm dosyaları al
+                                            let driveNextLink = `https://graph.microsoft.com/v1.0/drives/${drive.id}/root/children?$top=200`;
+                                            let drivePageCount = 0;
+                                            
+                                            while (driveNextLink && drivePageCount < 10) {
+                                                const driveResponse = await fetch(driveNextLink, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (driveResponse.ok) {
+                                                    const driveData = await driveResponse.json();
+                                                    const items = (driveData.value || []).map(item => ({
+                                                        ...item,
+                                                        name: item.name,
+                                                        remoteItem: {
+                                                            ...item,
+                                                            parentReference: {
+                                                                driveId: drive.id
+                                                            }
+                                                        },
+                                                        sharedDriveName: drive.name || drive.owner?.user?.displayName || 'Paylaşılan Drive'
+                                                    }));
+                                                    sharedItems.push(...items);
+                                                    
+                                                    driveNextLink = driveData['@odata.nextLink'];
+                                                    drivePageCount++;
+                                                    console.log(`✅ Drive ${drive.name} - Sayfa ${drivePageCount}, toplam öğe:`, sharedItems.length);
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.warn(`Drive ${drive.id} yüklenemedi:`, err);
+                                        }
+                                    }
+                                    
+                                    if (sharedItems.length > allFiles.length) {
+                                        console.log("✅ Drives yöntemi daha fazla dosya buldu, kullanılıyor...");
+                                        allFiles = sharedItems;
+                                    }
+                                }
+                            }
+                        } catch (drivesError) {
+                            console.warn("Drives endpoint hatası:", drivesError);
+                        }
                     }
                 }
                 
