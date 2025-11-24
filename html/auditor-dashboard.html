@@ -1384,20 +1384,22 @@
                                                     }
                                                     
                                                     convertedFiles.push({
-                                                        name: fileDisplayName,
                                                         id: detailData.id,
+                                                        name: fileDisplayName,
                                                         webUrl: detailData.webUrl || resource.webUrl,
                                                         size: detailData.size || 0,
                                                         lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                        downloadUrl: detailData['@microsoft.graph.downloadUrl'],
                                                         remoteItem: {
                                                             ...detailData,
-                                                            id: detailData.id, // Graph API ID'si
+                                                            id: detailData.id,
+                                                            name: fileDisplayName,
                                                             parentReference: {
-                                                                driveId: finalDriveId,
-                                                                id: detailData.parentReference?.id
+                                                                ...(detailData.parentReference || {}),
+                                                                driveId: finalDriveId
                                                             }
                                                         },
-                                                        // DriveId ve ItemId'yi direkt olarak da sakla (openSharedFile için)
+                                                        originalName: fileDisplayName,
                                                         _driveId: finalDriveId,
                                                         _itemId: detailData.id
                                                     });
@@ -1405,17 +1407,20 @@
                                                     // Detay alınamazsa, mevcut bilgileri kullan
                                                     console.warn("⚠️ Dosya detayı alınamadı:", resourceId, detailResponse.status);
                                                     convertedFiles.push({
-                                                        name: resource.title || resourceId,
+                                                        name: resource.title || insight.resourceVisualization?.title || 'İsimsiz',
                                                         id: resourceId,
                                                         webUrl: resource.webUrl,
                                                         remoteItem: {
                                                             id: resourceId,
-                                                            name: resource.title || resourceId,
+                                                            name: resource.title || insight.resourceVisualization?.title || resourceId,
                                                             webUrl: resource.webUrl,
                                                             parentReference: {
                                                                 driveId: driveId
                                                             }
-                                                        }
+                                                        },
+                                                        originalName: resource.title || insight.resourceVisualization?.title,
+                                                        _driveId: driveId,
+                                                        _itemId: resourceId
                                                     });
                                                 }
                                             } catch (detailError) {
@@ -1432,7 +1437,10 @@
                                                         parentReference: {
                                                             driveId: driveId
                                                         }
-                                                    }
+                                                    },
+                                                    originalName: resource.title,
+                                                    _driveId: driveId,
+                                                    _itemId: resourceId
                                                 });
                                             }
                                         } else {
@@ -1445,7 +1453,10 @@
                                                     id: resourceId,
                                                     name: resource.title || resourceId,
                                                     webUrl: resource.webUrl
-                                                }
+                                                },
+                                                originalName: resource.title,
+                                                _driveId: driveId,
+                                                _itemId: resourceId
                                             });
                                         }
                                     } catch (error) {
@@ -1510,35 +1521,41 @@
                                                             }
                                                             
                                                             nextConverted.push({
-                                                                name: fileDisplayName,
                                                                 id: detailData.id,
+                                                                name: fileDisplayName,
                                                                 webUrl: detailData.webUrl || resource.webUrl,
                                                                 size: detailData.size || 0,
                                                                 lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                                downloadUrl: detailData['@microsoft.graph.downloadUrl'],
                                                                 remoteItem: {
                                                                     ...detailData,
                                                                     id: detailData.id,
+                                                                    name: fileDisplayName,
                                                                     parentReference: {
-                                                                        driveId: finalDriveId,
-                                                                        id: detailData.parentReference?.id
+                                                                        ...(detailData.parentReference || {}),
+                                                                        driveId: finalDriveId
                                                                     }
                                                                 },
+                                                                originalName: fileDisplayName,
                                                                 _driveId: finalDriveId,
                                                                 _itemId: detailData.id
                                                             });
                                                         } else {
                                                             nextConverted.push({
-                                                                name: resource.title || resourceId,
+                                                                name: resource.title || insight.resourceVisualization?.title || 'İsimsiz',
                                                                 id: resourceId,
                                                                 webUrl: resource.webUrl,
                                                                 remoteItem: {
                                                                     id: resourceId,
-                                                                    name: resource.title || resourceId,
+                                                                    name: resource.title || insight.resourceVisualization?.title || resourceId,
                                                                     webUrl: resource.webUrl,
                                                                     parentReference: {
                                                                         driveId: driveId
                                                                     }
-                                                                }
+                                                                },
+                                                                originalName: resource.title || insight.resourceVisualization?.title,
+                                                                _driveId: driveId,
+                                                                _itemId: resourceId
                                                             });
                                                         }
                                                     } catch (detailError) {
@@ -1553,7 +1570,10 @@
                                                                 parentReference: {
                                                                     driveId: driveId
                                                                 }
-                                                            }
+                                                            },
+                                                            originalName: resource.title,
+                                                            _driveId: driveId,
+                                                            _itemId: resourceId
                                                         });
                                                     }
                                                 } else {
@@ -1565,7 +1585,10 @@
                                                             id: resourceId,
                                                             name: resource.title || resourceId,
                                                             webUrl: resource.webUrl
-                                                        }
+                                                        },
+                                                        originalName: resource.title,
+                                                        _driveId: driveId,
+                                                        _itemId: resourceId
                                                     });
                                                 }
                                             } catch (error) {
@@ -2044,20 +2067,16 @@
                 const isFolder = fileData.folder !== undefined;
                 
                 // Dosya adı: sharedWithMe'de file.name direkt olabilir veya remoteItem.name olabilir
-                // Insights API'den gelen dosyalarda name doğru set edilmeli
                 let fileName = file.name || fileData.name || 'İsimsiz';
-                
-                // Eğer fileName hala ID gibi görünüyorsa (drives/ ile başlıyorsa veya items/ içeriyorsa), remoteItem.name'i kontrol et
-                if (fileName.includes('drives/') || fileName.includes('items/') || fileName.includes('SPO@') || fileName.includes('@') || fileName.length > 100) {
-                    // Önce remoteItem.name'i dene
+                const looksLikeId = fileName.includes('drives/') || fileName.includes('items/') || fileName.includes('SPO@') || fileName.length > 150;
+                if (looksLikeId) {
                     if (fileData.name && !fileData.name.includes('drives/') && !fileData.name.includes('items/')) {
                         fileName = fileData.name;
                     } else if (file.remoteItem?.name && !file.remoteItem.name.includes('drives/') && !file.remoteItem.name.includes('items/')) {
                         fileName = file.remoteItem.name;
+                    } else if (file.originalName && !file.originalName.includes('drives/')) {
+                        fileName = file.originalName;
                     } else {
-                        // Hala ID formatındaysa, API'den gerçek ismi al
-                        console.warn("⚠️ Dosya adı ID formatında, API'den gerçek isim alınıyor:", fileName);
-                        // Bu dosya için API çağrısı yapmak yerine, geçici olarak "İsimsiz" kullan
                         fileName = 'İsimsiz Dosya';
                     }
                 }
@@ -2069,7 +2088,7 @@
                 const modified = modifiedDate ? new Date(modifiedDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
                 
                 // ID ve Drive bilgilerini al
-                const actualId = isSharedItem ? fileData.id : file.id;
+                const actualId = isSharedItem ? (file._itemId || fileData.id || file.id) : (file.id || file._itemId || '');
                 
                 // Drive ID'yi belirle: 
                 // 1. Shared item ise remoteItem'dan al
@@ -2078,7 +2097,7 @@
                 let driveId = '';
                 if (isSharedItem) {
                     // Önce direkt saklanan driveId'yi kontrol et (Insights API için)
-                    driveId = file._driveId || fileData.parentReference?.driveId || '';
+                    driveId = file._driveId || fileData.parentReference?.driveId || file.parentReference?.driveId || '';
                 } else if (currentDriveId) {
                     driveId = currentDriveId; // Paylaşılan drive içindeyiz
                 }
@@ -2106,8 +2125,8 @@
                 
                 // Güvenli string dönüşümü (onclick için)
                 const safeWebUrl = webUrl ? webUrl.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
-                const safeDriveId = driveId || '';
-                const safeActualId = actualId || '';
+                const safeDriveId = (driveId || '').replace(/'/g, "\\'");
+                const safeActualId = (actualId || '').replace(/'/g, "\\'");
 
                 if (currentView === 'grid') {
                     // Kart görünümü
