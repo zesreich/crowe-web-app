@@ -2634,11 +2634,53 @@
                     
                     // Öncelik sırası: downloadUrl (kendi arayüzümüzde açmak için)
                     // webUrl SharePoint'e yönlendirir, bu yüzden downloadUrl kullanmalıyız
-                    const downloadUrl = data['@microsoft.graph.downloadUrl'];
+                    let downloadUrl = data['@microsoft.graph.downloadUrl'];
                     
                     console.log("✅ Paylaşılan dosya URL'si alındı:", {
                         downloadUrl: downloadUrl ? 'var' : 'yok',
                         webUrl: data.webUrl ? 'var' : 'yok',
+                        fileName: actualFileName,
+                        remoteItem: data.remoteItem ? 'var' : 'yok'
+                    });
+                    
+                    // Eğer downloadUrl yoksa ve remoteItem varsa, remoteItem'dan downloadUrl'i almayı dene
+                    if (!downloadUrl && data.remoteItem) {
+                        console.log("🔄 downloadUrl yok, remoteItem'dan alınıyor...");
+                        downloadUrl = data.remoteItem['@microsoft.graph.downloadUrl'];
+                        
+                        if (downloadUrl) {
+                            console.log("✅ remoteItem'dan downloadUrl alındı");
+                        }
+                    }
+                    
+                    // Eğer hala downloadUrl yoksa, /content endpoint'ini kullanarak downloadUrl oluşturmayı dene
+                    if (!downloadUrl) {
+                        console.log("🔄 downloadUrl yok, /content endpoint'i ile downloadUrl oluşturuluyor...");
+                        // /content endpoint'i için bir download URL oluştur
+                        // Not: Bu endpoint direkt olarak dosya içeriğini döndürür, ancak bazı paylaşılan dosyalar için çalışmayabilir
+                        try {
+                            // Önce /content endpoint'inin çalışıp çalışmadığını kontrol et
+                            const contentCheckResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                method: 'HEAD',
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (contentCheckResponse.ok) {
+                                // /content endpoint'i çalışıyor, downloadUrl olarak kullan
+                                downloadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`;
+                                console.log("✅ /content endpoint'i çalışıyor, downloadUrl oluşturuldu");
+                            } else {
+                                console.warn("⚠️ /content endpoint'i çalışmıyor:", contentCheckResponse.status);
+                            }
+                        } catch (contentCheckError) {
+                            console.warn("⚠️ /content endpoint kontrolü hatası:", contentCheckError);
+                        }
+                    }
+                    
+                    console.log("🔍 Final downloadUrl durumu:", {
+                        downloadUrl: downloadUrl ? 'var' : 'yok',
                         fileName: actualFileName
                     });
                     
@@ -2646,6 +2688,7 @@
                     // SharePoint URL'leri iframe'de açılamaz (CSP hatası), bu yüzden blob olarak yüklemeliyiz
                     if (downloadUrl) {
                         // downloadUrl kullanarak kendi arayüzümüzde aç (en iyi yöntem)
+                        console.log("✅ downloadUrl ile açılıyor");
                         openPreview(actualFileName, downloadUrl, {
                             driveId, 
                             itemId, 
