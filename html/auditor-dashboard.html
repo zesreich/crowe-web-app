@@ -629,6 +629,38 @@
         </div>
     </div>
 
+    <!-- İzin Bilgileri Modal -->
+    <div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permissionsModalLabel">
+                        <i class="fas fa-key"></i> Dosya İzin Bilgileri
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="permissionsLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2">İzin bilgileri yükleniyor...</p>
+                    </div>
+                    <div id="permissionsContent" style="display: none;">
+                        <h6 class="mb-3" id="permissionsFileName"></h6>
+                        <div id="permissionsList"></div>
+                    </div>
+                    <div id="permissionsError" style="display: none;" class="alert alert-danger"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
@@ -1717,6 +1749,11 @@
                                     <i class="fas fa-download"></i>
                                 </button>
                                 ` : ''}
+                                ${(isInSharedDrive || isSharedItem) ? `
+                                <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); showFilePermissions('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')" title="İzin Bilgileri">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                ` : ''}
                                 <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); ${safeWebUrl ? `window.open('${safeWebUrl}', '_blank')` : `shareFile('${safeActualId}')`}">
                                     <i class="fas fa-share-alt"></i>
                                 </button>
@@ -2210,6 +2247,103 @@
 
         function deleteSelected() {
             alert("Birden fazla dosya silme özelliği yakında eklenecek.");
+        }
+
+        // İzin Bilgilerini Göster
+        async function showFilePermissions(driveId, itemId, fileName) {
+            console.log("🔑 İzin bilgileri isteniyor:", {driveId, itemId, fileName});
+            
+            const modal = $('#permissionsModal');
+            const loading = $('#permissionsLoading');
+            const content = $('#permissionsContent');
+            const error = $('#permissionsError');
+            const fileNameElement = $('#permissionsFileName');
+            const permissionsList = $('#permissionsList');
+            
+            // Modal'ı aç ve loading göster
+            modal.modal('show');
+            loading.show();
+            content.hide();
+            error.hide();
+            fileNameElement.text(fileName);
+            
+            try {
+                // Microsoft Graph API'den izin bilgilerini al
+                const endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/permissions`;
+                console.log("📡 İzin API isteği:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ İzin API Hatası:", errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log("✅ İzin bilgileri alındı:", data);
+                
+                const permissions = data.value || [];
+                
+                if (permissions.length === 0) {
+                    permissionsList.html('<p class="text-muted">Bu dosya için izin bilgisi bulunamadı.</p>');
+                } else {
+                    let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                    html += '<thead class="thead-light"><tr><th>Kullanıcı/Grup</th><th>E-posta</th><th>İzin Türü</th><th>Rol</th><th>Paylaşım Tarihi</th></tr></thead>';
+                    html += '<tbody>';
+                    
+                    permissions.forEach(perm => {
+                        const grantTo = perm.grantedTo || perm.grantedToV2 || {};
+                        const user = grantTo.user || grantTo.siteUser || {};
+                        const displayName = user.displayName || perm.grantedToIdentities?.[0]?.displayName || 'Bilinmeyen';
+                        const email = user.email || perm.grantedToIdentities?.[0]?.email || user.userPrincipalName || '-';
+                        
+                        // İzin türlerini Türkçe'ye çevir
+                        const roles = perm.roles || [];
+                        const roleLabels = roles.map(role => {
+                            const roleMap = {
+                                'read': 'Oku',
+                                'write': 'Yaz',
+                                'owner': 'Sahip',
+                                'member': 'Üye',
+                                'editor': 'Düzenleyici',
+                                'viewer': 'Görüntüleyici'
+                            };
+                            return roleMap[role] || role;
+                        }).join(', ') || '-';
+                        
+                        // İzin türü (link veya direct)
+                        const linkType = perm.link ? 'Link Paylaşımı' : 'Doğrudan Paylaşım';
+                        const shareId = perm.link?.scope || perm.shareId || '-';
+                        
+                        // Paylaşım tarihi
+                        const sharedDate = perm.shareId ? (new Date(perm.shared?.dateTime || Date.now()).toLocaleDateString('tr-TR')) : '-';
+                        
+                        html += `<tr>`;
+                        html += `<td>${escapeHtml(displayName)}</td>`;
+                        html += `<td>${escapeHtml(email)}</td>`;
+                        html += `<td><span class="badge badge-info">${linkType}</span></td>`;
+                        html += `<td><span class="badge badge-primary">${roleLabels}</span></td>`;
+                        html += `<td>${sharedDate}</td>`;
+                        html += `</tr>`;
+                    });
+                    
+                    html += '</tbody></table></div>';
+                    permissionsList.html(html);
+                }
+                
+                loading.hide();
+                content.show();
+                
+            } catch (error) {
+                console.error("İzin bilgileri yükleme hatası:", error);
+                loading.hide();
+                error.text(`İzin bilgileri yüklenirken hata oluştu: ${error.message}`).show();
+            }
         }
 
         function formatBytes(bytes) {
