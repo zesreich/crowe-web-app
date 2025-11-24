@@ -2650,49 +2650,24 @@
                             downloadUrl: downloadUrl
                         });
                     } else {
-                        // downloadUrl yoksa, dosya içeriğini blob olarak yükle ve göster
-                        console.warn("⚠️ downloadUrl yok, dosya içeriği blob olarak yükleniyor...");
-                        try {
-                            // Graph API'den dosya içeriğini blob olarak indir
-                            const blobResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
-                                headers: {
-                                    'Authorization': 'Bearer ' + accessToken
-                                }
-                            });
-                            
-                            if (blobResponse.ok) {
-                                const blob = await blobResponse.blob();
-                                const blobUrl = URL.createObjectURL(blob);
-                                console.log("✅ Dosya blob olarak yüklendi, önizleniyor");
-                                openPreview(actualFileName, blobUrl, {
-                                    driveId, 
-                                    itemId, 
-                                    fileName: actualFileName, 
-                                    webUrl: data.webUrl, 
-                                    downloadUrl: blobUrl
-                                });
-                            } else {
-                                const errorText = await blobResponse.text();
-                                console.error("❌ Blob yükleme hatası:", blobResponse.status, errorText);
-                                // Son çare: webUrl'i yeni sekmede aç (iframe'de açılamaz)
-                                if (data.webUrl) {
-                                    console.warn("⚠️ Blob yüklenemedi, webUrl yeni sekmede açılıyor");
-                                    alert("Dosya içeriği yüklenemedi. Dosya yeni sekmede açılacak.");
-                                    window.open(data.webUrl, '_blank');
-                                } else {
-                                    downloadSharedFile(driveId, itemId, actualFileName);
-                                }
-                            }
-                        } catch (blobError) {
-                            console.error("❌ Blob yükleme hatası:", blobError);
-                            // Son çare: webUrl'i yeni sekmede aç veya indir
-                            if (data.webUrl) {
-                                console.warn("⚠️ Blob yüklenemedi, webUrl yeni sekmede açılıyor");
-                                alert("Dosya içeriği yüklenemedi. Dosya yeni sekmede açılacak.");
-                                window.open(data.webUrl, '_blank');
-                            } else {
-                                downloadSharedFile(driveId, itemId, actualFileName);
-                            }
+                        // downloadUrl yoksa, paylaşılan dosyalar için alternatif yöntemler dene
+                        // Not: Paylaşılan dosyalar için /content endpoint'i genellikle 404 verir
+                        console.warn("⚠️ downloadUrl yok, paylaşılan dosya için alternatif yöntemler deneniyor...");
+                        
+                        // Paylaşılan dosyalar için webUrl'den açmayı dene
+                        // SharePoint URL'leri iframe'de açılamaz (CSP), bu yüzden yeni sekmede aç
+                        if (data.webUrl) {
+                            console.log("✅ Paylaşılan dosya webUrl'den açılıyor:", data.webUrl);
+                            // Kullanıcıya bilgi ver ve yeni sekmede aç
+                            window.open(data.webUrl, '_blank');
+                        } else {
+                            // webUrl de yoksa, kullanıcıya bilgi ver
+                            console.error("❌ downloadUrl ve webUrl yok, dosya açılamıyor");
+                            alert(
+                                `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                `Paylaşılan dosyalar için bazı kısıtlamalar bulunmaktadır.\n\n` +
+                                `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                            );
                         }
                     }
                 } catch (error) {
