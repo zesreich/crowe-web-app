@@ -2403,29 +2403,63 @@
         async function openSharedFile(driveId, itemId, fileName, webUrl) {
             console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
             
-            // Eğer driveId veya itemId eksikse, webUrl'den driveId ve itemId'yi parse etmeyi dene
+            // Eğer driveId veya itemId eksikse, currentFiles'dan dosyayı bul ve _driveId/_itemId'yi kullan
             if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
-                console.warn("⚠️ Drive ID veya Item ID eksik, webUrl'den parse ediliyor:", {driveId, itemId, webUrl});
+                console.warn("⚠️ Drive ID veya Item ID eksik, currentFiles'dan aranıyor:", {driveId, itemId, fileName});
                 
-                // WebUrl'den driveId ve itemId'yi parse etmeyi dene
-                if (webUrl && webUrl.includes('/sites/')) {
-                    // SharePoint URL formatı: https://domain.sharepoint.com/sites/.../Shared%20Documents/...
-                    // Bu URL'den direkt dosya içeriğini almak zor, bu yüzden kullanıcıya bilgi ver
-                    console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor, yeni sekmede açılıyor");
-                    alert("Bu dosya için detaylı bilgi alınamadı. Dosya yeni sekmede açılacak.");
-                    window.open(webUrl, '_blank');
-                    return;
-                } else if (webUrl) {
-                    // Diğer URL'ler için iframe'de açmayı dene
-                    openPreview(fileName, webUrl, {
-                        fileName,
-                        webUrl: webUrl
-                    });
-                    return;
-                } else {
-                    console.error("❌ Drive ID, Item ID ve WebUrl eksik:", {driveId, itemId, webUrl});
-                    alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
-                    return;
+                // currentFiles'dan bu dosyayı bul
+                const foundFile = currentFiles.find(f => {
+                    const fName = f.name || f.remoteItem?.name || '';
+                    return fName === fileName || f.id === itemId || f.remoteItem?.id === itemId;
+                });
+                
+                if (foundFile) {
+                    // _driveId ve _itemId varsa onları kullan
+                    const foundDriveId = foundFile._driveId || foundFile.remoteItem?.parentReference?.driveId;
+                    const foundItemId = foundFile._itemId || foundFile.remoteItem?.id || foundFile.id;
+                    
+                    if (foundDriveId && foundItemId) {
+                        console.log("✅ Dosya currentFiles'da bulundu, driveId ve itemId kullanılıyor:", {foundDriveId, foundItemId});
+                        driveId = foundDriveId;
+                        itemId = foundItemId;
+                    } else {
+                        console.warn("⚠️ Dosya bulundu ama driveId/itemId yok:", foundFile);
+                    }
+                }
+                
+                // Hala eksikse, webUrl'den parse etmeyi dene
+                if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
+                    console.warn("⚠️ Drive ID veya Item ID hala eksik, webUrl'den parse ediliyor:", {driveId, itemId, webUrl});
+                    
+                    if (webUrl && webUrl.includes('/sites/')) {
+                        // SharePoint URL formatı: https://domain.sharepoint.com/sites/.../Shared%20Documents/...
+                        // Bu URL'den direkt dosya içeriğini almak zor, bu yüzden blob olarak yüklemeyi dene
+                        console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor, blob olarak yükleniyor...");
+                        
+                        // SharePoint URL'den dosyayı blob olarak yüklemeyi dene
+                        try {
+                            // SharePoint URL'den dosya içeriğini almak için Graph API kullan
+                            // Ancak URL'den driveId ve itemId'yi parse edemiyoruz, bu yüzden kullanıcıya bilgi ver
+                            alert("Bu dosya için detaylı bilgi alınamadı. Dosya yeni sekmede açılacak.");
+                            window.open(webUrl, '_blank');
+                            return;
+                        } catch (blobError) {
+                            console.error("Blob yükleme hatası:", blobError);
+                            window.open(webUrl, '_blank');
+                            return;
+                        }
+                    } else if (webUrl) {
+                        // Diğer URL'ler için iframe'de açmayı dene
+                        openPreview(fileName, webUrl, {
+                            fileName,
+                            webUrl: webUrl
+                        });
+                        return;
+                    } else {
+                        console.error("❌ Drive ID, Item ID ve WebUrl eksik:", {driveId, itemId, webUrl});
+                        alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
+                        return;
+                    }
                 }
             }
             
@@ -2783,6 +2817,14 @@
             error.hide();
             fileNameElement.text(fileName);
             
+            // DriveId ve ItemId kontrolü
+            if (!driveId || driveId === 'null' || driveId === '' || !itemId || itemId === 'null' || itemId === '') {
+                console.error("❌ Drive ID veya Item ID eksik:", {driveId, itemId});
+                loading.hide();
+                error.text("Bu dosya için izin bilgileri alınamıyor. Drive ID veya Item ID eksik.").show();
+                return;
+            }
+            
             try {
                 // Microsoft Graph API'den izin bilgilerini al
                 const endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/permissions`;
@@ -2797,6 +2839,11 @@
                 if (!response.ok) {
                     const errorText = await response.text();
                     console.error("❌ İzin API Hatası:", errorText);
+                    
+                    // 400 hatası genelde driveId formatı yanlış olduğunda olur
+                    if (response.status === 400) {
+                        throw new Error("Dosya bilgileri geçersiz. Bu dosya için izin bilgileri alınamıyor.");
+                    }
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
@@ -2858,7 +2905,8 @@
             } catch (error) {
                 console.error("İzin bilgileri yükleme hatası:", error);
                 loading.hide();
-                error.text(`İzin bilgileri yüklenirken hata oluştu: ${error.message}`).show();
+                const errorMessage = error.message || error.toString() || "Bilinmeyen hata";
+                error.text(`İzin bilgileri yüklenirken hata oluştu: ${errorMessage}`).show();
             }
         }
 
