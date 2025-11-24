@@ -1371,8 +1371,20 @@
                                                     const detailData = await detailResponse.json();
                                                     // parentReference'dan driveId'yi al, yoksa parse ettiğimizi kullan
                                                     const finalDriveId = detailData.parentReference?.driveId || driveId;
+                                                    
+                                                    // Dosya adını belirle: önce resource.title, sonra detailData.name, son çare 'İsimsiz'
+                                                    // detailData.name bazen ID formatında olabilir, bu yüzden resource.title öncelikli
+                                                    let fileDisplayName = resource.title || resource.name;
+                                                    if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
+                                                        fileDisplayName = detailData.name;
+                                                        // Eğer detailData.name da ID formatındaysa, resourceVisualization.title'i dene
+                                                        if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
+                                                            fileDisplayName = insight.resourceVisualization?.title || resource.title || 'İsimsiz';
+                                                        }
+                                                    }
+                                                    
                                                     convertedFiles.push({
-                                                        name: detailData.name || resource.title || 'İsimsiz',
+                                                        name: fileDisplayName,
                                                         id: detailData.id,
                                                         webUrl: detailData.webUrl || resource.webUrl,
                                                         size: detailData.size || 0,
@@ -1487,8 +1499,18 @@
                                                         if (detailResponse.ok) {
                                                             const detailData = await detailResponse.json();
                                                             const finalDriveId = detailData.parentReference?.driveId || driveId;
+                                                            
+                                                            // Dosya adını belirle: önce resource.title, sonra detailData.name
+                                                            let fileDisplayName = resource.title || resource.name;
+                                                            if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
+                                                                fileDisplayName = detailData.name;
+                                                                if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
+                                                                    fileDisplayName = insight.resourceVisualization?.title || resource.title || 'İsimsiz';
+                                                                }
+                                                            }
+                                                            
                                                             nextConverted.push({
-                                                                name: detailData.name || resource.title || 'İsimsiz',
+                                                                name: fileDisplayName,
                                                                 id: detailData.id,
                                                                 webUrl: detailData.webUrl || resource.webUrl,
                                                                 size: detailData.size || 0,
