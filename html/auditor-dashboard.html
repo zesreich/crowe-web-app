@@ -2025,10 +2025,19 @@
                 // Insights API'den gelen dosyalarda name doğru set edilmeli
                 let fileName = file.name || fileData.name || 'İsimsiz';
                 
-                // Eğer fileName hala ID gibi görünüyorsa (SPO@ ile başlıyorsa), remoteItem.name'i kontrol et
-                if (fileName.includes('SPO@') || fileName.includes('@') || fileName.length > 100) {
-                    fileName = fileData.name || file.remoteItem?.name || fileName;
-                    console.warn("⚠️ Dosya adı ID gibi görünüyor, düzeltiliyor:", fileName);
+                // Eğer fileName hala ID gibi görünüyorsa (drives/ ile başlıyorsa veya items/ içeriyorsa), remoteItem.name'i kontrol et
+                if (fileName.includes('drives/') || fileName.includes('items/') || fileName.includes('SPO@') || fileName.includes('@') || fileName.length > 100) {
+                    // Önce remoteItem.name'i dene
+                    if (fileData.name && !fileData.name.includes('drives/') && !fileData.name.includes('items/')) {
+                        fileName = fileData.name;
+                    } else if (file.remoteItem?.name && !file.remoteItem.name.includes('drives/') && !file.remoteItem.name.includes('items/')) {
+                        fileName = file.remoteItem.name;
+                    } else {
+                        // Hala ID formatındaysa, API'den gerçek ismi al
+                        console.warn("⚠️ Dosya adı ID formatında, API'den gerçek isim alınıyor:", fileName);
+                        // Bu dosya için API çağrısı yapmak yerine, geçici olarak "İsimsiz" kullan
+                        fileName = 'İsimsiz Dosya';
+                    }
                 }
                 const iconHTML = getFileIconFromName(fileName, isFolder);
                 const size = isFolder ? (fileData.folder?.childCount + ' öğe' || 'Klasör') : formatBytes(fileData.size || file.size || 0);
@@ -2353,14 +2362,20 @@
         async function openSharedFile(driveId, itemId, fileName, webUrl) {
             console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
             
-            // Eğer driveId veya itemId eksikse, webUrl'den blob olarak yüklemeyi dene
+            // Eğer driveId veya itemId eksikse, webUrl'den driveId ve itemId'yi parse etmeyi dene
             if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
-                console.warn("⚠️ Drive ID veya Item ID eksik, alternatif yöntem deneniyor:", {driveId, itemId, webUrl});
-                if (webUrl) {
-                    // WebUrl varsa, kendi arayüzümüzde açmayı dene (iframe ile)
-                    // Ancak SharePoint URL'leri genelde iframe'de açılmaz, bu yüzden kullanıcıya bilgi ver
-                    console.warn("⚠️ DriveId/ItemId eksik, webUrl iframe'de açılamayabilir");
-                    // Yine de deneyelim
+                console.warn("⚠️ Drive ID veya Item ID eksik, webUrl'den parse ediliyor:", {driveId, itemId, webUrl});
+                
+                // WebUrl'den driveId ve itemId'yi parse etmeyi dene
+                if (webUrl && webUrl.includes('/sites/')) {
+                    // SharePoint URL formatı: https://domain.sharepoint.com/sites/.../Shared%20Documents/...
+                    // Bu URL'den direkt dosya içeriğini almak zor, bu yüzden kullanıcıya bilgi ver
+                    console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor, yeni sekmede açılıyor");
+                    alert("Bu dosya için detaylı bilgi alınamadı. Dosya yeni sekmede açılacak.");
+                    window.open(webUrl, '_blank');
+                    return;
+                } else if (webUrl) {
+                    // Diğer URL'ler için iframe'de açmayı dene
                     openPreview(fileName, webUrl, {
                         fileName,
                         webUrl: webUrl
@@ -2405,8 +2420,9 @@
                     });
                     
                     // Her zaman kendi arayüzümüzde aç (preview modal)
+                    // SharePoint URL'leri iframe'de açılamaz (CSP hatası), bu yüzden blob olarak yüklemeliyiz
                     if (downloadUrl) {
-                        // downloadUrl kullanarak kendi arayüzümüzde aç
+                        // downloadUrl kullanarak kendi arayüzümüzde aç (en iyi yöntem)
                         openPreview(actualFileName, downloadUrl, {
                             driveId, 
                             itemId, 
@@ -2414,11 +2430,11 @@
                             webUrl: data.webUrl, 
                             downloadUrl: downloadUrl
                         });
-                    } else if (data.webUrl) {
-                        // downloadUrl yoksa, webUrl'i blob olarak yükle ve göster
-                        console.warn("⚠️ downloadUrl yok, webUrl blob olarak yükleniyor...");
+                    } else {
+                        // downloadUrl yoksa, dosya içeriğini blob olarak yükle ve göster
+                        console.warn("⚠️ downloadUrl yok, dosya içeriği blob olarak yükleniyor...");
                         try {
-                            // WebUrl'den dosyayı blob olarak indir ve göster
+                            // Graph API'den dosya içeriğini blob olarak indir
                             const blobResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
                                 headers: {
                                     'Authorization': 'Bearer ' + accessToken
@@ -2428,6 +2444,7 @@
                             if (blobResponse.ok) {
                                 const blob = await blobResponse.blob();
                                 const blobUrl = URL.createObjectURL(blob);
+                                console.log("✅ Dosya blob olarak yüklendi, önizleniyor");
                                 openPreview(actualFileName, blobUrl, {
                                     driveId, 
                                     itemId, 
@@ -2436,16 +2453,28 @@
                                     downloadUrl: blobUrl
                                 });
                             } else {
-                                throw new Error("Dosya içeriği alınamadı");
+                                const errorText = await blobResponse.text();
+                                console.error("❌ Blob yükleme hatası:", blobResponse.status, errorText);
+                                // Son çare: webUrl'i yeni sekmede aç (iframe'de açılamaz)
+                                if (data.webUrl) {
+                                    console.warn("⚠️ Blob yüklenemedi, webUrl yeni sekmede açılıyor");
+                                    alert("Dosya içeriği yüklenemedi. Dosya yeni sekmede açılacak.");
+                                    window.open(data.webUrl, '_blank');
+                                } else {
+                                    downloadSharedFile(driveId, itemId, actualFileName);
+                                }
                             }
                         } catch (blobError) {
-                            console.error("Blob yükleme hatası:", blobError);
-                            // Son çare: indir
-                            downloadSharedFile(driveId, itemId, actualFileName);
+                            console.error("❌ Blob yükleme hatası:", blobError);
+                            // Son çare: webUrl'i yeni sekmede aç veya indir
+                            if (data.webUrl) {
+                                console.warn("⚠️ Blob yüklenemedi, webUrl yeni sekmede açılıyor");
+                                alert("Dosya içeriği yüklenemedi. Dosya yeni sekmede açılacak.");
+                                window.open(data.webUrl, '_blank');
+                            } else {
+                                downloadSharedFile(driveId, itemId, actualFileName);
+                            }
                         }
-                    } else {
-                        // Hiç URL yoksa indir
-                        downloadSharedFile(driveId, itemId, actualFileName);
                     }
                 } catch (error) {
                     console.error("❌ Paylaşılan dosya açma hatası:", error);
