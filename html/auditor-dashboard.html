@@ -697,7 +697,14 @@
         const loginRequest = {
             // Paylaşılanlar için Files.Read.All kullanıyoruz (daha az kısıtlayıcı)
             // Not: Bazı organizasyonlarda yine admin consent gerektirebilir
-            scopes: ["User.Read", "Files.Read.All", "Sites.Read.All"]
+            // Files.Read.Selected ve Files.ReadWrite.AppFolder eklendi (Azure AD'de yeni izinler)
+            scopes: [
+                "User.Read", 
+                "Files.Read.All", 
+                "Sites.Read.All",
+                "Files.Read.Selected",
+                "Files.ReadWrite.AppFolder"
+            ]
         };
 
         let msalInstance;

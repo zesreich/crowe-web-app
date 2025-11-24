@@ -33,9 +33,19 @@
 4. **Delegated permissions** seçin
 5. Şu izinleri ekleyin:
    - `User.Read` (Kullanıcı bilgisi okuma)
-   - `Files.ReadWrite.All` (OneDrive dosyalarını okuma ve yazma)
+   - `Files.Read.All` (OneDrive dosyalarını okuma - **Paylaşılan dosyalar için gerekli**)
+   - `Files.ReadWrite.All` (OneDrive dosyalarını okuma ve yazma - Opsiyonel, sadece yazma gerekiyorsa)
+   - `Sites.Read.All` (SharePoint sitelerindeki dosyaları okuma)
+   - `Files.Read.Selected` (Seçili dosyaları okuma - **Paylaşılan dosyalar için downloadUrl almak için eklendi**)
+   - `Files.ReadWrite.AppFolder` (Uygulama klasörüne okuma/yazma - **Paylaşılan dosyalar için downloadUrl almak için eklendi**)
 6. **Add permissions** butonuna tıklayın
 7. **Grant admin consent** (Yönetici onayı ver) butonuna tıklayın ve onaylayın
+
+### ⚠️ Önemli Notlar:
+- **Paylaşılan dosyaları görmek için** `Files.Read.All` izni **mutlaka** eklenmelidir
+- **Dosya izinlerini görmek için** `Files.Read.All` yeterlidir
+- **Paylaşılan dosyalar için downloadUrl almak için** `Files.Read.Selected` ve `Files.ReadWrite.AppFolder` izinleri eklendi
+- Eğer sadece okuma yapılacaksa `Files.Read.All` yeterli, yazma gerekiyorsa `Files.ReadWrite.All` ekleyin
 
 ## Adım 3: Client ID'yi Kopyalama
 
