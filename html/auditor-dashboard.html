@@ -1369,6 +1369,8 @@
                                                 
                                                 if (detailResponse.ok) {
                                                     const detailData = await detailResponse.json();
+                                                    // parentReference'dan driveId'yi al, yoksa parse ettiğimizi kullan
+                                                    const finalDriveId = detailData.parentReference?.driveId || driveId;
                                                     convertedFiles.push({
                                                         name: detailData.name || resource.title || 'İsimsiz',
                                                         id: detailData.id,
@@ -1377,11 +1379,15 @@
                                                         lastModifiedDateTime: detailData.lastModifiedDateTime,
                                                         remoteItem: {
                                                             ...detailData,
+                                                            id: detailData.id, // Graph API ID'si
                                                             parentReference: {
-                                                                driveId: driveId,
+                                                                driveId: finalDriveId,
                                                                 id: detailData.parentReference?.id
                                                             }
-                                                        }
+                                                        },
+                                                        // DriveId ve ItemId'yi direkt olarak da sakla (openSharedFile için)
+                                                        _driveId: finalDriveId,
+                                                        _itemId: detailData.id
                                                     });
                                                 } else {
                                                     // Detay alınamazsa, mevcut bilgileri kullan
@@ -1480,6 +1486,7 @@
                                                         
                                                         if (detailResponse.ok) {
                                                             const detailData = await detailResponse.json();
+                                                            const finalDriveId = detailData.parentReference?.driveId || driveId;
                                                             nextConverted.push({
                                                                 name: detailData.name || resource.title || 'İsimsiz',
                                                                 id: detailData.id,
@@ -1488,11 +1495,14 @@
                                                                 lastModifiedDateTime: detailData.lastModifiedDateTime,
                                                                 remoteItem: {
                                                                     ...detailData,
+                                                                    id: detailData.id,
                                                                     parentReference: {
-                                                                        driveId: driveId,
+                                                                        driveId: finalDriveId,
                                                                         id: detailData.parentReference?.id
                                                                     }
-                                                                }
+                                                                },
+                                                                _driveId: finalDriveId,
+                                                                _itemId: detailData.id
                                                             });
                                                         } else {
                                                             nextConverted.push({
@@ -2029,7 +2039,8 @@
                 // 3. Değilse boş bırak (kendi drive'ımız)
                 let driveId = '';
                 if (isSharedItem) {
-                    driveId = fileData.parentReference?.driveId || '';
+                    // Önce direkt saklanan driveId'yi kontrol et (Insights API için)
+                    driveId = file._driveId || fileData.parentReference?.driveId || '';
                 } else if (currentDriveId) {
                     driveId = currentDriveId; // Paylaşılan drive içindeyiz
                 }
@@ -2335,6 +2346,19 @@
         async function openSharedFile(driveId, itemId, fileName, webUrl) {
             console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
             
+            // Eğer driveId veya itemId eksikse, webUrl'den açmayı dene
+            if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
+                console.warn("⚠️ Drive ID veya Item ID eksik, webUrl kullanılıyor:", {driveId, itemId, webUrl});
+                if (webUrl) {
+                    window.open(webUrl, '_blank');
+                    return;
+                } else {
+                    console.error("❌ Drive ID, Item ID ve WebUrl eksik:", {driveId, itemId, webUrl});
+                    alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
+                    return;
+                }
+            }
+            
             // Her zaman API'den dosya bilgilerini al
             if (driveId && driveId !== 'null' && itemId && itemId !== 'null') {
                 try {
@@ -2375,11 +2399,14 @@
                     }
                 } catch (error) {
                     console.error("❌ Paylaşılan dosya açma hatası:", error);
-                    alert("Paylaşılan dosya açılamadı: " + error.message + "\n\nBu dosya için direkt SharePoint'ten erişmeyi deneyin.");
+                    // Hata durumunda webUrl varsa onu kullan
+                    if (webUrl) {
+                        console.log("🔄 WebUrl ile açılıyor:", webUrl);
+                        window.open(webUrl, '_blank');
+                    } else {
+                        alert("Paylaşılan dosya açılamadı: " + error.message + "\n\nBu dosya için direkt SharePoint'ten erişmeyi deneyin.");
+                    }
                 }
-            } else {
-                console.error("❌ Drive ID veya Item ID eksik:", {driveId, itemId});
-                alert("Dosya bilgileri eksik. Lütfen tekrar deneyin.");
             }
         }
 
