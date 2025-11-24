@@ -1250,6 +1250,10 @@
                 const data = await response.json();
                 console.log("📦 API Yanıtı (TAM):", JSON.stringify(data, null, 2));
                 console.log("İlk yüklemede paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
+                console.log("🔗 @odata.nextLink var mı?", data['@odata.nextLink'] ? 'EVET' : 'HAYIR');
+                if (data['@odata.nextLink']) {
+                    console.log("🔗 nextLink:", data['@odata.nextLink'].substring(0, 100) + "...");
+                }
                 
                 // Eğer data.value boşsa veya undefined ise, alternatif formatları kontrol et
                 let allFiles = [];
@@ -1274,8 +1278,10 @@
                 // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
                 let nextLink = data['@odata.nextLink'];
                 let pageCount = 1;
+                console.log(`📄 Pagination başlıyor - Sayfa ${pageCount}, nextLink:`, nextLink ? 'VAR' : 'YOK');
+                
                 while (nextLink && pageCount < 50) { // Maksimum 50 sayfa (10,000 dosya)
-                    console.log(`Paylaşılan dosyalar - Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
+                    console.log(`📄 Paylaşılan dosyalar - Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
                     const nextResponse = await fetch(nextLink, {
                         headers: {
                             'Authorization': 'Bearer ' + accessToken
@@ -1284,17 +1290,68 @@
                     
                     if (nextResponse.ok) {
                         const nextData = await nextResponse.json();
+                        console.log(`📦 Sayfa ${pageCount + 1} yanıtı:`, nextData.value ? nextData.value.length : 0, "dosya");
                         allFiles = allFiles.concat(nextData.value || []);
                         nextLink = nextData['@odata.nextLink'];
                         pageCount++;
-                        console.log(`Toplam paylaşılan dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
+                        console.log(`✅ Toplam paylaşılan dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
+                        console.log(`🔗 Sonraki sayfa var mı?`, nextLink ? 'EVET' : 'HAYIR');
                     } else {
-                        console.warn("Pagination hatası:", nextResponse.status);
+                        const errorText = await nextResponse.text();
+                        console.warn("❌ Pagination hatası:", nextResponse.status, errorText);
                         break;
                     }
                 }
                 
                 console.log("✅ Toplam paylaşılan dosya:", allFiles.length, `(${pageCount} sayfa)`);
+                
+                // Eğer sadece 1 dosya varsa ama daha fazla olması gerekiyorsa, alternatif endpoint'leri dene
+                if (allFiles.length === 1) {
+                    console.warn("⚠️ Sadece 1 dosya bulundu, alternatif endpoint'ler deneniyor...");
+                    
+                    // Alternatif 1: /me/drive/shared endpoint'i
+                    try {
+                        const altEndpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=200";
+                        console.log("🔄 Alternatif endpoint deneniyor:", altEndpoint);
+                        const altResponse = await fetch(altEndpoint, {
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken
+                            }
+                        });
+                        
+                        if (altResponse.ok) {
+                            const altData = await altResponse.json();
+                            console.log("✅ Alternatif endpoint başarılı, dosya sayısı:", altData.value ? altData.value.length : 0);
+                            if (altData.value && altData.value.length > allFiles.length) {
+                                console.log("✅ Alternatif endpoint daha fazla dosya buldu, kullanılıyor...");
+                                allFiles = altData.value || [];
+                                
+                                // Pagination ile devam et
+                                let altNextLink = altData['@odata.nextLink'];
+                                let altPageCount = 1;
+                                while (altNextLink && altPageCount < 50) {
+                                    const altNextResponse = await fetch(altNextLink, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (altNextResponse.ok) {
+                                        const altNextData = await altNextResponse.json();
+                                        allFiles = allFiles.concat(altNextData.value || []);
+                                        altNextLink = altNextData['@odata.nextLink'];
+                                        altPageCount++;
+                                        console.log(`✅ Alternatif yöntem - Toplam dosya (sayfa ${altPageCount}):`, allFiles.length);
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    } catch (altError) {
+                        console.warn("Alternatif endpoint hatası:", altError);
+                    }
+                }
                 
                 // Debug: İlk dosyanın yapısını göster
                 if (allFiles.length > 0) {
