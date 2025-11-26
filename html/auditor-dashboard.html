@@ -2847,19 +2847,63 @@
                             downloadUrl: downloadUrl,
                             isSharedFile: true
                         });
-                    } else if (data.webUrl) {
-                        // downloadUrl yoksa, webUrl kullan (yeni sekmede açılacak - X-Frame-Options hatası nedeniyle)
-                        console.log("⚠️ downloadUrl yok, webUrl yeni sekmede açılıyor (X-Frame-Options hatası nedeniyle)");
-                        openPreview(actualFileName, data.webUrl, {
-                            driveId, 
-                            itemId, 
-                            fileName: actualFileName, 
-                            webUrl: data.webUrl, 
-                            downloadUrl: null,
-                            isSharedFile: true,
-                            useOfficeOnline: true
-                        });
-                    } else if (downloadUrl) {
+                    } else {
+                        // downloadUrl yoksa, /content endpoint'inden blob olarak yükle
+                        console.log("⚠️ downloadUrl yok, /content endpoint'inden blob yükleniyor...");
+                        try {
+                            const contentResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (contentResponse.ok) {
+                                // /content endpoint'i çalıştı, blob olarak yükle
+                                const blob = await contentResponse.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+                                console.log("✅ Dosya blob olarak yüklendi, önizleniyor");
+                                openPreview(actualFileName, blobUrl, {
+                                    driveId, 
+                                    itemId, 
+                                    fileName: actualFileName, 
+                                    webUrl: data.webUrl, 
+                                    downloadUrl: blobUrl,
+                                    isSharedFile: true
+                                });
+                            } else {
+                                // /content endpoint'i çalışmadı, kullanıcıya bilgi ver
+                                const errorText = await contentResponse.text();
+                                console.error("❌ /content endpoint hatası:", contentResponse.status, errorText);
+                                alert(
+                                    `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                    `downloadUrl alınamadı ve /content endpoint'i çalışmadı (${contentResponse.status}).\n\n` +
+                                    `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                    `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                                );
+                            }
+                        } catch (contentError) {
+                            console.error("❌ /content endpoint hatası:", contentError);
+                            alert(
+                                `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                `downloadUrl alınamadı ve /content endpoint'i çalışmadı.\n\n` +
+                                `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                            );
+                        }
+                    }
+                } catch (error) {
+                    console.error("❌ Paylaşılan dosya açma hatası:", error);
+                    alert(
+                        `"${fileName}" dosyası açılamadı.\n\n` +
+                        `Hata: ${error.message}\n\n` +
+                        `Bu dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                        `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                    );
+                }
+            }
+        }
+
+        async function downloadSharedFile(driveId, itemId, fileName) {
                         // downloadUrl varsa onu kullan (kendi dosyalarımız için)
                         console.log("✅ downloadUrl ile açılıyor");
                         openPreview(actualFileName, downloadUrl, {
