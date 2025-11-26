@@ -53,6 +53,33 @@
 2. **Application (client) ID** değerini kopyalayın
 3. Bu ID'yi `auditor-dashboard.html` dosyasındaki `clientId` değerine yapıştırın
 
+## Adım 3.5: Certificates & Secrets Ekleme (Opsiyonel - Server-Side Authentication İçin)
+
+Eğer server-side (backend) authentication kullanacaksanız, client secret oluşturmanız gerekir:
+
+1. Azure Portal'da uygulamanızın sayfasında sol menüden **Certificates & secrets** seçin
+2. **Client secrets** sekmesine gidin
+3. **New client secret** butonuna tıklayın
+4. **Description (Açıklama)** alanına bir açıklama girin (örn: "Production Secret" veya "Development Secret")
+5. **Expires (Süre dolma)** seçeneğini belirleyin:
+   - **6 months** (6 ay)
+   - **12 months** (12 ay)
+   - **24 months** (24 ay)
+   - **Never** (Asla - Önerilmez, güvenlik riski)
+6. **Add** butonuna tıklayın
+7. **⚠️ ÖNEMLİ:** Secret değeri (Value) sadece bir kez gösterilir! Hemen kopyalayın ve güvenli bir yere kaydedin
+8. Secret değerini kopyaladıktan sonra sayfayı yenilediğinizde artık göremezsiniz
+
+### Client Secret Kullanımı:
+
+Client secret, backend (server-side) uygulamalarda kullanılır. Frontend (browser) uygulamalarında **ASLA** kullanılmamalıdır çünkü güvenlik riski oluşturur.
+
+**Güvenlik Notları:**
+- Client secret'ı asla frontend koduna eklemeyin
+- Client secret'ı asla Git repository'ye commit etmeyin
+- Client secret'ı environment variable olarak saklayın
+- Secret'ın süresi dolmadan önce yeni bir secret oluşturup eski olanı silin
+
 ### auditor-dashboard.html dosyasında güncelleme:
 
 ```javascript
