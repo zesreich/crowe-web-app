@@ -2653,17 +2653,14 @@
                         console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor, blob olarak yükleniyor...");
                         
                         // SharePoint URL'den dosyayı blob olarak yüklemeyi dene
-                        try {
-                            // SharePoint URL'den dosya içeriğini almak için Graph API kullan
-                            // Ancak URL'den driveId ve itemId'yi parse edemiyoruz, bu yüzden kullanıcıya bilgi ver
-                            alert("Bu dosya için detaylı bilgi alınamadı. Dosya yeni sekmede açılacak.");
-                            window.open(webUrl, '_blank');
-                            return;
-                        } catch (blobError) {
-                            console.error("Blob yükleme hatası:", blobError);
-                            window.open(webUrl, '_blank');
-                            return;
-                        }
+                        // URL'den driveId ve itemId'yi parse edemiyoruz, bu yüzden kullanıcıya bilgi ver
+                        console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor");
+                        alert(
+                            `"${fileName}" dosyası için detaylı bilgi alınamadı.\n\n` +
+                            `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                            `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                        );
+                        return;
                     } else if (webUrl) {
                         // Diğer URL'ler için iframe'de açmayı dene
                         openPreview(fileName, webUrl, {
