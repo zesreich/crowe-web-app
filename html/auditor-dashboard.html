@@ -2719,9 +2719,11 @@
                     // Öncelik sırası: downloadUrl (kendi arayüzümüzde açmak için)
                     // webUrl SharePoint'e yönlendirir, bu yüzden downloadUrl kullanmalıyız
                     let downloadUrl = data['@microsoft.graph.downloadUrl'];
+                    let previewUrl = data['@microsoft.graph.previewUrl'];
                     
                     console.log("✅ Paylaşılan dosya URL'si alındı:", {
                         downloadUrl: downloadUrl ? 'var' : 'yok',
+                        previewUrl: previewUrl ? 'var' : 'yok',
                         webUrl: data.webUrl ? 'var' : 'yok',
                         fileName: actualFileName,
                         remoteItem: data.remoteItem ? 'var' : 'yok'
@@ -2731,19 +2733,39 @@
                     if (!downloadUrl && data.remoteItem) {
                         console.log("🔄 downloadUrl yok, remoteItem'dan alınıyor...");
                         downloadUrl = data.remoteItem['@microsoft.graph.downloadUrl'];
+                        previewUrl = data.remoteItem['@microsoft.graph.previewUrl'] || previewUrl;
                         
                         if (downloadUrl) {
                             console.log("✅ remoteItem'dan downloadUrl alındı");
                         }
                     }
                     
-                    // Eğer hala downloadUrl yoksa, /content endpoint'ini kullanarak downloadUrl oluşturmayı dene
-                    if (!downloadUrl) {
-                        console.log("🔄 downloadUrl yok, /content endpoint'i ile downloadUrl oluşturuluyor...");
-                        // /content endpoint'i için bir download URL oluştur
-                        // Not: Bu endpoint direkt olarak dosya içeriğini döndürür, ancak bazı paylaşılan dosyalar için çalışmayabilir
+                    // Eğer hala downloadUrl yoksa ama previewUrl varsa, previewUrl'i kullanmayı dene
+                    // Preview URL genellikle paylaşılan dosyalar için daha iyi çalışır
+                    if (!downloadUrl && previewUrl) {
+                        console.log("🔄 downloadUrl yok, previewUrl kullanılıyor...");
+                        // Preview URL'i iframe'de açmayı dene
                         try {
-                            // Önce /content endpoint'inin çalışıp çalışmadığını kontrol et
+                            openPreview(actualFileName, previewUrl, {
+                                driveId, 
+                                itemId, 
+                                fileName: actualFileName, 
+                                webUrl: data.webUrl, 
+                                downloadUrl: previewUrl,
+                                isPreviewUrl: true
+                            });
+                            return;
+                        } catch (previewError) {
+                            console.warn("⚠️ Preview URL açılamadı:", previewError);
+                        }
+                    }
+                    
+                    // Eğer hala downloadUrl yoksa, alternatif yöntemler dene
+                    if (!downloadUrl) {
+                        console.log("🔄 downloadUrl yok, alternatif yöntemler deneniyor...");
+                        
+                        // Yöntem 1: /content endpoint'ini kontrol et
+                        try {
                             const contentCheckResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
                                 method: 'HEAD',
                                 headers: {
@@ -2757,6 +2779,50 @@
                                 console.log("✅ /content endpoint'i çalışıyor, downloadUrl oluşturuldu");
                             } else {
                                 console.warn("⚠️ /content endpoint'i çalışmıyor:", contentCheckResponse.status);
+                                
+                                // Yöntem 2: Paylaşılan dosyalar için /me/drives endpoint'ini kullan
+                                // Bazen paylaşılan dosyalar için farklı bir drive ID gerekiyor
+                                try {
+                                    console.log("🔄 /me/drives endpoint'i deneniyor (alternatif drive'lar)...");
+                                    const drivesResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drives`, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (drivesResponse.ok) {
+                                        const drivesData = await drivesResponse.json();
+                                        // Paylaşılan drive'ları bul ve dosyayı oradan açmayı dene
+                                        for (const drive of drivesData.value || []) {
+                                            if (drive.id === driveId) {
+                                                // Aynı drive, devam et
+                                                continue;
+                                            }
+                                            
+                                            // Farklı drive'dan dosyayı açmayı dene
+                                            try {
+                                                const altResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${drive.id}/items/${itemId}?$select=@microsoft.graph.downloadUrl`, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (altResponse.ok) {
+                                                    const altData = await altResponse.json();
+                                                    if (altData['@microsoft.graph.downloadUrl']) {
+                                                        downloadUrl = altData['@microsoft.graph.downloadUrl'];
+                                                        console.log("✅ Alternatif drive'dan downloadUrl alındı:", drive.id);
+                                                        break;
+                                                    }
+                                                }
+                                            } catch (altError) {
+                                                // Devam et
+                                            }
+                                        }
+                                    }
+                                } catch (drivesError) {
+                                    console.warn("⚠️ /me/drives endpoint hatası:", drivesError);
+                                }
                             }
                         } catch (contentCheckError) {
                             console.warn("⚠️ /content endpoint kontrolü hatası:", contentCheckError);
