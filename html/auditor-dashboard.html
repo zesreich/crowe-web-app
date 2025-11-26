@@ -3517,40 +3517,59 @@
             if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext)) {
                 // Paylaşılan dosyalar için webUrl kullan (Office 365 Online ile düzenleme desteği)
                 if (downloadInfo && downloadInfo.useOfficeOnline && downloadInfo.webUrl) {
-                    // SharePoint webUrl'ini Office Online Viewer formatına dönüştür
-                    // Office Online Viewer SharePoint URL'lerini destekler ve düzenleme yapılabilir
-                    const officeOnlineUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(downloadInfo.webUrl)}&wdStartOn=1&wdEmbedCode=0`;
+                    // SharePoint URL'lerini iframe'de açmak X-Frame-Options hatası verir
+                    // Bu yüzden SharePoint'in kendi Office Online Viewer URL formatını kullan
+                    // SharePoint URL'lerini Office Online Viewer formatına dönüştür
+                    let officeOnlineUrl;
                     
+                    // SharePoint URL'sini Office Online Viewer formatına dönüştür
+                    // SharePoint URL formatı: https://{tenant}.sharepoint.com/.../Forms/AllItems.aspx?id=...
+                    // Office Online Viewer için: SharePoint URL'ini direkt kullan, ancak iframe yerine yeni sekme aç
+                    // VEYA SharePoint'in kendi Office Online Viewer'ını kullan
+                    
+                    // SharePoint URL'lerini Office Online Viewer'da açmak için özel format
+                    // Not: SharePoint URL'leri iframe'de açılamaz (X-Frame-Options), bu yüzden yeni sekmede aç
                     console.log("📊 Office 365 Online Viewer açılıyor (Paylaşılan Dosya - Düzenleme Desteği):", {
                         fileName: fileName,
                         webUrl: downloadInfo.webUrl.substring(0, 80) + '...',
-                        viewer: 'Office 365 Online'
+                        viewer: 'Office 365 Online (Yeni Sekme)'
                     });
                     
+                    // SharePoint URL'lerini iframe'de açmak yerine, kullanıcıya seçenek sun
                     loading.innerHTML = `
                         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                             <span class="sr-only">Yükleniyor...</span>
                         </div>
-                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
-                        <p class="text-muted">Microsoft Office 365 Online (Görüntüleme ve Düzenleme)</p>
-                        <p class="text-success" style="font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Dosyayı doğrudan burada düzenleyebilirsiniz</p>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası</strong></p>
+                        <p class="text-muted">Paylaşılan dosyalar için Office 365 Online Viewer yeni sekmede açılacak</p>
+                        <p class="text-info" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Güvenlik nedeniyle paylaşılan dosyalar yeni sekmede açılır</p>
+                        <div class="mt-4">
+                            <button class="btn btn-primary btn-lg" onclick="window.open('${downloadInfo.webUrl}', '_blank'); closePreview();">
+                                <i class="fas fa-external-link-alt"></i> Office 365 Online'da Aç (Düzenleme Desteği)
+                            </button>
+                        </div>
                     `;
                     
-                    // Office 365 Online Viewer kullan (düzenleme desteği ile)
-                    iframe.src = officeOnlineUrl;
-                    iframe.style.width = '100%';
-                    iframe.style.height = '100%';
+                    // Otomatik olarak yeni sekmede aç (kullanıcı deneyimi için)
+                    setTimeout(() => {
+                        window.open(downloadInfo.webUrl, '_blank');
+                        // Modal'ı kapat
+                        setTimeout(() => {
+                            closePreview();
+                        }, 1000);
+                    }, 500);
                     
-                    // Düzenle butonunu göster ve düzenleme modunu aç
+                    // Düzenle butonunu göster
                     if (editBtn) {
                         editBtn.style.display = 'inline-block';
                         editBtn.onclick = function() {
-                            // Office 365 Online'da düzenleme modunu aç
-                            const editUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(downloadInfo.webUrl)}&wdStartOn=1&wdEmbedCode=0&action=edit`;
-                            iframe.src = editUrl;
-                            console.log("✏️ Düzenleme modu açıldı");
+                            // SharePoint'te düzenleme modunu aç
+                            const editUrl = downloadInfo.webUrl.replace('/view.aspx', '/edit.aspx');
+                            window.open(editUrl || downloadInfo.webUrl, '_blank');
                         };
                     }
+                    
+                    return; // iframe kullanmayacağız
                 } else {
                     // Kendi dosyalarımız için downloadUrl kullan (sadece görüntüleme)
                     const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
