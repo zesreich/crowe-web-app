@@ -1336,29 +1336,49 @@
                                 const convertedFiles = [];
                                 for (const insight of insightsData.value) {
                                     try {
-                                        const resource = insight.resourceReference || insight.resourceVisualization || {};
-                                        const resourceId = resource.id;
+                                        // Insights API formatı: resourceReference ve resourceVisualization ayrı objeler
+                                        const resourceRef = insight.resourceReference || {};
+                                        const resourceViz = insight.resourceVisualization || {};
+                                        
+                                        // Resource ID'yi al: resourceReference.id veya resourceVisualization.containerDisplayName
+                                        const resourceId = resourceRef.id || resourceViz.containerId || resourceRef.webUrl;
                                         
                                         if (!resourceId) {
                                             console.warn("⚠️ Resource ID bulunamadı:", insight);
                                             continue;
                                         }
                                         
+                                        // Dosya adını al: resourceVisualization.title (Insights API'de dosya adı burada)
+                                        const fileTitle = resourceViz.title || resourceRef.name || 'İsimsiz Dosya';
+                                        
                                         // Resource ID'den driveId ve itemId'yi parse et
-                                        // Format: "SPO@driveId,itemId" veya direkt itemId
-                                        let driveId = resource.driveId;
+                                        // Format: "SPO@driveId,itemId" veya "https://.../drives/{driveId}/items/{itemId}"
+                                        let driveId = resourceRef.driveId;
                                         let itemId = resourceId;
                                         
+                                        // Format 1: SPO@driveId,itemId
                                         if (resourceId.includes('@') && resourceId.includes(',')) {
-                                            // SPO@driveId,itemId formatı
                                             const parts = resourceId.split(',');
                                             if (parts.length >= 2) {
                                                 driveId = parts[0].split('@')[1];
                                                 itemId = parts[1];
                                             }
                                         }
+                                        // Format 2: URL formatı - https://.../drives/{driveId}/items/{itemId}
+                                        else if (resourceId.includes('/drives/') && resourceId.includes('/items/')) {
+                                            const match = resourceId.match(/\/drives\/([^\/]+)\/items\/([^\/\?]+)/);
+                                            if (match) {
+                                                driveId = match[1];
+                                                itemId = match[2];
+                                            }
+                                        }
+                                        // Format 3: resourceReference.driveId varsa kullan
+                                        else if (resourceRef.driveId) {
+                                            driveId = resourceRef.driveId;
+                                            itemId = resourceId;
+                                        }
                                         
-                                        // Eğer driveId yoksa, resourceId'den çıkar
+                                        // Eğer hala driveId yoksa, resourceId'den çıkar
                                         if (!driveId && resourceId.includes(',')) {
                                             const parts = resourceId.split(',');
                                             driveId = parts[0].replace('SPO@', '');
@@ -1368,7 +1388,7 @@
                                         // Dosya detaylarını al
                                         if (driveId && itemId) {
                                             try {
-                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,folder,parentReference`, {
                                                     headers: {
                                                         'Authorization': 'Bearer ' + accessToken
                                                     }
@@ -1379,24 +1399,21 @@
                                                     // parentReference'dan driveId'yi al, yoksa parse ettiğimizi kullan
                                                     const finalDriveId = detailData.parentReference?.driveId || driveId;
                                                     
-                                                    // Dosya adını belirle: önce resource.title, sonra detailData.name, son çare 'İsimsiz'
-                                                    // detailData.name bazen ID formatında olabilir, bu yüzden resource.title öncelikli
-                                                    let fileDisplayName = resource.title || resource.name;
-                                                    if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
-                                                        fileDisplayName = detailData.name;
-                                                        // Eğer detailData.name da ID formatındaysa, resourceVisualization.title'i dene
-                                                        if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
-                                                            fileDisplayName = insight.resourceVisualization?.title || resource.title || 'İsimsiz';
-                                                        }
+                                                    // Dosya adını belirle: önce detailData.name (en güvenilir), sonra resourceVisualization.title
+                                                    let fileDisplayName = detailData.name || fileTitle;
+                                                    if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/') || fileDisplayName.length > 150) {
+                                                        fileDisplayName = fileTitle || 'İsimsiz Dosya';
                                                     }
                                                     
                                                     convertedFiles.push({
                                                         id: detailData.id,
                                                         name: fileDisplayName,
-                                                        webUrl: detailData.webUrl || resource.webUrl,
+                                                        webUrl: detailData.webUrl || resourceRef.webUrl,
                                                         size: detailData.size || 0,
                                                         lastModifiedDateTime: detailData.lastModifiedDateTime,
                                                         downloadUrl: detailData['@microsoft.graph.downloadUrl'],
+                                                        folder: detailData.folder,
+                                                        file: detailData.file,
                                                         remoteItem: {
                                                             ...detailData,
                                                             id: detailData.id,
@@ -1412,62 +1429,64 @@
                                                     });
                                                 } else {
                                                     // Detay alınamazsa, mevcut bilgileri kullan
-                                                    console.warn("⚠️ Dosya detayı alınamadı:", resourceId, detailResponse.status);
+                                                    const errorText = await detailResponse.text();
+                                                    console.warn("⚠️ Dosya detayı alınamadı:", resourceId, detailResponse.status, errorText);
                                                     convertedFiles.push({
-                                                        name: resource.title || insight.resourceVisualization?.title || 'İsimsiz',
-                                                        id: resourceId,
-                                                        webUrl: resource.webUrl,
+                                                        name: fileTitle,
+                                                        id: itemId,
+                                                        webUrl: resourceRef.webUrl,
                                                         remoteItem: {
-                                                            id: resourceId,
-                                                            name: resource.title || insight.resourceVisualization?.title || resourceId,
-                                                            webUrl: resource.webUrl,
+                                                            id: itemId,
+                                                            name: fileTitle,
+                                                            webUrl: resourceRef.webUrl,
                                                             parentReference: {
                                                                 driveId: driveId
                                                             }
                                                         },
-                                                        originalName: resource.title || insight.resourceVisualization?.title,
+                                                        originalName: fileTitle,
                                                         _driveId: driveId,
-                                                        _itemId: resourceId
+                                                        _itemId: itemId
                                                     });
                                                 }
                                             } catch (detailError) {
                                                 console.warn("Dosya detayı hatası:", detailError);
                                                 // Hata durumunda mevcut bilgileri kullan
                                                 convertedFiles.push({
-                                                    name: resource.title || resourceId,
-                                                    id: resourceId,
-                                                    webUrl: resource.webUrl,
+                                                    name: fileTitle,
+                                                    id: itemId || resourceId,
+                                                    webUrl: resourceRef.webUrl,
                                                     remoteItem: {
-                                                        id: resourceId,
-                                                        name: resource.title || resourceId,
-                                                        webUrl: resource.webUrl,
+                                                        id: itemId || resourceId,
+                                                        name: fileTitle,
+                                                        webUrl: resourceRef.webUrl,
                                                         parentReference: {
                                                             driveId: driveId
                                                         }
                                                     },
-                                                    originalName: resource.title,
+                                                    originalName: fileTitle,
                                                     _driveId: driveId,
-                                                    _itemId: resourceId
+                                                    _itemId: itemId || resourceId
                                                 });
                                             }
                                         } else {
                                             // DriveId veya itemId yoksa, mevcut bilgileri kullan
+                                            console.warn("⚠️ DriveId veya ItemId bulunamadı:", {resourceId, driveId, itemId, insight});
                                             convertedFiles.push({
-                                                name: resource.title || resourceId,
+                                                name: fileTitle,
                                                 id: resourceId,
-                                                webUrl: resource.webUrl,
+                                                webUrl: resourceRef.webUrl,
                                                 remoteItem: {
                                                     id: resourceId,
-                                                    name: resource.title || resourceId,
-                                                    webUrl: resource.webUrl
+                                                    name: fileTitle,
+                                                    webUrl: resourceRef.webUrl
                                                 },
-                                                originalName: resource.title,
-                                                _driveId: driveId,
+                                                originalName: fileTitle,
+                                                _driveId: driveId || '',
                                                 _itemId: resourceId
                                             });
                                         }
                                     } catch (error) {
-                                        console.warn("Insight işleme hatası:", error);
+                                        console.warn("Insight işleme hatası:", error, insight);
                                     }
                                 }
                                 
@@ -1490,14 +1509,23 @@
                                         
                                         for (const insight of insightsNextData.value) {
                                             try {
-                                                const resource = insight.resourceReference || insight.resourceVisualization || {};
-                                                const resourceId = resource.id;
+                                                // Insights API formatı: resourceReference ve resourceVisualization ayrı objeler
+                                                const resourceRef = insight.resourceReference || {};
+                                                const resourceViz = insight.resourceVisualization || {};
+                                                
+                                                // Resource ID'yi al
+                                                const resourceId = resourceRef.id || resourceViz.containerId || resourceRef.webUrl;
                                                 
                                                 if (!resourceId) continue;
                                                 
-                                                let driveId = resource.driveId;
+                                                // Dosya adını al: resourceVisualization.title (Insights API'de dosya adı burada)
+                                                const fileTitle = resourceViz.title || resourceRef.name || 'İsimsiz Dosya';
+                                                
+                                                // Resource ID'den driveId ve itemId'yi parse et
+                                                let driveId = resourceRef.driveId;
                                                 let itemId = resourceId;
                                                 
+                                                // Format 1: SPO@driveId,itemId
                                                 if (resourceId.includes('@') && resourceId.includes(',')) {
                                                     const parts = resourceId.split(',');
                                                     if (parts.length >= 2) {
@@ -1505,10 +1533,23 @@
                                                         itemId = parts[1];
                                                     }
                                                 }
+                                                // Format 2: URL formatı
+                                                else if (resourceId.includes('/drives/') && resourceId.includes('/items/')) {
+                                                    const match = resourceId.match(/\/drives\/([^\/]+)\/items\/([^\/\?]+)/);
+                                                    if (match) {
+                                                        driveId = match[1];
+                                                        itemId = match[2];
+                                                    }
+                                                }
+                                                // Format 3: resourceReference.driveId varsa kullan
+                                                else if (resourceRef.driveId) {
+                                                    driveId = resourceRef.driveId;
+                                                    itemId = resourceId;
+                                                }
                                                 
                                                 if (driveId && itemId) {
                                                     try {
-                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,folder,parentReference`, {
                                                             headers: {
                                                                 'Authorization': 'Bearer ' + accessToken
                                                             }
@@ -1518,22 +1559,21 @@
                                                             const detailData = await detailResponse.json();
                                                             const finalDriveId = detailData.parentReference?.driveId || driveId;
                                                             
-                                                            // Dosya adını belirle: önce resource.title, sonra detailData.name
-                                                            let fileDisplayName = resource.title || resource.name;
-                                                            if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
-                                                                fileDisplayName = detailData.name;
-                                                                if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/')) {
-                                                                    fileDisplayName = insight.resourceVisualization?.title || resource.title || 'İsimsiz';
-                                                                }
+                                                            // Dosya adını belirle: önce detailData.name (en güvenilir), sonra resourceVisualization.title
+                                                            let fileDisplayName = detailData.name || fileTitle;
+                                                            if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/') || fileDisplayName.length > 150) {
+                                                                fileDisplayName = fileTitle || 'İsimsiz Dosya';
                                                             }
                                                             
                                                             nextConverted.push({
                                                                 id: detailData.id,
                                                                 name: fileDisplayName,
-                                                                webUrl: detailData.webUrl || resource.webUrl,
+                                                                webUrl: detailData.webUrl || resourceRef.webUrl,
                                                                 size: detailData.size || 0,
                                                                 lastModifiedDateTime: detailData.lastModifiedDateTime,
                                                                 downloadUrl: detailData['@microsoft.graph.downloadUrl'],
+                                                                folder: detailData.folder,
+                                                                file: detailData.file,
                                                                 remoteItem: {
                                                                     ...detailData,
                                                                     id: detailData.id,
@@ -1549,57 +1589,57 @@
                                                             });
                                                         } else {
                                                             nextConverted.push({
-                                                                name: resource.title || insight.resourceVisualization?.title || 'İsimsiz',
-                                                                id: resourceId,
-                                                                webUrl: resource.webUrl,
+                                                                name: fileTitle,
+                                                                id: itemId,
+                                                                webUrl: resourceRef.webUrl,
                                                                 remoteItem: {
-                                                                    id: resourceId,
-                                                                    name: resource.title || insight.resourceVisualization?.title || resourceId,
-                                                                    webUrl: resource.webUrl,
+                                                                    id: itemId,
+                                                                    name: fileTitle,
+                                                                    webUrl: resourceRef.webUrl,
                                                                     parentReference: {
                                                                         driveId: driveId
                                                                     }
                                                                 },
-                                                                originalName: resource.title || insight.resourceVisualization?.title,
+                                                                originalName: fileTitle,
                                                                 _driveId: driveId,
-                                                                _itemId: resourceId
+                                                                _itemId: itemId
                                                             });
                                                         }
                                                     } catch (detailError) {
                                                         nextConverted.push({
-                                                            name: resource.title || resourceId,
-                                                            id: resourceId,
-                                                            webUrl: resource.webUrl,
+                                                            name: fileTitle,
+                                                            id: itemId || resourceId,
+                                                            webUrl: resourceRef.webUrl,
                                                             remoteItem: {
-                                                                id: resourceId,
-                                                                name: resource.title || resourceId,
-                                                                webUrl: resource.webUrl,
+                                                                id: itemId || resourceId,
+                                                                name: fileTitle,
+                                                                webUrl: resourceRef.webUrl,
                                                                 parentReference: {
                                                                     driveId: driveId
                                                                 }
                                                             },
-                                                            originalName: resource.title,
+                                                            originalName: fileTitle,
                                                             _driveId: driveId,
-                                                            _itemId: resourceId
+                                                            _itemId: itemId || resourceId
                                                         });
                                                     }
                                                 } else {
                                                     nextConverted.push({
-                                                        name: resource.title || resourceId,
+                                                        name: fileTitle,
                                                         id: resourceId,
-                                                        webUrl: resource.webUrl,
+                                                        webUrl: resourceRef.webUrl,
                                                         remoteItem: {
                                                             id: resourceId,
-                                                            name: resource.title || resourceId,
-                                                            webUrl: resource.webUrl
+                                                            name: fileTitle,
+                                                            webUrl: resourceRef.webUrl
                                                         },
-                                                        originalName: resource.title,
-                                                        _driveId: driveId,
+                                                        originalName: fileTitle,
+                                                        _driveId: driveId || '',
                                                         _itemId: resourceId
                                                     });
                                                 }
                                             } catch (error) {
-                                                console.warn("Insight işleme hatası:", error);
+                                                console.warn("Insight işleme hatası:", error, insight);
                                             }
                                         }
                                         
