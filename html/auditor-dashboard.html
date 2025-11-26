@@ -947,11 +947,22 @@
             // Buton event listener ekle (onclick yedek olarak)
             const loginBtn = document.getElementById('microsoftLoginBtn');
             if (loginBtn) {
-                loginBtn.addEventListener('click', function(e) {
+                // Önce mevcut event listener'ları temizle
+                loginBtn.replaceWith(loginBtn.cloneNode(true));
+                const newLoginBtn = document.getElementById('microsoftLoginBtn');
+                
+                newLoginBtn.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
                     console.log("🖱️ Buton tıklandı (addEventListener)");
-                    signIn();
+                    if (typeof signIn === 'function') {
+                        signIn();
+                    } else if (typeof window.signIn === 'function') {
+                        window.signIn();
+                    } else {
+                        console.error("❌ signIn fonksiyonu bulunamadı!");
+                        alert("Giriş fonksiyonu yüklenemedi. Lütfen sayfayı yenileyin.");
+                    }
                     return false;
                 });
                 console.log("✅ Buton event listener eklendi");
@@ -1186,6 +1197,10 @@
             localStorage.removeItem('auditorPendingPasswordChange');
             window.location.href = 'auditor-login.html';
         }
+        
+        // Global scope'ta erişilebilir olması için window'a ekle (onclick için)
+        window.signOut = signOut;
+        window.signOutOneDrive = signOutOneDrive;
 
         // Kullanıcının kendi drive ID'sini al
         async function getMyDriveId() {
