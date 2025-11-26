@@ -1012,14 +1012,17 @@
         }
 
         async function signIn() {
+            console.log("🔵 signIn() fonksiyonu çağrıldı");
+            
             // Eğer zaten giriş işlemi devam ediyorsa, tekrar başlatma
             if (isSigningIn) {
-                console.log("Giriş işlemi zaten devam ediyor, lütfen bekleyin...");
+                console.log("⚠️ Giriş işlemi zaten devam ediyor, lütfen bekleyin...");
                 return;
             }
 
             // DEMO MODE kontrolü
             if (DEMO_MODE) {
+                console.log("🎭 Demo mode aktif");
                 showLoading();
                 setTimeout(() => {
                     document.getElementById('oneDriveTitle').textContent = 
@@ -1031,46 +1034,91 @@
                 return;
             }
             
+            // MSAL instance kontrolü
+            if (!msalInstance) {
+                console.error("❌ msalInstance tanımlı değil!");
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen sayfayı yenileyin.");
+                return;
+            }
+            
+            console.log("✅ msalInstance mevcut");
+            
+            // MSAL.js kütüphanesi kontrolü
+            if (typeof msal === 'undefined') {
+                console.error("❌ MSAL.js kütüphanesi yüklenmemiş!");
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.");
+                return;
+            }
+            
+            console.log("✅ MSAL.js kütüphanesi yüklü");
+            
+            // Client ID kontrolü
+            if (msalConfig.auth.clientId === 'YOUR_CLIENT_ID' || !msalConfig.auth.clientId || msalConfig.auth.clientId === '00000000-0000-0000-0000-000000000000') {
+                console.error("❌ Client ID tanımlı değil veya geçersiz!");
+                showError("Azure AD Client ID yapılandırılmamış. Lütfen yöneticiye başvurun.");
+                return;
+            }
+            
+            console.log("✅ Client ID mevcut:", msalConfig.auth.clientId.substring(0, 8) + '...');
+            console.log("✅ Redirect URI:", msalConfig.auth.redirectUri);
+            console.log("✅ Authority:", msalConfig.auth.authority);
+            console.log("✅ Scopes:", loginRequest.scopes);
+            
             // Önce interaction flag'lerini temizle
             clearInteractionInProgress();
             
             isSigningIn = true;
             
             try {
+                console.log("🔄 Loading gösteriliyor...");
                 showLoading();
                 
                 // Mevcut hesapları kontrol et
                 const accounts = msalInstance.getAllAccounts();
+                console.log("📋 Mevcut hesaplar:", accounts.length);
                 if (accounts.length > 0) {
                     msalInstance.setActiveAccount(accounts[0]);
-                    console.log('Mevcut hesap bulundu:', accounts[0].username);
+                    console.log('✅ Mevcut hesap bulundu:', accounts[0].username);
                 }
                 
-                console.log('LoginRedirect başlatılıyor...');
-                // Popup yerine redirect kullan (daha güvenilir)
-                await msalInstance.loginRedirect(loginRequest);
+                console.log('🚀 LoginRedirect başlatılıyor...', loginRequest);
                 
+                // Popup yerine redirect kullan (daha güvenilir)
+                const redirectPromise = msalInstance.loginRedirect(loginRequest);
+                console.log("⏳ loginRedirect promise oluşturuldu, bekleniyor...");
+                
+                await redirectPromise;
+                
+                console.log("✅ loginRedirect çağrıldı, redirect bekleniyor...");
                 // Redirect sonrası sayfa yeniden yüklenecek, bu kod çalışmaz
                 // handleRedirectPromise bu işi yapacak
             } catch (error) {
-                console.error("Giriş hatası:", error);
+                console.error("❌ signIn hatası:", error);
+                console.error("❌ Hata detayları:", {
+                    errorCode: error.errorCode,
+                    errorMessage: error.errorMessage,
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
                 
                 // Interaction in progress hatası için özel işlem
                 if (error.errorCode === 'interaction_in_progress' || 
-                    error.message.includes('interaction_in_progress')) {
+                    error.message && error.message.includes('interaction_in_progress')) {
                     
-                    console.warn('Interaction flag temizleniyor ve tekrar deneniyor...');
+                    console.warn('⚠️ Interaction flag temizleniyor ve tekrar deneniyor...');
                     clearInteractionInProgress();
                     isSigningIn = false;
                     
                     showError("Önceki giriş işlemi temizlendi. Lütfen tekrar 'Giriş Yap' butonuna tıklayın.");
                     showLoginPrompt();
                 } else {
-                    showError("Microsoft hesabına giriş yapılamadı: " + (error.errorMessage || error.message));
+                    showError("Microsoft hesabına giriş yapılamadı: " + (error.errorMessage || error.message || 'Bilinmeyen hata'));
                     showLoginPrompt();
                 }
             } finally {
                 isSigningIn = false;
+                console.log("🔓 isSigningIn false yapıldı");
             }
         }
 
