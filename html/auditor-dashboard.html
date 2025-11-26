@@ -1450,12 +1450,17 @@
                                                 itemId = parts[1];
                                             }
                                         }
-                                        // Format 2: URL formatı - https://.../drives/{driveId}/items/{itemId}
-                                        else if (resourceId.includes('/drives/') && resourceId.includes('/items/')) {
-                                            const match = resourceId.match(/\/drives\/([^\/]+)\/items\/([^\/\?]+)/);
+                                        // Format 2: URL formatı - drives/{driveId}/items/{itemId} veya /drives/{driveId}/items/{itemId}
+                                        else if (resourceId.includes('drives/') && resourceId.includes('/items/')) {
+                                            // Hem başında / olan hem de olmayan formatları destekle
+                                            // Örnek: "drives/b!.../items/..." veya "/drives/b!.../items/..."
+                                            const match = resourceId.match(/(?:^|\/)drives\/([^\/]+)\/items\/(.+?)(?:\?|$)/);
                                             if (match) {
                                                 driveId = match[1];
                                                 itemId = match[2];
+                                                console.log("✅ resourceId parse edildi:", {resourceId, driveId, itemId});
+                                            } else {
+                                                console.warn("⚠️ resourceId regex match başarısız:", resourceId);
                                             }
                                         }
                                         // Format 3: resourceReference.driveId varsa kullan
@@ -1620,12 +1625,17 @@
                                                         itemId = parts[1];
                                                     }
                                                 }
-                                                // Format 2: URL formatı
-                                                else if (resourceId.includes('/drives/') && resourceId.includes('/items/')) {
-                                                    const match = resourceId.match(/\/drives\/([^\/]+)\/items\/([^\/\?]+)/);
+                                                // Format 2: URL formatı - drives/{driveId}/items/{itemId} veya /drives/{driveId}/items/{itemId}
+                                                else if (resourceId.includes('drives/') && resourceId.includes('/items/')) {
+                                                    // Hem başında / olan hem de olmayan formatları destekle
+                                                    // Örnek: "drives/b!.../items/..." veya "/drives/b!.../items/..."
+                                                    const match = resourceId.match(/(?:^|\/)drives\/([^\/]+)\/items\/(.+?)(?:\?|$)/);
                                                     if (match) {
                                                         driveId = match[1];
                                                         itemId = match[2];
+                                                        console.log("✅ resourceId parse edildi (pagination):", {resourceId, driveId, itemId});
+                                                    } else {
+                                                        console.warn("⚠️ resourceId regex match başarısız (pagination):", resourceId);
                                                     }
                                                 }
                                                 // Format 3: resourceReference.driveId varsa kullan
