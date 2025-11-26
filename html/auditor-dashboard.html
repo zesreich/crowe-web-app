@@ -1121,6 +1121,9 @@
                 console.log("🔓 isSigningIn false yapıldı");
             }
         }
+        
+        // Global scope'ta erişilebilir olması için window'a ekle (onclick için)
+        window.signIn = signIn;
 
         async function getTokenSilent(forceRefresh = false) {
             const account = msalInstance.getActiveAccount();
@@ -2809,10 +2812,10 @@
                         // Preview URL'i iframe'de açmayı dene
                         try {
                             openPreview(actualFileName, previewUrl, {
-                                driveId, 
-                                itemId, 
+                            driveId, 
+                            itemId, 
                                 fileName: actualFileName, 
-                                webUrl: data.webUrl, 
+                            webUrl: data.webUrl, 
                                 downloadUrl: previewUrl,
                                 isPreviewUrl: true
                             });
@@ -2839,7 +2842,7 @@
                                 // /content endpoint'i çalışıyor, downloadUrl olarak kullan
                                 downloadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`;
                                 console.log("✅ /content endpoint'i çalışıyor, downloadUrl oluşturuldu");
-                            } else {
+                    } else {
                                 console.warn("⚠️ /content endpoint'i çalışmıyor:", contentCheckResponse.status);
                                 
                                 // Yöntem 2: Paylaşılan dosyalar için /me/drives endpoint'ini kullan
@@ -3585,28 +3588,28 @@
                 } else {
                 } else {
                     // Kendi dosyalarımız için downloadUrl kullan (sadece görüntüleme)
-                    const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
-                    const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
-                    
-                    console.log("📊 Office Online Viewer açılıyor:", {
-                        fileName: fileName,
-                        sourceUrl: sourceUrl.substring(0, 80) + '...',
-                        viewer: 'https://view.officeapps.live.com'
-                    });
-                    
-                    loading.innerHTML = `
-                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                            <span class="sr-only">Yükleniyor...</span>
-                        </div>
-                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
-                        <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
-                        <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
-                    `;
-                    
-                    // Office Online viewer kullan
-                    iframe.src = previewUrl;
-                    iframe.style.width = '100%';
-                    iframe.style.height = '100%';
+                const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
+                const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
+                
+                console.log("📊 Office Online Viewer açılıyor:", {
+                    fileName: fileName,
+                    sourceUrl: sourceUrl.substring(0, 80) + '...',
+                    viewer: 'https://view.officeapps.live.com'
+                });
+                
+                loading.innerHTML = `
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                    <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
+                    <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
+                `;
+                
+                // Office Online viewer kullan
+                iframe.src = previewUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
                 }
                 
                 // Yükleme timeout (Office dosyaları yavaş yüklenebilir)
