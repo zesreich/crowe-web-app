@@ -1191,16 +1191,19 @@
             showLoginPrompt();
         }
 
-        function signOut() {
-            signOutOneDrive();
+        async function signOut() {
+            await signOutOneDrive();
             localStorage.removeItem('auditorUser');
             localStorage.removeItem('auditorPendingPasswordChange');
             window.location.href = 'auditor-login.html';
         }
         
         // Global scope'ta erişilebilir olması için window'a ekle (onclick için)
-        window.signOut = signOut;
-        window.signOutOneDrive = signOutOneDrive;
+        // Fonksiyonlar tanımlandıktan sonra ekleniyor
+        if (typeof window !== 'undefined') {
+            window.signOut = signOut;
+            window.signOutOneDrive = signOutOneDrive;
+        }
 
         // Kullanıcının kendi drive ID'sini al
         async function getMyDriveId() {
