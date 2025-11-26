@@ -942,6 +942,23 @@
 
         // Sayfa yüklendiğinde token kontrolü
         $(document).ready(async function() {
+            console.log("📄 Sayfa yüklendi, hazırlık yapılıyor...");
+            
+            // Buton event listener ekle (onclick yedek olarak)
+            const loginBtn = document.getElementById('microsoftLoginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("🖱️ Buton tıklandı (addEventListener)");
+                    signIn();
+                    return false;
+                });
+                console.log("✅ Buton event listener eklendi");
+            } else {
+                console.warn("⚠️ Microsoft login butonu bulunamadı!");
+            }
+            
             // İlk olarak mevcut interaction'ları temizle
             if (!DEMO_MODE && msalInstance) {
                 try {
