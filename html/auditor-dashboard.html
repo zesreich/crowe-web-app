@@ -2834,18 +2834,28 @@
                         fileName: actualFileName
                     });
                     
-                    // Paylaşılan dosyalar için Office 365 Online Viewer kullan
-                    // downloadUrl yerine webUrl ile Office Online Viewer'ı aç (düzenleme desteği için)
-                    if (data.webUrl) {
-                        // SharePoint webUrl'i Office Online Viewer formatına dönüştür
-                        // Office Online Viewer SharePoint URL'lerini destekler ve düzenleme yapılabilir
-                        console.log("✅ Office 365 Online Viewer ile açılıyor (webUrl kullanılıyor)");
-                        openPreview(actualFileName, data.webUrl, {
+                    // Paylaşılan dosyalar için öncelik: downloadUrl (iframe'de açılabilir)
+                    // Eğer downloadUrl yoksa, webUrl kullan (yeni sekmede açılacak)
+                    if (downloadUrl) {
+                        // downloadUrl varsa, iframe'de açılabilir (X-Frame-Options hatası yok)
+                        console.log("✅ Paylaşılan dosya downloadUrl ile açılıyor (iframe'de)");
+                        openPreview(actualFileName, downloadUrl, {
                             driveId, 
                             itemId, 
                             fileName: actualFileName, 
                             webUrl: data.webUrl, 
                             downloadUrl: downloadUrl,
+                            isSharedFile: true
+                        });
+                    } else if (data.webUrl) {
+                        // downloadUrl yoksa, webUrl kullan (yeni sekmede açılacak - X-Frame-Options hatası nedeniyle)
+                        console.log("⚠️ downloadUrl yok, webUrl yeni sekmede açılıyor (X-Frame-Options hatası nedeniyle)");
+                        openPreview(actualFileName, data.webUrl, {
+                            driveId, 
+                            itemId, 
+                            fileName: actualFileName, 
+                            webUrl: data.webUrl, 
+                            downloadUrl: null,
                             isSharedFile: true,
                             useOfficeOnline: true
                         });
@@ -3515,61 +3525,99 @@
             
             // Office dosyaları için Office 365 Online Viewer
             if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext)) {
-                // Paylaşılan dosyalar için webUrl kullan (Office 365 Online ile düzenleme desteği)
-                if (downloadInfo && downloadInfo.useOfficeOnline && downloadInfo.webUrl) {
-                    // SharePoint URL'lerini iframe'de açmak X-Frame-Options hatası verir
-                    // Bu yüzden SharePoint'in kendi Office Online Viewer URL formatını kullan
-                    // SharePoint URL'lerini Office Online Viewer formatına dönüştür
-                    let officeOnlineUrl;
+                // Paylaşılan dosyalar için downloadUrl kullan (iframe'de açılabilir)
+                // downloadUrl yoksa /content endpoint'inden blob olarak yükle
+                if (downloadInfo && downloadInfo.isSharedFile && downloadInfo.downloadUrl) {
+                    // Paylaşılan dosya için downloadUrl var, Office Online Viewer'da aç
+                    const sourceUrl = downloadInfo.downloadUrl;
+                    const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
                     
-                    // SharePoint URL'sini Office Online Viewer formatına dönüştür
-                    // SharePoint URL formatı: https://{tenant}.sharepoint.com/.../Forms/AllItems.aspx?id=...
-                    // Office Online Viewer için: SharePoint URL'ini direkt kullan, ancak iframe yerine yeni sekme aç
-                    // VEYA SharePoint'in kendi Office Online Viewer'ını kullan
-                    
-                    // SharePoint URL'lerini Office Online Viewer'da açmak için özel format
-                    // Not: SharePoint URL'leri iframe'de açılamaz (X-Frame-Options), bu yüzden yeni sekmede aç
-                    console.log("📊 Office 365 Online Viewer açılıyor (Paylaşılan Dosya - Düzenleme Desteği):", {
+                    console.log("📊 Office 365 Online Viewer açılıyor (Paylaşılan Dosya - downloadUrl ile):", {
                         fileName: fileName,
-                        webUrl: downloadInfo.webUrl.substring(0, 80) + '...',
-                        viewer: 'Office 365 Online (Yeni Sekme)'
+                        downloadUrl: sourceUrl.substring(0, 80) + '...',
+                        viewer: 'Office 365 Online'
                     });
                     
-                    // SharePoint URL'lerini iframe'de açmak yerine, kullanıcıya seçenek sun
                     loading.innerHTML = `
                         <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
                             <span class="sr-only">Yükleniyor...</span>
                         </div>
-                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası</strong></p>
-                        <p class="text-muted">Paylaşılan dosyalar için Office 365 Online Viewer yeni sekmede açılacak</p>
-                        <p class="text-info" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Güvenlik nedeniyle paylaşılan dosyalar yeni sekmede açılır</p>
-                        <div class="mt-4">
-                            <button class="btn btn-primary btn-lg" onclick="window.open('${downloadInfo.webUrl}', '_blank'); closePreview();">
-                                <i class="fas fa-external-link-alt"></i> Office 365 Online'da Aç (Düzenleme Desteği)
-                            </button>
-                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Microsoft Office 365 Online (Görüntüleme)</p>
                     `;
                     
-                    // Otomatik olarak yeni sekmede aç (kullanıcı deneyimi için)
-                    setTimeout(() => {
-                        window.open(downloadInfo.webUrl, '_blank');
-                        // Modal'ı kapat
-                        setTimeout(() => {
-                            closePreview();
-                        }, 1000);
-                    }, 500);
+                    // Office Online Viewer kullan (downloadUrl ile iframe'de açılabilir)
+                    iframe.src = previewUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
                     
-                    // Düzenle butonunu göster
-                    if (editBtn) {
+                    // Düzenle butonunu göster (webUrl varsa)
+                    if (editBtn && downloadInfo.webUrl) {
                         editBtn.style.display = 'inline-block';
                         editBtn.onclick = function() {
-                            // SharePoint'te düzenleme modunu aç
+                            // SharePoint'te düzenleme modunu aç (yeni sekmede)
                             const editUrl = downloadInfo.webUrl.replace('/view.aspx', '/edit.aspx');
                             window.open(editUrl || downloadInfo.webUrl, '_blank');
                         };
                     }
+                } else if (downloadInfo && downloadInfo.isSharedFile && downloadInfo.webUrl && !downloadInfo.downloadUrl) {
+                    // Paylaşılan dosya için downloadUrl yok, /content endpoint'inden blob olarak yükle
+                    console.log("📊 Paylaşılan dosya için /content endpoint'inden blob yükleniyor...");
                     
-                    return; // iframe kullanmayacağız
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Dosya içeriği alınıyor...</p>
+                    `;
+                    
+                    // /content endpoint'inden blob olarak yükle
+                    try {
+                        const contentResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${downloadInfo.driveId}/items/${downloadInfo.itemId}/content`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken
+                            }
+                        });
+                        
+                        if (contentResponse.ok) {
+                            const blob = await contentResponse.blob();
+                            const blobUrl = URL.createObjectURL(blob);
+                            const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(blobUrl)}&wdStartOn=1`;
+                            
+                            console.log("✅ Blob yüklendi, Office Online Viewer'da açılıyor");
+                            iframe.src = previewUrl;
+                            iframe.style.width = '100%';
+                            iframe.style.height = '100%';
+                            
+                            // Düzenle butonunu göster (webUrl varsa)
+                            if (editBtn && downloadInfo.webUrl) {
+                                editBtn.style.display = 'inline-block';
+                                editBtn.onclick = function() {
+                                    const editUrl = downloadInfo.webUrl.replace('/view.aspx', '/edit.aspx');
+                                    window.open(editUrl || downloadInfo.webUrl, '_blank');
+                                };
+                            }
+                        } else {
+                            throw new Error("Blob yüklenemedi: " + contentResponse.status);
+                        }
+                    } catch (blobError) {
+                        console.error("❌ Blob yükleme hatası:", blobError);
+                        loading.innerHTML = `
+                            <i class="fas fa-file-alt" style="font-size: 3rem; color: #dc3545;"></i>
+                            <p class="mt-3"><strong>Dosya yüklenemedi</strong></p>
+                            <p class="text-muted">${blobError.message}</p>
+                            <div class="mt-3">
+                                <button class="btn btn-success mr-2" onclick="downloadCurrentPreview()">
+                                    <i class="fas fa-download"></i> Dosyayı İndir
+                                </button>
+                                ${downloadInfo.webUrl ? `<button class="btn btn-primary" onclick="window.open('${downloadInfo.webUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt"></i> SharePoint'te Aç
+                                </button>` : ''}
+                            </div>
+                        `;
+                    }
+                } else {
                 } else {
                     // Kendi dosyalarımız için downloadUrl kullan (sadece görüntüleme)
                     const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
