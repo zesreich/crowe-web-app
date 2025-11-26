@@ -2834,10 +2834,23 @@
                         fileName: actualFileName
                     });
                     
-                    // Her zaman kendi arayüzümüzde aç (preview modal)
-                    // SharePoint URL'leri iframe'de açılamaz (CSP hatası), bu yüzden blob olarak yüklemeliyiz
-                    if (downloadUrl) {
-                        // downloadUrl kullanarak kendi arayüzümüzde aç (en iyi yöntem)
+                    // Paylaşılan dosyalar için Office 365 Online Viewer kullan
+                    // downloadUrl yerine webUrl ile Office Online Viewer'ı aç (düzenleme desteği için)
+                    if (data.webUrl) {
+                        // SharePoint webUrl'i Office Online Viewer formatına dönüştür
+                        // Office Online Viewer SharePoint URL'lerini destekler ve düzenleme yapılabilir
+                        console.log("✅ Office 365 Online Viewer ile açılıyor (webUrl kullanılıyor)");
+                        openPreview(actualFileName, data.webUrl, {
+                            driveId, 
+                            itemId, 
+                            fileName: actualFileName, 
+                            webUrl: data.webUrl, 
+                            downloadUrl: downloadUrl,
+                            isSharedFile: true,
+                            useOfficeOnline: true
+                        });
+                    } else if (downloadUrl) {
+                        // downloadUrl varsa onu kullan (kendi dosyalarımız için)
                         console.log("✅ downloadUrl ile açılıyor");
                         openPreview(actualFileName, downloadUrl, {
                             driveId, 
@@ -3500,31 +3513,69 @@
                 return;
             }
             
-            // Office dosyaları için Office Online Viewer (CSP bypass için SharePoint URL kullanılmaz)
+            // Office dosyaları için Office 365 Online Viewer
             if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext)) {
-                // Daima downloadUrl kullan (SharePoint webUrl CSP hatası verir)
-                const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
-                const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
-                
-                console.log("📊 Office Online Viewer açılıyor:", {
-                    fileName: fileName,
-                    sourceUrl: sourceUrl.substring(0, 80) + '...',
-                    viewer: 'https://view.officeapps.live.com'
-                });
-                
-                loading.innerHTML = `
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="sr-only">Yükleniyor...</span>
-                    </div>
-                    <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
-                    <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
-                    <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
-                `;
-                
-                // Office Online viewer kullan
-                iframe.src = previewUrl;
-                iframe.style.width = '100%';
-                iframe.style.height = '100%';
+                // Paylaşılan dosyalar için webUrl kullan (Office 365 Online ile düzenleme desteği)
+                if (downloadInfo && downloadInfo.useOfficeOnline && downloadInfo.webUrl) {
+                    // SharePoint webUrl'ini Office Online Viewer formatına dönüştür
+                    // Office Online Viewer SharePoint URL'lerini destekler ve düzenleme yapılabilir
+                    const officeOnlineUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(downloadInfo.webUrl)}&wdStartOn=1&wdEmbedCode=0`;
+                    
+                    console.log("📊 Office 365 Online Viewer açılıyor (Paylaşılan Dosya - Düzenleme Desteği):", {
+                        fileName: fileName,
+                        webUrl: downloadInfo.webUrl.substring(0, 80) + '...',
+                        viewer: 'Office 365 Online'
+                    });
+                    
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Microsoft Office 365 Online (Görüntüleme ve Düzenleme)</p>
+                        <p class="text-success" style="font-size: 0.85rem;"><i class="fas fa-check-circle"></i> Dosyayı doğrudan burada düzenleyebilirsiniz</p>
+                    `;
+                    
+                    // Office 365 Online Viewer kullan (düzenleme desteği ile)
+                    iframe.src = officeOnlineUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    
+                    // Düzenle butonunu göster ve düzenleme modunu aç
+                    if (editBtn) {
+                        editBtn.style.display = 'inline-block';
+                        editBtn.onclick = function() {
+                            // Office 365 Online'da düzenleme modunu aç
+                            const editUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(downloadInfo.webUrl)}&wdStartOn=1&wdEmbedCode=0&action=edit`;
+                            iframe.src = editUrl;
+                            console.log("✏️ Düzenleme modu açıldı");
+                        };
+                    }
+                } else {
+                    // Kendi dosyalarımız için downloadUrl kullan (sadece görüntüleme)
+                    const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
+                    const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
+                    
+                    console.log("📊 Office Online Viewer açılıyor:", {
+                        fileName: fileName,
+                        sourceUrl: sourceUrl.substring(0, 80) + '...',
+                        viewer: 'https://view.officeapps.live.com'
+                    });
+                    
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
+                        <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
+                    `;
+                    
+                    // Office Online viewer kullan
+                    iframe.src = previewUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                }
                 
                 // Yükleme timeout (Office dosyaları yavaş yüklenebilir)
                 const loadTimeout = setTimeout(() => {
