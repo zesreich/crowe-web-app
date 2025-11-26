@@ -1388,7 +1388,7 @@
                                         // Dosya detaylarını al
                                         if (driveId && itemId) {
                                             try {
-                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,folder,parentReference`, {
+                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,mimeType,folder,parentReference`, {
                                                     headers: {
                                                         'Authorization': 'Bearer ' + accessToken
                                                     }
@@ -1414,6 +1414,7 @@
                                                         downloadUrl: detailData['@microsoft.graph.downloadUrl'],
                                                         folder: detailData.folder,
                                                         file: detailData.file,
+                                                        mimeType: detailData.file?.mimeType || detailData.mimeType,
                                                         remoteItem: {
                                                             ...detailData,
                                                             id: detailData.id,
@@ -1549,7 +1550,7 @@
                                                 
                                                 if (driveId && itemId) {
                                                     try {
-                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,folder,parentReference`, {
+                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,mimeType,folder,parentReference`, {
                                                             headers: {
                                                                 'Authorization': 'Bearer ' + accessToken
                                                             }
@@ -1574,6 +1575,7 @@
                                                                 downloadUrl: detailData['@microsoft.graph.downloadUrl'],
                                                                 folder: detailData.folder,
                                                                 file: detailData.file,
+                                                                mimeType: detailData.file?.mimeType || detailData.mimeType,
                                                                 remoteItem: {
                                                                     ...detailData,
                                                                     id: detailData.id,
@@ -2127,7 +2129,9 @@
                         fileName = 'İsimsiz Dosya';
                     }
                 }
-                const iconHTML = getFileIconFromName(fileName, isFolder);
+                // MimeType'ı al: file.mimeType veya file.file?.mimeType
+                const mimeType = file.mimeType || fileData.mimeType || file.file?.mimeType || fileData.file?.mimeType;
+                const iconHTML = getFileIconFromName(fileName, isFolder, mimeType);
                 const size = isFolder ? (fileData.folder?.childCount + ' öğe' || 'Klasör') : formatBytes(fileData.size || file.size || 0);
                 
                 // lastModifiedDateTime: sharedWithMe'de remoteItem içinde olabilir
@@ -2266,11 +2270,42 @@
             updateBreadcrumb();
         }
 
-        function getFileIconFromName(name, isFolder) {
+        function getFileIconFromName(name, isFolder, mimeType) {
             if (isFolder) {
                 return '<i class="fas fa-folder file-icon folder"></i>';
             }
 
+            // Önce mimeType'dan icon belirle (daha güvenilir)
+            if (mimeType) {
+                const mimeIcons = {
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '<i class="fas fa-file-excel file-icon excel"></i>',
+                    'application/vnd.ms-excel': '<i class="fas fa-file-excel file-icon excel"></i>',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '<i class="fas fa-file-word file-icon word"></i>',
+                    'application/msword': '<i class="fas fa-file-word file-icon word"></i>',
+                    'application/pdf': '<i class="fas fa-file-pdf file-icon pdf"></i>',
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                    'application/vnd.ms-powerpoint': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                    'image/png': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/jpeg': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/jpg': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/gif': '<i class="fas fa-file-image file-icon image"></i>',
+                    'text/plain': '<i class="fas fa-file-alt file-icon"></i>',
+                    'text/csv': '<i class="fas fa-file-csv file-icon"></i>'
+                };
+                
+                // MimeType'ın başlangıcına göre de kontrol et
+                if (mimeType.startsWith('image/')) {
+                    return '<i class="fas fa-file-image file-icon image"></i>';
+                } else if (mimeType.startsWith('video/')) {
+                    return '<i class="fas fa-file-video file-icon"></i>';
+                } else if (mimeType.startsWith('audio/')) {
+                    return '<i class="fas fa-file-audio file-icon"></i>';
+                } else if (mimeIcons[mimeType]) {
+                    return mimeIcons[mimeType];
+                }
+            }
+
+            // MimeType yoksa dosya adından uzantı çıkar
             const ext = name.split('.').pop().toLowerCase();
             const icons = {
                 'xlsx': '<i class="fas fa-file-excel file-icon excel"></i>',
@@ -2283,7 +2318,9 @@
                 'png': '<i class="fas fa-file-image file-icon image"></i>',
                 'jpg': '<i class="fas fa-file-image file-icon image"></i>',
                 'jpeg': '<i class="fas fa-file-image file-icon image"></i>',
-                'gif': '<i class="fas fa-file-image file-icon image"></i>'
+                'gif': '<i class="fas fa-file-image file-icon image"></i>',
+                'txt': '<i class="fas fa-file-alt file-icon"></i>',
+                'csv': '<i class="fas fa-file-csv file-icon"></i>'
             };
 
             return icons[ext] || '<i class="fas fa-file file-icon"></i>';
@@ -2793,10 +2830,46 @@
                                         const shareLink = linkData.link?.webUrl;
                                         
                                         if (shareLink) {
-                                            // Share link'ten dosyayı açmayı dene
-                                            // Ancak bu da SharePoint URL'si olacak, iframe'de açılamaz
-                                            console.warn("⚠️ Share link oluşturuldu ama iframe'de açılamaz, yeni sekmede açılıyor");
-                                            window.open(shareLink, '_blank');
+                                            // Share link oluşturuldu ama SharePoint URL'si, iframe'de açılamaz
+                                            // Bu durumda kullanıcıya bilgi ver ve dosyayı indirmesini öner
+                                            console.warn("⚠️ Share link oluşturuldu ama iframe'de açılamaz");
+                                            const userChoice = confirm(
+                                                `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                                `downloadUrl alınamadı ve /content endpoint'i çalışmadı.\n\n` +
+                                                `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                                `Dosyayı indirmek için "Tamam" butonuna tıklayın.\n` +
+                                                `SharePoint'ten açmak için "İptal" butonuna tıklayın.`
+                                            );
+                                            
+                                            if (userChoice) {
+                                                // Dosyayı indir
+                                                try {
+                                                    const downloadResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                                        headers: {
+                                                            'Authorization': 'Bearer ' + accessToken
+                                                        }
+                                                    });
+                                                    
+                                                    if (downloadResponse.ok) {
+                                                        const blob = await downloadResponse.blob();
+                                                        const blobUrl = URL.createObjectURL(blob);
+                                                        const a = document.createElement('a');
+                                                        a.href = blobUrl;
+                                                        a.download = actualFileName;
+                                                        document.body.appendChild(a);
+                                                        a.click();
+                                                        document.body.removeChild(a);
+                                                        URL.revokeObjectURL(blobUrl);
+                                                    } else {
+                                                        window.open(shareLink, '_blank');
+                                                    }
+                                                } catch (downloadError) {
+                                                    console.error("İndirme hatası:", downloadError);
+                                                    window.open(shareLink, '_blank');
+                                                }
+                                            } else {
+                                                window.open(shareLink, '_blank');
+                                            }
                                         } else {
                                             throw new Error("Share link oluşturulamadı");
                                         }
