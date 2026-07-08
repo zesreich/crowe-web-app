@@ -1,6 +1,9 @@
 {
   "name": "crowe-hsy-web-app",
   "private": true,
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "cd html && python3 -m http.server 8000",
     "build": "node scripts/build-config.js",
