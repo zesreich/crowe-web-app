@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd composer && composer install --no-dev --optimize-autoloader",
+  "installCommand": "cd composer && curl -sS https://getcomposer.org/installer | php && php composer.phar install --no-dev --optimize-autoloader",
   "buildCommand": "node scripts/build-config.js",
   "functions": {
     "api/*.php": {
