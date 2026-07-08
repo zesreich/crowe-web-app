@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "cd html && python3 -m http.server 8000",
     "build": "node scripts/build-config.js",
-    "vercel:preview": "vercel",
-    "vercel:prod": "vercel --prod"
+    "vercel:setup": "bash scripts/vercel-setup.sh",
+    "vercel:preview": "npx vercel@latest",
+    "vercel:prod": "npx vercel@latest --prod"
   }
 }
