@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HSY Atlas · Ekosistem Mockup</title>
+  <meta name="description" content="Bağımsız denetim ofisi için senkron, grup dağılımı ve müşteri yükleme ekosistemi — arayüz mockup.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link rel="stylesheet" href="../atlas-shell.css">
+  <link rel="stylesheet" href="../atlas-compat.css">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="rail" aria-label="Ana menü">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
+        <div class="brand-text">
+          <strong>HSY Atlas</strong>
+          <span>Denetim ekosistemi</span>
+        </div>
+      </div>
+
+      <nav class="nav" role="tablist" aria-label="Görünümler">
+        <button class="nav-btn" type="button" data-view="overview" aria-current="page">
+          <i class="ph ph-squares-four"></i><span>Genel bakış</span>
+        </button>
+        <button class="nav-btn" type="button" data-view="files">
+          <i class="ph ph-folder-simple"></i><span>Dosya ağacı</span>
+        </button>
+        <button class="nav-btn" type="button" data-view="groups">
+          <i class="ph ph-users-three"></i><span>Grup & firma</span>
+        </button>
+        <button class="nav-btn" type="button" data-view="intake">
+          <i class="ph ph-tray-arrow-down"></i><span>Müşteri yükleme</span>
+        </button>
+      </nav>
+
+      <div class="rail-foot">
+        <div class="persona">
+          <div class="avatar" aria-hidden="true">ED</div>
+          <div class="persona-meta">
+            <strong>Eda Sefer</strong>
+            <span>Müdür</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <header class="top">
+      <div class="crumb" id="crumb">
+        <span>Atlas</span>
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
+        <strong>Genel bakış</strong>
+      </div>
+      <label class="search" aria-label="Ara">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" placeholder="Firma, klasör veya talep ara…" autocomplete="off">
+      </label>
+      <div class="sync-pill" id="syncPill" data-state="idle" title="Senkron durumu">
+        <i class="ph ph-arrows-clockwise" aria-hidden="true"></i>
+        <span id="syncLabel">3 cihaz · güncel</span>
+      </div>
+      <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema değiştir" title="Açık / koyu tema">
+        <i class="ph ph-moon" id="themeIcon"></i>
+      </button>
+    </header>
+
+    <main class="main">
+      <!-- OVERVIEW -->
+      <section class="view is-active" id="view-overview" aria-labelledby="ov-title">
+        <div class="view-head">
+          <div>
+            <h1 id="ov-title">Bugün büroda</h1>
+            <p>Grupların üzerinde çalıştığı firmalar, bekleyen müşteri yüklemeleri ve ofis genelinde senkron durumu.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" type="button" data-goto="intake">
+              <i class="ph ph-paper-plane-tilt"></i> Talep gönder
+            </button>
+            <button class="btn btn-primary" type="button" id="btnSimulateSync">
+              <i class="ph ph-arrows-clockwise"></i> Senkronu simüle et
+            </button>
+          </div>
+        </div>
+
+        <div class="strip" role="list">
+          <div class="strip-item" role="listitem">
+            <span class="strip-label">Aktif firma</span>
+            <span class="strip-value">12</span>
+            <span class="strip-hint">3 grup · 2025 dönem</span>
+          </div>
+          <div class="strip-item" role="listitem">
+            <span class="strip-label">Bekleyen talep</span>
+            <span class="strip-value" id="statPending">7</span>
+            <span class="strip-hint">müşteri yanıtı</span>
+          </div>
+          <div class="strip-item" role="listitem">
+            <span class="strip-label">Otomatik yönlendirme</span>
+            <span class="strip-value" id="statRouted">24</span>
+            <span class="strip-hint">son 24 saat</span>
+          </div>
+          <div class="strip-item" role="listitem">
+            <span class="strip-label">Senkron cihaz</span>
+            <span class="strip-value">3</span>
+            <span class="strip-hint">Mac · Win · Win</span>
+          </div>
+        </div>
+
+        <div class="split" style="min-height: 20rem;">
+          <div class="panel">
+            <div class="panel-head"><h2>Öne çıkan firmalar</h2></div>
+            <div class="panel-body">
+              <ul class="firm-list" id="hotFirms"></ul>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Canlı akış</h2></div>
+            <div class="panel-body">
+              <ul class="timeline" id="liveFeed"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILES -->
+      <section class="view" id="view-files" aria-labelledby="fl-title" hidden>
+        <div class="view-head">
+          <div>
+            <h1 id="fl-title">Dosya ağacı</h1>
+            <p>Ofis genelinde OneDrive benzeri senkron. Klasör durumu tüm cihazlarda aynı kalır.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" type="button"><i class="ph ph-plus"></i> Klasör</button>
+            <button class="btn btn-primary" type="button" data-goto="intake"><i class="ph ph-upload-simple"></i> Talebe bağla</button>
+          </div>
+        </div>
+
+        <div class="split">
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Firmalar / çalışmalar</h2>
+              <span class="badge" id="treeCount">—</span>
+            </div>
+            <div class="panel-body">
+              <ul class="tree" id="fileTree" role="tree"></ul>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2 id="fileDetailTitle">Dosyalar</h2>
+              <span class="mono" id="fileDetailPath">—</span>
+            </div>
+            <div class="panel-body" style="padding: 0;">
+              <table class="file-table">
+                <thead>
+                  <tr>
+                    <th>Ad</th>
+                    <th>Durum</th>
+                    <th>Güncelleyen</th>
+                    <th>Boyut</th>
+                  </tr>
+                </thead>
+                <tbody id="fileRows"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- GROUPS -->
+      <section class="view" id="view-groups" aria-labelledby="gr-title" hidden>
+        <div class="view-head">
+          <div>
+            <h1 id="gr-title">Grup & firma dağılımı</h1>
+            <p>Firmaları gruplar arasında sürükleyerek ata. Müdür onay hatları ve kıdemli gözetim aynı tahtada.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" type="button"><i class="ph ph-user-plus"></i> Kişi ekle</button>
+            <button class="btn btn-primary" type="button" id="btnBalance"><i class="ph ph-scales"></i> Dengeli dağıt</button>
+          </div>
+        </div>
+        <div class="groups" id="groupBoard"></div>
+      </section>
+
+      <!-- INTAKE -->
+      <section class="view" id="view-intake" aria-labelledby="in-title" hidden>
+        <div class="view-head">
+          <div>
+            <h1 id="in-title">Müşteri yükleme</h1>
+            <p>Şablon klasörlerden talep oluştur. Firma yüklediğinde dosya hedef klasöre otomatik geçer.</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-accent" type="button" id="btnSimulateUpload">
+              <i class="ph ph-cloud-arrow-down"></i> Müşteri yüklemesini simüle et
+            </button>
+          </div>
+        </div>
+
+        <form class="composer" id="requestForm">
+          <div class="field">
+            <label for="reqFirm">Firma</label>
+            <select id="reqFirm" required></select>
+          </div>
+          <div class="field">
+            <label for="reqTemplate">Çalışma şablonu</label>
+            <select id="reqTemplate" required>
+              <option value="banka">B10 · Banka mutabakatları</option>
+              <option value="stok">C30 · Stok sayım tutanakları</option>
+              <option value="sabit">D12 · Sabit kıymet listesi</option>
+              <option value="hukuk">H01 · Hukuki teyit mektubu</option>
+            </select>
+          </div>
+          <div class="field" style="grid-column: 1 / -1;">
+            <label for="reqNote">Talep notu</label>
+            <textarea id="reqNote" placeholder="Örn. 31.12.2025 tarihli banka ekstreleri ve mutabakat mektupları…">31.12.2025 banka ekstreleri ve mutabakat mektuplarını bekliyoruz.</textarea>
+          </div>
+          <div class="path-preview" id="pathPreview">
+            Hedef: <strong>—</strong>
+          </div>
+          <div class="actions" style="grid-column: 1 / -1;">
+            <button class="btn btn-primary" type="submit"><i class="ph ph-paper-plane-tilt"></i> Talebi gönder</button>
+            <button class="btn btn-ghost" type="button" id="btnClearForm">Temizle</button>
+          </div>
+        </form>
+
+        <div class="inbox">
+          <div class="inbox-head">
+            <h2>Gelen yüklemeler · otomatik yönlendirme</h2>
+            <span class="badge badge-ok" id="inboxBadge">0 yeni</span>
+          </div>
+          <ul class="feed" id="intakeFeed"></ul>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="mock-tag">MOCKUP · veri yok · etkileşimli prototip</div>
+
+  <script src="../atlas-shell.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

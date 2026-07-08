@@ -77,15 +77,15 @@ Class genelSoa extends BaseSoa{
         $mail->SMTPDebug = 3;                               // Enable verbose debug output
         
         $mail->isSMTP();                                      // Set mailer to use SMTP
-        $mail->Host = 'smtp.gmail.com';  // Specify main and backup SMTP servers
+        $mail->Host = Config::getMailHost();
         $mail->SMTPAuth = true;                               // Enable SMTP authentication
-        $mail->Username = 'ahmethmo@gmail.com';
-        $mail->Password = 'Az4599104';
-        $mail->SMTPSecure = 'tls';                            // Enable TLS encryption, `ssl` also accepted
-        $mail->Port = 587;                                    // TCP port to connect to
+        $mail->Username = Config::getMailUser();
+        $mail->Password = Config::getMailPass();
+        $mail->SMTPSecure = Config::getMailEncryption();
+        $mail->Port = Config::getMailPort();
         
-        $mail->setFrom('ahmeted88@hotmail.com', 'Mailer');
-        $mail->addAddress('ahmeted88@hotmail.com', 'Joe User');     // Add a recipient
+        $mail->setFrom(Config::getMailUser(), Config::getMailIsim());
+        $mail->addAddress(Config::getMailUser(), 'Test User');
         
         
         $mail->isHTML(true);                                  // Set email format to HTML
@@ -111,11 +111,14 @@ Class genelSoa extends BaseSoa{
         $mail->SMTPDebug = 1;
         
         
-        $mail->Host = "smtp.gmail.com";
-        $mail->SMTPSecure = "tls"; 
-        $mail->Port = 587;      
-        $mail->Username = 'ahmethmo@gmail.com';
-        $mail->Password = 'Az4599104';
+        $mail->Host = Config::getMailHost();
+        $mail->SMTPSecure = Config::getMailEncryption();
+        $mail->Port = Config::getMailPort();
+        $mail->Username = Config::getMailUser();
+        $mail->Password = Config::getMailPass();
+        if (empty($mail->Host) || empty($mail->Username) || empty($mail->Password)) {
+            return FALSE;
+        }
         
         
 //         $mail->Host = 'raw.guzelhosting.com';
@@ -125,7 +128,7 @@ Class genelSoa extends BaseSoa{
 //         $mail->Password = '4599104aa';
 //         $mail->Username = genelSoa::usr;
 //         $mail->Password = genelSoa::psw;
-        $mail->SetFrom($mail->Username, 'Ahmet Hacimurtezaoğlu');
+        $mail->SetFrom($mail->Username, Config::getMailIsim());
         $mail->AddAddress($aliciAdres, $aliciAdi);
         $mail->CharSet = 'UTF-8';
         $mail->Subject = $baslik;

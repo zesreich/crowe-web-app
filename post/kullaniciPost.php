@@ -2,7 +2,10 @@
 include_once 'basePost.php';
 include_once __DIR__.'/../helpers/SecurityHelper.php';
 
-if ($_GET['tur']== 'login'){
+$action = isset($_GET['action']) ? $_GET['action'] : (isset($_GET['tur']) ? $_GET['tur'] : '');
+$_GET['tur'] = $action; // Backward compatibility for existing handlers
+
+if ($action == 'login'){
     try {
         // CSRF token kontrolü
         $csrfToken = isset($_GET['csrf_token']) ? $_GET['csrf_token'] : '';

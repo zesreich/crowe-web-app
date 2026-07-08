@@ -13,6 +13,12 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Crowe HSY - Arayüz Önizleme">
     <meta name="author" content="">
+    <link rel="canonical" href="https://www.crowehsy.com/pages/index.php">
+    <meta property="og:title" content="CROWE HSY - Arayüz Önizleme">
+    <meta property="og:description" content="Crowe HSY platformunun temel ekranlarina hizli erisim.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.crowehsy.com/pages/index.php">
+    <meta name="twitter:card" content="summary">
     <title>CROWE HSY - Arayüz Önizleme</title>
     
     <!-- Bootstrap CSS -->

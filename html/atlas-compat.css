@@ -1,0 +1,658 @@
+/**
+ * Bootstrap / legacy content inside Atlas .page-content
+ */
+
+.page-content .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+  max-width: none;
+}
+
+.page-content .card,
+.page-content .card-stats,
+.page-content .card-chart,
+.page-content .card-table,
+.page-content .card.shadow {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+}
+
+.page-content .card-header,
+.page-content .card-table-header,
+.page-content .card-chart-header {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.page-content .table,
+.page-content .table-notus,
+.page-content .table-bordered {
+  color: var(--ink);
+  background: transparent;
+}
+
+.page-content .table thead th,
+.page-content .table-notus thead th {
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+  border-color: var(--line) !important;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.page-content .table td,
+.page-content .table th {
+  border-color: var(--line) !important;
+  font-size: 0.8125rem;
+}
+
+.page-content .table tbody tr:hover {
+  background: var(--surface) !important;
+}
+
+.page-content .form-control,
+.page-content .custom-select,
+.page-content select.form-control {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  color: var(--ink) !important;
+}
+
+.page-content .form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent) !important;
+}
+
+.page-content .btn {
+  border-radius: var(--radius) !important;
+  font-weight: 500;
+  font-size: 0.8125rem;
+}
+
+.page-content .btn-primary,
+.page-content .btn-success {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-ink) !important;
+}
+
+.page-content .btn-danger {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: #fff !important;
+}
+
+.page-content .btn-info {
+  background: color-mix(in oklch, var(--primary) 80%, white) !important;
+  border-color: transparent !important;
+  color: var(--primary-ink) !important;
+}
+
+.page-content .btn-warning {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+
+.page-content .btn-secondary,
+.page-content .btn-light {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.page-content .modal-content {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  color: var(--ink);
+}
+
+.page-content .modal-header,
+.page-content .modal-footer {
+  border-color: var(--line);
+  background: var(--surface);
+}
+
+.page-content .page-header-admin h1,
+.page-content h1 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.page-content .stat-subtitle {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.page-content .stat-title {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.page-content .header-stats .row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.page-content .header-stats .col-lg-3,
+.page-content .header-stats .col-md-6 {
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+  border-right: 1px solid var(--line);
+}
+
+.page-content .header-stats .col-lg-3:last-child,
+.page-content .header-stats .col-md-6:last-child {
+  border-right: 0;
+}
+
+.page-content .card-stats {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 1rem 1.1rem !important;
+}
+
+.page-content .card-stats:hover {
+  background: color-mix(in oklch, var(--primary) 5%, var(--surface)) !important;
+  transform: none !important;
+}
+
+.page-content .stat-icon,
+.page-content .stat-icon.bg-danger,
+.page-content .stat-icon.bg-warning,
+.page-content .stat-icon.bg-info,
+.page-content .stat-icon.bg-success {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface)) !important;
+  color: var(--primary) !important;
+}
+
+.page-content .text-dark,
+.page-content .text-gray-800 {
+  color: var(--ink) !important;
+}
+
+.page-content .text-muted {
+  color: var(--muted) !important;
+}
+
+.page-content .breadcrumb {
+  background: transparent;
+  padding: 0;
+  margin-bottom: 1rem;
+  font-size: 0.8125rem;
+}
+
+.page-content .breadcrumb-item a {
+  color: var(--muted);
+}
+
+.page-content .breadcrumb-item.active {
+  color: var(--ink);
+}
+
+/* Nav links styled as mockup buttons */
+a.nav-btn {
+  text-decoration: none;
+  display: flex;
+}
+
+a.nav-btn:visited {
+  color: inherit;
+}
+
+a.nav-btn[aria-current="page"] {
+  color: var(--primary-ink);
+}
+
+.page-content .dropdown-menu {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  box-shadow: 0 4px 8px var(--shadow);
+}
+
+.page-content .dropdown-item {
+  color: var(--ink);
+  font-size: 0.8125rem;
+}
+
+.page-content .dropdown-item:hover {
+  background: var(--surface);
+  color: var(--primary);
+}
+
+.page-content .alert {
+  border-radius: var(--radius);
+}
+
+.page-content canvas {
+  max-width: 100%;
+}
+
+/* ── Page header ── */
+.page-content .page-header-admin {
+  margin-bottom: 1.25rem;
+}
+
+.page-content .page-header-meta {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
+/* ── Contracts: theme-aware colors ── */
+body[data-atlas-page="contracts"] .text-primary,
+body[data-atlas-page="contracts"] .text-info {
+  color: var(--primary) !important;
+}
+
+body[data-atlas-page="contracts"] .nav-tabs {
+  border-bottom: 1px solid var(--line);
+  gap: 0.25rem;
+}
+
+body[data-atlas-page="contracts"] .nav-tabs .nav-link {
+  color: var(--muted);
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.55rem 0.85rem;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+body[data-atlas-page="contracts"] .nav-tabs .nav-link:hover {
+  color: var(--ink);
+  border-color: transparent;
+}
+
+body[data-atlas-page="contracts"] .nav-tabs .nav-link.active {
+  color: var(--primary);
+  background: transparent;
+  border-color: transparent transparent var(--primary);
+}
+
+body[data-atlas-page="contracts"] .contract-spreadsheet-container {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink);
+  border-radius: var(--radius-lg);
+}
+
+body[data-atlas-page="contracts"] .contract-spreadsheet {
+  background: oklch(0.99 0.002 170);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+body[data-atlas-page="contracts"] .contract-spreadsheet .jexcel_content,
+body[data-atlas-page="contracts"] .contract-spreadsheet table.jexcel {
+  background: oklch(0.99 0.002 170) !important;
+  color: oklch(0.22 0.018 170) !important;
+}
+
+body[data-atlas-page="contracts"] .alert-info {
+  background: color-mix(in oklch, var(--primary) 7%, var(--surface));
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+body[data-atlas-page="contracts"] .tab-pane > .d-flex h5 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+body[data-atlas-page="contracts"] .btn-outline-primary {
+  color: var(--primary) !important;
+  border-color: var(--line) !important;
+  background: transparent !important;
+}
+
+body[data-atlas-page="contracts"] .btn-outline-primary:hover {
+  background: color-mix(in oklch, var(--primary) 10%, var(--surface)) !important;
+  border-color: var(--primary) !important;
+}
+
+body[data-atlas-page="contracts"] .btn-outline-secondary {
+  color: var(--muted) !important;
+  border-color: var(--line) !important;
+  background: transparent !important;
+}
+
+/* ── Compose panel (reports) ── */
+.atlas-compose {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.25rem;
+  overflow: hidden;
+}
+
+.atlas-compose-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.atlas-compose-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius);
+  background: color-mix(in oklch, var(--primary) 14%, var(--surface));
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+}
+
+.atlas-compose-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.atlas-compose-head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.atlas-compose-body {
+  padding: 1.15rem 1.25rem 0.5rem;
+}
+
+.atlas-field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.85rem 1rem;
+}
+
+.atlas-field-grid .form-group {
+  margin-bottom: 0;
+}
+
+.atlas-field-grid label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.atlas-field-grid label .ph {
+  color: var(--primary);
+  font-size: 0.875rem;
+}
+
+.atlas-compose-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem 1.15rem;
+  border-top: 1px solid var(--line);
+  margin-top: 1rem;
+}
+
+/* ── Module layout (client list) ── */
+.atlas-module {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.atlas-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.atlas-search-field {
+  flex: 1 1 220px;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.65rem;
+  height: 2.25rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+
+.atlas-search-field:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 15%, transparent);
+}
+
+.atlas-search-field input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: var(--ink);
+  font-size: 0.8125rem;
+  min-width: 0;
+}
+
+.atlas-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-left: auto;
+}
+
+.atlas-table-wrap {
+  overflow-x: auto;
+}
+
+.page-content .atlas-table {
+  margin-bottom: 0;
+  font-size: 0.8125rem;
+}
+
+.page-content .atlas-table thead th {
+  background: var(--surface) !important;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.page-content .atlas-table tbody tr {
+  transition: background var(--dur) var(--ease);
+}
+
+.page-content .atlas-table tbody tr:hover {
+  background: color-mix(in oklch, var(--primary) 4%, var(--surface)) !important;
+}
+
+.page-content .atlas-table .atlas-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.page-content .atlas-table .btn-sm {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+}
+
+.page-content .atlas-table .mono-cell {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
+}
+
+.page-content .atlas-table .team-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-family: var(--mono);
+  background: color-mix(in oklch, var(--primary) 10%, var(--surface));
+  color: var(--primary);
+}
+
+.page-content .card-header.bg-success,
+.page-content .card-header.bg-primary,
+.page-content .modal-header.bg-success,
+.page-content .modal-header.bg-warning,
+.page-content .modal-header.bg-info {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.page-content .modal-header .close {
+  color: var(--muted) !important;
+  opacity: 1;
+  text-shadow: none;
+}
+
+.page-content .text-primary {
+  color: var(--primary) !important;
+}
+
+/* ── Atlas modals ── */
+.atlas-modal .modal-content {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 16px 48px var(--shadow);
+}
+
+.atlas-modal .modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1.15rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.atlas-modal-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.atlas-modal-head h5 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.atlas-modal-head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.atlas-modal .modal-body {
+  padding: 1.15rem;
+  background: var(--bg);
+}
+
+.atlas-modal .modal-footer {
+  padding: 0.85rem 1.15rem;
+  background: var(--surface);
+  border-top: 1px solid var(--line);
+  gap: 0.5rem;
+}
+
+.atlas-modal .modal-footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.atlas-modal-backdrop.modal-backdrop {
+  background: oklch(0.14 0.01 170 / 0.55);
+}
+
+.page-content .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.page-content .status-badge.is-active {
+  background: color-mix(in oklch, var(--ok) 14%, var(--surface));
+  color: var(--ok);
+}
+
+.page-content .status-badge.is-suspended {
+  background: color-mix(in oklch, var(--warn) 14%, var(--surface));
+  color: var(--warn);
+}
+
+.page-content .status-badge.is-admin {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface));
+  color: var(--primary);
+}
+
+.page-content .status-badge.is-auditor {
+  background: color-mix(in oklch, var(--accent) 12%, var(--surface));
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .atlas-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .atlas-toolbar-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .atlas-toolbar-actions .btn {
+    flex: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-atlas-page="contracts"] .nav-tabs .nav-link,
+  .page-content .atlas-table tbody tr {
+    transition: none;
+  }
+}

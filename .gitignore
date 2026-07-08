@@ -1,1 +1,43 @@
+# Vercel
 .vercel
+
+# Environment variables - HASSAS BİLGİLER!
+.env
+.env.local
+.env.*.local
+
+# Frontend config - HASSAS BİLGİLER!
+html/config.js
+html/config.local.js
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+error_log
+
+# Temporary files
+gecici/*
+tmp/*
+temp/*
+
+# Composer
+composer/vendor/
+composer/composer.lock
+composer.phar
+
+# Node modules (if any)
+node_modules/
+
+# Build files
+dist/
+build/

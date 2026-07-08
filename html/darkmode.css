@@ -405,6 +405,10 @@ body:not(.darkmode) .payment-chart-container {
   background: white !important;
 }
 
+body:not(.darkmode) .card-dashboard-payments-body .payment-chart-container {
+  background: transparent !important;
+}
+
 /* Remove dark gradients in light mode */
 body:not(.darkmode) .card-stats,
 body:not(.darkmode) .card-chart,
@@ -417,21 +421,35 @@ body:not(.darkmode) .stat-icon {
   color: white !important;
 }
 
-/* Contracts.html specific dark mode overrides - Excel stays white */
-.darkmode .contract-spreadsheet-container {
-  background: #ffffff !important;
-  border: 1px solid #d1d5db !important;
-  color: #000000 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+/* Dashboard / Notika: koyu temada grafik alanı ve metinler */
+.darkmode.notika-page .chart-container,
+.darkmode.notika-page .payment-chart-container {
+  background: transparent !important;
 }
 
-.darkmode .contract-spreadsheet {
-  background: #ffffff !important;
+.darkmode.notika-page .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* Contracts: spreadsheet workspace stays light; container follows theme */
+.darkmode .contract-spreadsheet-container,
+[data-theme="dark"] .contract-spreadsheet-container {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: none !important;
+}
+
+.darkmode .contract-spreadsheet,
+[data-theme="dark"] .contract-spreadsheet {
+  background: oklch(0.98 0.002 170) !important;
 }
 
 .darkmode .contract-spreadsheet .jexcel_container,
-.darkmode .contract-spreadsheet .jspreadsheet-container {
-  background: #ffffff !important;
+.darkmode .contract-spreadsheet .jspreadsheet-container,
+[data-theme="dark"] .contract-spreadsheet .jexcel_container,
+[data-theme="dark"] .contract-spreadsheet .jspreadsheet-container {
+  background: oklch(0.98 0.002 170) !important;
 }
 
 /* Topbar logout button styles - applies to all pages */

@@ -27,13 +27,13 @@ Class mailSoa extends BaseSoa{
             $mail->CharSet      ="utf-8";
             $mail->Encoding     ="base64";
             $mail->SMTPDebug    = SMTP::DEBUG_OFF;
-            $mail->Host         = config::MAIL_HOST;
+            $mail->Host         = Config::getMailHost();
             $mail->SMTPAuth     = true;
-            $mail->Username     = config::MAIL_USER;
-            $mail->Password     = config::MAIL_PASS;
+            $mail->Username     = Config::getMailUser();
+            $mail->Password     = Config::getMailPass();
             $mail->SMTPSecure   = PHPMailer::ENCRYPTION_SMTPS;
-            $mail->Port         = 465;
-            $mail->setFrom($mail->Username, config::MAIL_ISIM);
+            $mail->Port         = Config::getMailPort() ?: 465;
+            $mail->setFrom($mail->Username, Config::getMailIsim());
 //             $mail->addAddress($to, $toIsim);
             foreach ($tolar as $t){
                 $mail->addAddress($t, $t);

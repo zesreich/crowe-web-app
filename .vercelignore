@@ -1,0 +1,12 @@
+# Vercel ignore file
+composer/vendor/*
+!composer/vendor/autoload.php
+node_modules/
+.git/
+.env
+.env.local
+# config.js build sırasında scripts/build-config.js ile üretilir
+*.md
+!README.md
+
+

@@ -1,0 +1,910 @@
+/**
+ * HSY Atlas — product shell skin for Notika admin pages
+ * Tokens from DESIGN.md (oxidized teal · copper · IBM Plex)
+ * Keeps Bootstrap/Notika structure; restyles surfaces & chrome.
+ */
+
+:root {
+  --bg: oklch(1 0 0);
+  --surface: oklch(0.975 0.004 170);
+  --surface-2: oklch(0.955 0.006 170);
+  --ink: oklch(0.22 0.018 170);
+  --muted: oklch(0.48 0.016 170);
+  --line: oklch(0.88 0.01 170);
+  --primary: oklch(0.42 0.09 170);
+  --primary-ink: oklch(0.985 0 0);
+  --accent: oklch(0.58 0.12 45);
+  --accent-ink: oklch(0.985 0 0);
+  --ok: oklch(0.52 0.1 155);
+  --warn: oklch(0.68 0.13 75);
+  --danger: oklch(0.55 0.16 25);
+  --focus: oklch(0.52 0.11 170);
+  --shadow: oklch(0.22 0.018 170 / 0.08);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 180ms;
+  --radius: 0.5rem;
+  --radius-lg: 0.75rem;
+  --font: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* Bridge Notika legacy vars */
+  --nk-green: var(--primary);
+  --nk-green-dark: color-mix(in oklch, var(--primary) 85%, black);
+  --nk-header-bg: var(--bg);
+  --nk-page-bg: var(--bg);
+  --nk-border: var(--line);
+  --nk-text: var(--ink);
+  --nk-muted: var(--muted);
+
+  /* Bridge darkmode.css vars */
+  --base-color: var(--bg);
+  --base-variant: var(--surface);
+  --text-color: var(--ink);
+  --secondary-text: var(--muted);
+  --primary-color: var(--primary);
+  --accent-color: var(--primary);
+  --card-bg: var(--bg);
+  --sidebar-bg: var(--surface);
+  --topbar-bg: var(--bg);
+  --border-color: var(--line);
+}
+
+html[data-theme="dark"],
+html.darkmode,
+body.darkmode {
+  --bg: oklch(0.14 0 0);
+  --surface: oklch(0.185 0.006 170);
+  --surface-2: oklch(0.22 0.008 170);
+  --ink: oklch(0.93 0.008 170);
+  --muted: oklch(0.7 0.014 170);
+  --line: oklch(0.3 0.01 170);
+  --primary: oklch(0.68 0.09 170);
+  --primary-ink: oklch(0.14 0 0);
+  --accent: oklch(0.72 0.11 45);
+  --accent-ink: oklch(0.16 0 0);
+  --ok: oklch(0.72 0.1 155);
+  --warn: oklch(0.78 0.12 75);
+  --danger: oklch(0.68 0.14 25);
+  --focus: oklch(0.72 0.09 170);
+  --shadow: oklch(0 0 0 / 0.35);
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body.notika-page,
+body#page-top {
+  font-family: var(--font) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ── */
+.notika-header,
+.notika-header.topbar,
+.topbar {
+  background: var(--bg) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0 !important;
+}
+
+.notika-brand span,
+.notika-brand .text-dark {
+  color: var(--ink) !important;
+  font-family: var(--font);
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+}
+
+.notika-nav-link {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  border-radius: var(--radius) !important;
+  color: var(--muted) !important;
+  border: 1px solid transparent;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease) !important;
+}
+
+.notika-nav-link:hover,
+.notika-nav-link:focus {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+  box-shadow: none !important;
+  border-color: var(--line);
+}
+
+.notika-badge {
+  background: var(--accent) !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  font-size: 0.625rem !important;
+}
+
+.notika-dropdown {
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 4px 8px var(--shadow) !important;
+  background: var(--bg) !important;
+  overflow: hidden;
+}
+
+.notika-dropdown-header {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+}
+
+.notika-dropdown-item {
+  color: var(--ink) !important;
+  font-size: 0.8125rem !important;
+}
+
+.notika-dropdown-item:hover {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+}
+
+.notika-dropdown-footer {
+  background: var(--surface) !important;
+  border-top: 1px solid var(--line) !important;
+}
+
+.notika-dropdown-footer a {
+  color: var(--primary) !important;
+}
+
+.search-input-group input.form-control,
+.notika-header .header-search-inline input.form-control {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  color: var(--ink) !important;
+  height: 2.35rem !important;
+  font-size: 0.8125rem !important;
+  box-shadow: none !important;
+}
+
+.search-input-group input.form-control:focus,
+.notika-header .header-search-inline input.form-control:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent) !important;
+}
+
+.search-input-group .search-icon {
+  color: var(--muted) !important;
+}
+
+.notika-user-trigger {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  border-radius: 999px !important;
+}
+
+.notika-user-avatar {
+  background: var(--primary) !important;
+  color: var(--primary-ink) !important;
+  width: 2rem !important;
+  height: 2rem !important;
+  font-size: 0.6875rem !important;
+}
+
+.notika-user-trigger .text-dark,
+.notika-user-trigger #userEmail {
+  color: var(--ink) !important;
+}
+
+.notika-env-pill {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface)) !important;
+  color: var(--primary) !important;
+  border-color: color-mix(in oklch, var(--primary) 28%, var(--line)) !important;
+}
+
+.notika-env-pill.is-dev {
+  background: color-mix(in oklch, var(--warn) 16%, var(--surface)) !important;
+  border-color: color-mix(in oklch, var(--warn) 30%, var(--line)) !important;
+  color: color-mix(in oklch, var(--warn) 70%, var(--ink)) !important;
+}
+
+/* ── Horizontal nav ── */
+.notika-navbar {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+.notika-navbar .nav-link {
+  color: var(--muted) !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 0.85rem 1rem !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  gap: 0.45rem !important;
+}
+
+.notika-navbar .nav-link:hover,
+.notika-navbar .nav-link:focus,
+.notika-navbar .nav-link.active {
+  color: var(--primary) !important;
+  background: transparent !important;
+  border-bottom-color: var(--primary) !important;
+}
+
+.notika-navbar .dropdown-menu {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 4px 8px var(--shadow) !important;
+  background: var(--bg) !important;
+  padding: 0.35rem !important;
+}
+
+.notika-navbar .dropdown-item {
+  border-radius: calc(var(--radius) - 2px);
+  color: var(--ink) !important;
+  font-size: 0.8125rem !important;
+  padding: 0.45rem 0.7rem !important;
+}
+
+.notika-navbar .dropdown-item:hover,
+.notika-navbar .dropdown-item:focus {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+}
+
+.navbar-toggler {
+  border-color: var(--line) !important;
+}
+
+.navbar-light .navbar-toggler-icon {
+  filter: none;
+}
+
+/* ── Breadcrumb ── */
+.notika-breadcomb {
+  background: transparent !important;
+  border-bottom: 1px solid var(--line);
+  padding: 0.55rem 0 !important;
+}
+
+.notika-breadcomb .breadcrumb {
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0.8125rem;
+}
+
+.notika-breadcomb .breadcrumb-item a {
+  color: var(--muted) !important;
+}
+
+.notika-breadcomb .breadcrumb-item.active {
+  color: var(--ink) !important;
+  font-weight: 500;
+}
+
+.notika-breadcomb .breadcrumb-item + .breadcrumb-item::before {
+  color: var(--muted);
+}
+
+/* ── Main / headers ── */
+.notika-main {
+  background: var(--bg) !important;
+}
+
+.page-header-admin h1,
+.page-header-admin h2,
+.notika-main h1 {
+  font-family: var(--font);
+  font-size: 1.375rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+  color: var(--ink) !important;
+  margin-bottom: 0.2rem;
+}
+
+.page-header-meta,
+.page-header-admin p {
+  color: var(--muted) !important;
+  font-size: 0.8125rem;
+}
+
+/* ── Stats strip (anti vanity-hero: denser, bordered panel) ── */
+.header-stats {
+  margin-top: 0.5rem;
+}
+
+.header-stats .row {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.header-stats .col-lg-3,
+.header-stats .col-md-6 {
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+  border-right: 1px solid var(--line);
+}
+
+.header-stats .col-lg-3:last-child,
+.header-stats .col-md-6:last-child {
+  border-right: 0;
+}
+
+@media (max-width: 991.98px) {
+  .header-stats .col-md-6:nth-child(2) {
+    border-right: 0;
+  }
+  .header-stats .col-md-6:nth-child(1),
+  .header-stats .col-md-6:nth-child(2) {
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+.card-stats {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 1rem 1.1rem !important;
+  margin: 0 !important;
+  transition: background var(--dur) var(--ease) !important;
+}
+
+.card-stats:hover {
+  background: color-mix(in oklch, var(--primary) 5%, var(--surface)) !important;
+  transform: none !important;
+}
+
+.stat-subtitle {
+  font-size: 0.6875rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted) !important;
+}
+
+.stat-title {
+  font-size: 1.35rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em;
+  color: var(--ink) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-description {
+  font-size: 0.75rem !important;
+  color: var(--muted) !important;
+}
+
+.stat-icon {
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  border-radius: var(--radius) !important;
+  display: grid !important;
+  place-items: center;
+  font-size: 0.95rem !important;
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface)) !important;
+  color: var(--primary) !important;
+  box-shadow: none !important;
+}
+
+.stat-icon.bg-danger,
+.stat-icon.bg-warning,
+.stat-icon.bg-info,
+.stat-icon.bg-success,
+.stat-icon.bg-primary {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface)) !important;
+  color: var(--primary) !important;
+}
+
+/* ── Cards / charts / tables ── */
+.card,
+.card-chart,
+.card-table,
+.card-dashboard-payments {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: none !important;
+  overflow: hidden;
+}
+
+.card-header,
+.card-table-header,
+.card-chart-header,
+.card-dashboard-payments-head {
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.card-chart-subtitle,
+.card-dashboard-payments-titles .card-chart-subtitle {
+  font-size: 0.6875rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted) !important;
+  font-weight: 500 !important;
+}
+
+.card-chart-title,
+.card-table-title,
+.card-dashboard-payments-titles .card-chart-title {
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+  letter-spacing: -0.01em;
+}
+
+.card-dashboard-payments-icon {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface)) !important;
+  color: var(--primary) !important;
+  border-radius: var(--radius) !important;
+}
+
+.btn-dashboard-payments-cta {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-ink) !important;
+  border-radius: var(--radius) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.btn-dashboard-payments-cta:hover {
+  filter: brightness(1.06);
+  color: var(--primary-ink) !important;
+}
+
+.card-body,
+.card-chart-body,
+.card-table-body {
+  background: var(--bg) !important;
+  color: var(--ink);
+}
+
+/* Tables */
+.table,
+.table-notus,
+.table-bordered {
+  color: var(--ink) !important;
+  background: transparent !important;
+}
+
+.table thead th,
+.table-notus thead th {
+  background: var(--surface) !important;
+  color: var(--muted) !important;
+  border-color: var(--line) !important;
+  font-size: 0.6875rem !important;
+  font-weight: 500 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-top: 0 !important;
+}
+
+.table td,
+.table-notus td,
+.table th {
+  border-color: var(--line) !important;
+  vertical-align: middle;
+  font-size: 0.8125rem;
+}
+
+.table tbody tr:hover,
+.table-notus tbody tr:hover {
+  background: var(--surface) !important;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--radius) !important;
+  font-weight: 500 !important;
+  font-size: 0.8125rem !important;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+    transform 120ms var(--ease) !important;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn-primary,
+.btn-success {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-ink) !important;
+}
+
+.btn-primary:hover,
+.btn-success:hover {
+  filter: brightness(1.06);
+  color: var(--primary-ink) !important;
+}
+
+.btn-outline-primary {
+  color: var(--primary) !important;
+  border-color: var(--line) !important;
+  background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  background: var(--surface) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.btn-secondary,
+.btn-light {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.btn-danger {
+  background: var(--danger) !important;
+  border-color: var(--danger) !important;
+  color: #fff !important;
+}
+
+.btn-warning {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent-ink) !important;
+}
+
+.btn-info {
+  background: color-mix(in oklch, var(--primary) 80%, white) !important;
+  border-color: transparent !important;
+  color: var(--primary-ink) !important;
+}
+
+/* Forms */
+.form-control,
+.custom-select,
+select.form-control {
+  background: var(--surface) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius) !important;
+  color: var(--ink) !important;
+  font-size: 0.875rem !important;
+}
+
+.form-control:focus,
+.custom-select:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+
+.form-control::placeholder {
+  color: var(--muted) !important;
+  opacity: 1;
+}
+
+.form-group label,
+label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Modals */
+.modal-content {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-lg) !important;
+  color: var(--ink);
+}
+
+.modal-header,
+.modal-footer {
+  border-color: var(--line) !important;
+  background: var(--surface) !important;
+}
+
+.modal-title {
+  color: var(--ink) !important;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.close {
+  color: var(--muted) !important;
+  text-shadow: none !important;
+  opacity: 1;
+}
+
+/* Badges / pills */
+.badge-primary,
+.badge-success,
+.badge-info {
+  background: color-mix(in oklch, var(--primary) 14%, var(--surface)) !important;
+  color: var(--primary) !important;
+}
+
+.badge-warning {
+  background: color-mix(in oklch, var(--warn) 16%, var(--surface)) !important;
+  color: color-mix(in oklch, var(--warn) 70%, var(--ink)) !important;
+}
+
+.badge-danger {
+  background: color-mix(in oklch, var(--danger) 12%, var(--surface)) !important;
+  color: var(--danger) !important;
+}
+
+/* Text utilities that fight the theme */
+.text-dark,
+.text-black-50 {
+  color: var(--ink) !important;
+}
+
+.text-muted,
+.text-secondary {
+  color: var(--muted) !important;
+}
+
+.text-primary,
+a.text-primary {
+  color: var(--primary) !important;
+}
+
+.text-success {
+  color: var(--ok) !important;
+}
+
+.text-danger {
+  color: var(--danger) !important;
+}
+
+.text-warning {
+  color: var(--warn) !important;
+}
+
+.text-info {
+  color: var(--primary) !important;
+}
+
+.bg-white,
+.bg-light {
+  background-color: var(--surface) !important;
+}
+
+.border,
+.border-bottom,
+.border-top {
+  border-color: var(--line) !important;
+}
+
+hr {
+  border-color: var(--line);
+}
+
+/* Legacy SB-Admin navy leftovers on these pages */
+body.notika-page .sidebar,
+body.notika-page #accordionSidebar {
+  display: none !important;
+}
+
+body.notika-page #content-wrapper,
+body.notika-page #wrapper #content-wrapper {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+/* Theme switch */
+#theme-switch {
+  border: 1px solid var(--line) !important;
+  background: var(--surface) !important;
+  border-radius: var(--radius) !important;
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  transform: none !important;
+}
+
+#theme-switch:hover {
+  background: var(--surface-2) !important;
+  transform: none !important;
+}
+
+#theme-switch svg {
+  fill: var(--ink) !important;
+  width: 1.15rem !important;
+  height: 1.15rem !important;
+}
+
+/* Dropdown global */
+.dropdown-menu {
+  background: var(--bg) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: 0 4px 8px var(--shadow) !important;
+  border-radius: var(--radius) !important;
+}
+
+.dropdown-item {
+  color: var(--ink) !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: var(--surface) !important;
+  color: var(--primary) !important;
+}
+
+.dropdown-divider {
+  border-top-color: var(--line) !important;
+}
+
+/* Pagination */
+.page-link {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.page-item.active .page-link {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: var(--primary-ink) !important;
+}
+
+/* Alert */
+.alert {
+  border-radius: var(--radius) !important;
+  border-width: 1px !important;
+}
+
+.alert-success {
+  background: color-mix(in oklch, var(--ok) 12%, var(--surface)) !important;
+  border-color: color-mix(in oklch, var(--ok) 30%, var(--line)) !important;
+  color: var(--ink) !important;
+}
+
+.alert-danger {
+  background: color-mix(in oklch, var(--danger) 12%, var(--surface)) !important;
+  border-color: color-mix(in oklch, var(--danger) 30%, var(--line)) !important;
+  color: var(--ink) !important;
+}
+
+.alert-warning {
+  background: color-mix(in oklch, var(--warn) 14%, var(--surface)) !important;
+  border-color: color-mix(in oklch, var(--warn) 30%, var(--line)) !important;
+  color: var(--ink) !important;
+}
+
+.alert-info {
+  background: color-mix(in oklch, var(--primary) 10%, var(--surface)) !important;
+  border-color: color-mix(in oklch, var(--primary) 28%, var(--line)) !important;
+  color: var(--ink) !important;
+}
+
+/* Progress */
+.progress {
+  background: var(--surface-2) !important;
+  border-radius: 999px !important;
+}
+
+.progress-bar {
+  background: var(--primary) !important;
+}
+
+/* Mono helpers used in product UI */
+.mono,
+code,
+.font-monospace {
+  font-family: var(--mono) !important;
+}
+
+/* Soft fade for main (respect reduced motion) */
+.fade-in {
+  animation: atlasFade 180ms var(--ease);
+}
+
+@keyframes atlasFade {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in,
+  .btn,
+  .card-stats,
+  .notika-nav-link {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 10000;
+  background: var(--primary);
+  color: var(--primary-ink);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+}
+
+.skip-link:focus {
+  left: 0.75rem;
+  top: 0.75rem;
+}
+
+/* Chart area spacing */
+.chart-container,
+.payment-chart-container {
+  background: transparent !important;
+}
+
+/* List groups */
+.list-group-item {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+/* Input groups */
+.input-group-text {
+  background: var(--surface) !important;
+  border-color: var(--line) !important;
+  color: var(--muted) !important;
+}
+
+/* FOUC-safe: hide legacy navy / gradient card headers */
+.card-header.bg-primary,
+.card-header.bg-warning,
+.card-header.bg-success,
+.card-header.bg-info,
+.card-header.bg-danger,
+.card-header[style*="002060"],
+.card-header[style*="#002060"],
+.card-header .text-white,
+.card-header h6.text-white,
+.modal-header.bg-warning,
+.modal-header.bg-primary,
+.modal-header.bg-success,
+.modal-header.bg-info,
+.modal-header.bg-danger {
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+}
+
+.card-header .text-white,
+.modal-header .text-white,
+.modal-header .close.text-white {
+  color: var(--ink) !important;
+}
+
+/* Legacy sidebar: ensure gone even without .notika-page */
+body#page-top .sidebar,
+ul.sidebar#accordionSidebar {
+  display: none !important;
+}
+
+body#page-top #content-wrapper {
+  margin-left: 0 !important;
+  width: 100% !important;
+}
+
+/* Soften striped tables under Atlas */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: color-mix(in oklch, var(--surface) 70%, transparent) !important;
+}

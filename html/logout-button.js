@@ -3,7 +3,7 @@
   'use strict';
   
   function initLogoutButtons() {
-    document.querySelectorAll('.logoutButton').forEach(button => {
+document.querySelectorAll('.logoutButton').forEach(button => {
       // Remove existing event listeners if button was already initialized
       if (button.dataset.initialized === 'true') {
         return; // Already initialized
@@ -17,9 +17,9 @@
         e.stopPropagation();
         
         // Direct logout without animations
-        if (typeof Auth !== 'undefined' && Auth.logout) {
-          Auth.logout();
-        }
+                  if (typeof Auth !== 'undefined' && Auth.logout) {
+                    Auth.logout();
+                  }
       };
       
       // Add click event listener

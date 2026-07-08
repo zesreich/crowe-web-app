@@ -1,4 +1,11 @@
 <?php
+// Environment variables yükleyiciyi en başta yükle
+$envLoaderPath = __DIR__ . '/helpers/EnvLoader.php';
+if (file_exists($envLoaderPath)) {
+    require_once $envLoaderPath;
+    EnvLoader::load();
+}
+
 include_once 'path.php';
 include_once 'db/Crud.php';
 include_once 'soa/yetkiSoa.php';

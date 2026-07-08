@@ -1,0 +1,92 @@
+{
+  "sheets": [
+    {
+      "name": "B_Kapak",
+      "max_row": 23,
+      "max_column": 19,
+      "headers": [
+        {
+          "column": "A",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "B",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "C",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "D",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "E",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "F",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "G",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "H",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        },
+        {
+          "column": "I",
+          "value": null,
+          "style": {
+            "font": "<openpyxl.styles.fonts.Font object>\nParameters:\nname='ArialNarrow', charset=None, family=2.0, b=False, i=False, strike=None, outline=None, shadow=None, condense=None, color=<openpyxl.styles.colors.Color object>\nParameters:\nrgb=None, indexed=None, auto=None, theme=1, tint=0.0, type='theme', extend=None, sz=11.0, u=None, vertAlign=None, scheme=None",
+            "fill": "<openpyxl.styles.fills.PatternFill object>\nParameters:\npatternType=None, fgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb', bgColor=<openpyxl.styles.colors.Color object>\nParameters:\nrgb='00000000', indexed=None, auto=None, theme=None, tint=0.0, type='rgb'",
+            "alignment": "<openpyxl.styles.alignment.Alignment object>\nParameters:\nhorizontal=None, vertical=None, textRotation=0, wrapText=None, shrinkToFit=None, indent=0.0, relativeIndent=0.0, justifyLastLine=None, readingOrder=0.0"
+          }
+        }
+      ],
+      "data_validations": [],
+      "merged_cells": [
+        

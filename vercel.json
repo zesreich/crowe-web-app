@@ -1,0 +1,23 @@
+{
+  "installCommand": "cd composer && composer install --no-dev --optimize-autoloader",
+  "buildCommand": "node scripts/build-config.js",
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.6.0"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/generate_b10_excel",
+      "destination": "/api/generate_b10_excel.php"
+    },
+    {
+      "source": "/",
+      "destination": "/html/index.html"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/html/$1"
+    }
+  ]
+}

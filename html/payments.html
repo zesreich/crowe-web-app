@@ -1,378 +1,97 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
+    <script>
+    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    </script>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Crowe HSY - Gelen Ödemeler">
-    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CROWE HSY - Gelen Ödemeler</title>
-    
-    <!-- Bootstrap CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    
-    <!-- Dark Mode CSS -->
-    <link rel="stylesheet" href="darkmode.css">
-    
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: radial-gradient(circle at top, #1f2933, #050608 55%);
-            color: #e5e7eb;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", 'Nunito', sans-serif;
-            min-height: 100vh;
-        }
-        
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            background: linear-gradient(180deg, #020617, #111827 55%, #020617);
-            border-right: 1px solid rgba(148, 163, 184, 0.2);
-            color: #e5e7eb;
-            width: 260px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            padding: 20px 18px;
-            gap: 20px;
-        }
-        
-        #accordionSidebar::after {
-            content: "";
-            display: block;
-            flex-grow: 1;
-            background: transparent;
-        }
-        
-        .sidebar-brand {
-            font-size: 1.5rem;
-            font-weight: 800;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            color: white;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .sidebar-brand img {
-            display: block;
-            margin: 0 auto;
-            width: 80px;
-            height: 80px;
-        }
-        
-        .sidebar .nav-link {
-            color: rgba(229, 231, 235, 0.8);
-            padding: 8px 10px;
-            font-weight: 500;
-            font-size: 13px;
-            border-radius: 10px;
-            transition: all 0.18s ease-out;
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-        
-        .sidebar .nav-link:hover {
-            background: rgba(15, 23, 42, 0.9);
-            border-color: rgba(148, 163, 184, 0.5);
-            color: rgba(229, 231, 235, 1);
-        }
-        
-        .sidebar .nav-link.active {
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.14), rgba(15, 23, 42, 1));
-            border: 1px solid rgba(56, 189, 248, 0.7);
-            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.4);
-            color: rgba(229, 231, 235, 1);
-        }
-        
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
-            width: 1.5rem;
-        }
-        
-        #content-wrapper {
-            margin-left: 260px;
-            width: calc(100% - 260px);
-            background: transparent;
-        }
-        
-        .topbar {
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
-            border-bottom: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
-            padding: 1rem 1.5rem;
-            color: #e5e7eb;
-        }
-        
-        .topbar h3 {
-            color: #e5e7eb !important;
-        }
-        
-        .topbar .text-gray-600 {
-            color: #9ca3af !important;
-        }
-        
-        .topbar .dropdown-menu {
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 1));
-            border: 1px solid rgba(148, 163, 184, 0.5);
-            color: #e5e7eb;
-        }
-        
-        .topbar .dropdown-item {
-            color: #e5e7eb;
-        }
-        
-        .topbar .dropdown-item:hover {
-            background: rgba(15, 23, 42, 0.9);
-            color: #e5e7eb;
-        }
-        
-        .card {
-            background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 1));
-            border-radius: 16px;
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.9);
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            font-weight: 600;
-            color: #9ca3af;
-        }
-        
-        .form-control {
-            background: rgba(15, 23, 42, 0.96);
-            border: 1px solid rgba(51, 65, 85, 1);
-            color: #e5e7eb;
-            border-radius: 10px;
-        }
-        
-        .form-control:focus {
-            background: rgba(15, 23, 42, 0.96);
-            border-color: rgba(56, 189, 248, 0.7);
-            color: #e5e7eb;
-        }
-        
-        .btn {
-            border-radius: 999px;
-            border: 1px solid rgba(148, 163, 184, 0.6);
-            background: rgba(15, 23, 42, 0.9);
-            color: #e5e7eb;
-            font-size: 11px;
-            padding: 5px 9px;
-            transition: all 0.18s ease-out;
-        }
-        
-        .btn:hover {
-            border-color: rgba(56, 189, 248, 0.9);
-            background: rgba(15, 23, 42, 1);
-            color: #e5e7eb;
-        }
-        
-        .btn-primary {
-            border-color: rgba(56, 189, 248, 0.9);
-            background: linear-gradient(90deg, rgba(56, 189, 248, 0.3), rgba(56, 189, 248, 0.2));
-        }
-        
-        .table {
-            color: #e5e7eb;
-        }
-        
-        .table thead th {
-            background: rgba(15, 23, 42, 0.98);
-            color: #6b7280;
-            font-weight: 600;
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-            border: none;
-            border-bottom: 1px solid rgba(51, 65, 85, 1);
-            padding: 6px 12px;
-        }
-        
-        .table tbody tr {
-            border-bottom: 1px solid rgba(51, 65, 85, 1);
-        }
-        
-        .table tbody tr:nth-child(even) {
-            background: rgba(15, 23, 42, 0.8);
-        }
-        
-        .table tbody tr:hover {
-            background: rgba(15, 23, 42, 0.96);
-        }
-        
-        .table td {
-            color: #e5e7eb;
-            padding: 8px 12px;
-            font-size: 11px;
-        }
-        
-        .language-switcher {
-            position: relative;
-        }
-        
-        .language-switcher .btn {
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-        }
-        
-        #theme-switch {
-            height: 40px;
-            width: 40px;
-            padding: 0;
-            border-radius: 50%;
-            background-color: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(148, 163, 184, 0.3);
-        }
-        
-        #theme-switch:hover {
-            background-color: rgba(15, 23, 42, 0.9);
-            border-color: rgba(56, 189, 248, 0.7);
-        }
-        
-        #theme-switch svg {
-            width: 24px;
-            height: 24px;
-            fill: #9ca3af;
-        }
-        
-        #theme-switch svg:last-child {
-            display: none;
-        }
-        
-        .darkmode #theme-switch svg:first-child {
-            display: none;
-        }
-        
-        .darkmode #theme-switch svg:last-child {
-            display: block !important;
-        }
-        
-        .darkmode #theme-switch svg {
-            fill: #e5e7eb;
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(55, 65, 81, 1);
-            border-radius: 999px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(75, 85, 99, 1);
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="atlas-shell.css" rel="stylesheet">
+    <link href="atlas-compat.css" rel="stylesheet">
+
 </head>
-<body id="page-top">
-    <div id="wrapper">
-        <!-- Sidebar -->
-        <ul class="sidebar" id="accordionSidebar">
-            <a class="sidebar-brand" href="index.html">
-                <img src="logo.svg" alt="Crowe HSY Logo">
-            </a>
-            <hr class="sidebar-divider my-0">
-            <li class="nav-item">
-                <a class="nav-link" href="dashboard.html">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="client-list.html">
-                    <i class="fas fa-building"></i>
-                    <span>Müşteriler</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="payments.html">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <span>Gelen Ödemeler</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="reports.html">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Raporlar</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="contracts.html">
-                    <i class="fas fa-file-contract"></i>
-                    <span>Sözleşmeler</span>
-                </a>
-            </li>
-        </ul>
-
-        <!-- Content Wrapper -->
-        <div id="content-wrapper">
-            <!-- Topbar -->
-            <nav class="navbar navbar-expand navbar-light topbar mb-4 static-top shadow">
-                <button class="btn btn-link d-md-none rounded-circle mr-3" id="sidebarToggle">
-                    <i class="fa fa-bars"></i>
-                </button>
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown no-arrow" style="margin-right: 1rem;">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="userEmail">Admin</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-right shadow">
-                            <a class="dropdown-item" href="#">
-                                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                Profil
-                            </a>
-                            <div class="dropdown-divider"></div>
-                        </div>
-                    </li>
-                    <li class="nav-item" style="margin-right: 1rem;">
-                        <a class="nav-link" href="#" onclick="Auth.logout(); return false;" style="cursor: pointer;">
-                            <i class="fas fa-sign-out-alt mr-2"></i>
-                            <span class="d-none d-lg-inline">Çıkış</span>
-                        </a>
-                    </li>
-                    <!-- Dark Mode Switcher -->
-                    <li class="nav-item">
-                        <button id="theme-switch" aria-label="Switch to dark mode" style="border: none; background: transparent; padding: 0; cursor: pointer; margin-left: 0.5rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69;">
-                                <path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/>
-                            </svg>
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" style="fill: #5a5c69; display: none;">
-                                <path d="M480-280q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Z"/>
-                            </svg>
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-
-            <!-- Main Content -->
+<body data-atlas-page="payments">
+  <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;">İçeriğe atla</a>
+  <div class="app" id="app">
+    <aside class="rail" aria-label="Ana menü">
+      <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
+        <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
+        <div class="brand-text">
+          <strong>HSY Atlas</strong>
+          <span>Denetim ekosistemi</span>
+        </div>
+      </a>
+      <nav class="nav" aria-label="Modüller">
+        <a class="nav-btn" href="dashboard.html">
+          <i class="ph ph-squares-four"></i><span>Kontrol paneli</span>
+        </a>
+        <a class="nav-btn" href="client-list.html">
+          <i class="ph ph-buildings"></i><span>Müşteriler</span>
+        </a>
+        <a class="nav-btn" href="offers.html">
+          <i class="ph ph-file-text"></i><span>Teklifler</span>
+        </a>
+        <a class="nav-btn" href="contracts.html">
+          <i class="ph ph-signature"></i><span>Sözleşmeler</span>
+        </a>
+        <a class="nav-btn" href="payments.html" aria-current="page">
+          <i class="ph ph-money"></i><span>Ödemeler</span>
+        </a>
+        <a class="nav-btn" href="reports.html">
+          <i class="ph ph-chart-line"></i><span>Raporlar</span>
+        </a>
+        <a class="nav-btn" href="users.html">
+          <i class="ph ph-users-three"></i><span>Kullanıcılar</span>
+        </a>
+        <a class="nav-btn" href="online-users.html">
+          <i class="ph ph-pulse"></i><span>Çevrimiçi</span>
+        </a>
+        <a class="nav-btn" href="ecosystem-mockup/">
+          <i class="ph ph-folder-simple"></i><span>Ekosistem</span>
+        </a>
+        <a class="nav-btn" href="auditor-dashboard.html">
+          <i class="ph ph-compass"></i><span>Denetçi</span>
+        </a>
+      </nav>
+      <div class="rail-foot">
+        <div class="persona">
+          <div class="avatar" id="userAvatarInitial" aria-hidden="true">HS</div>
+          <div class="persona-meta">
+            <strong id="personaName">Kullanıcı</strong>
+            <span id="personaRole">Yönetici</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" type="button" id="atlasLogout" style="width:100%;justify-content:center;">
+          <i class="ph ph-sign-out"></i> Çıkış
+        </button>
+      </div>
+    </aside>
+    <header class="top">
+      <div class="crumb">
+        <span>Atlas</span>
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
+        <span>Operasyon</span>
+        <i class="ph ph-caret-right" aria-hidden="true"></i>
+        <strong>Gelen ödemeler</strong>
+      </div>
+      <label class="search" aria-label="Kısayol ara">
+        <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+        <input type="search" id="atlasSearch" placeholder="Modül ara… Enter" autocomplete="off">
+      </label>
+      <span id="adminEnvBadge" class="badge" style="display:none;font-size:0.6875rem;"></span>
+      <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema">
+        <i class="ph ph-moon" id="themeIcon"></i>
+      </button>
+    </header>
+    <main class="main page-content" id="main-content" tabindex="-1">
+<!-- Main Content -->
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -518,8 +237,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+    </main>
+  </div>
+ain>
 
     <!-- Confirmation Modal -->
     <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
@@ -685,17 +405,61 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
     
+    <script src="config.js"></script>
     <!-- Supabase Config & JS -->
-    <script src="supabase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     
     <!-- Dark Mode -->
-    <script src="darkmode.js" defer></script>
+    </script>
     
     <!-- Auth -->
     <script src="auth.js"></script>
     <!-- Prevent Active Link Reload -->
     <script src="prevent-active-link-reload.js"></script>
+    <script>
+        (function notikaPageShell() {
+            var routes = [
+                { k: ['müşteri', 'musteri', 'client', 'firma'], href: 'client-list.html' },
+                { k: ['teklif', 'offer'], href: 'offers.html' },
+                { k: ['sözleşme', 'sozlesme', 'contract'], href: 'contracts.html' },
+                { k: ['ödeme', 'odeme', 'payment'], href: 'payments.html' },
+                { k: ['rapor', 'report'], href: 'reports.html' },
+                { k: ['kullanıcı', 'kullanici', 'user'], href: 'users.html' },
+                { k: ['çevrimiçi', 'cevrimici', 'online'], href: 'online-users.html' },
+                { k: ['denetçi', 'denetci', 'auditor'], href: 'auditor-dashboard.html' },
+                { k: ['şifre', 'sifre', 'password'], href: 'password-change.html' },
+                { k: ['panel', 'dashboard', 'kontrol'], href: 'dashboard.html' }
+            ];
+            function bindShortcutSearch(input) {
+                if (!input) return;
+                input.addEventListener('keydown', function(e) {
+                    if (e.key !== 'Enter') return;
+                    var q = (input.value || '').trim().toLowerCase();
+                    if (!q) return;
+                    for (var i = 0; i < routes.length; i++) {
+                        var r = routes[i];
+                        for (var j = 0; j < r.k.length; j++) {
+                            if (q.indexOf(r.k[j]) !== -1) {
+                                e.preventDefault();
+                                window.location.href = r.href;
+                                return;
+                            }
+                        }
+                    }
+                });
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+                var badge = document.getElementById('adminEnvBadge');
+                if (badge && typeof window.APP_ENV === 'string') {
+                    badge.textContent = window.APP_ENV === 'production' ? 'Production' : 'Development';
+                    badge.classList.toggle('is-dev', window.APP_ENV !== 'production');
+                }
+                bindShortcutSearch(document.getElementById('adminGlobalSearch'));
+                bindShortcutSearch(document.getElementById('adminGlobalSearchMobile'));
+            });
+        })();
+    </script>
     
     <script>
         // Check authentication on page load (DOMContentLoaded ile geciktir)
@@ -717,6 +481,13 @@
                     if (userEmailElement) {
                         userEmailElement.textContent = userEmail;
                     }
+                    const av = document.getElementById('userAvatarInitial');
+                    if (av && userEmail) {
+                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
+                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
+                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
+                        av.textContent = (a + b).toUpperCase() || 'A';
+                    }
                 }
             }, 100);
         });
@@ -731,23 +502,32 @@
                     if (userEmailElement) {
                         userEmailElement.textContent = userEmail;
                     }
+                    const av2 = document.getElementById('userAvatarInitial');
+                    if (av2 && userEmail) {
+                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
+                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
+                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
+                        av2.textContent = (a + b).toUpperCase() || 'A';
+                    }
                 }
             }, 100);
         }
         
         // Get Supabase client helper function
-        function getSupabaseClient() {
-            if (typeof window.supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-                if (!window.SUPABASE_URL.includes('YOUR_') && !window.SUPABASE_ANON_KEY.includes('YOUR_')) {
-                    return window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
-                }
+        // Get Supabase client helper function - uses global instance
+        function resolveSupabaseClient() {
+            if (window.__supabaseClientInstance) {
+                return window.__supabaseClientInstance;
+            }
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                return supabaseClient;
             }
             return null;
         }
         
         // Supabase CRUD functions for payments
         async function getPaymentsFromSupabase() {
-            const supabase = getSupabaseClient();
+            const supabase = resolveSupabaseClient();
             if (!supabase) {
                 const payments = localStorage.getItem('payments');
                 return payments ? JSON.parse(payments) : [];
@@ -785,7 +565,7 @@
         }
         
         async function addPaymentToSupabase(payment) {
-            const supabase = getSupabaseClient();
+            const supabase = resolveSupabaseClient();
             if (!supabase) {
                 const payments = JSON.parse(localStorage.getItem('payments') || '[]');
                 payments.push(payment);
@@ -840,7 +620,7 @@
         }
         
         async function updatePaymentInSupabase(id, payment) {
-            const supabase = getSupabaseClient();
+            const supabase = resolveSupabaseClient();
             if (!supabase) {
                 const payments = JSON.parse(localStorage.getItem('payments') || '[]');
                 const index = payments.findIndex(p => p.id === id);
@@ -890,7 +670,7 @@
         }
         
         async function deletePaymentFromSupabase(id) {
-            const supabase = getSupabaseClient();
+            const supabase = resolveSupabaseClient();
             if (!supabase) {
                 let payments = JSON.parse(localStorage.getItem('payments') || '[]');
                 payments = payments.filter(payment => payment.id !== id);
@@ -1125,6 +905,8 @@
             loadPayments();
         });
     </script>
+<script src="atlas-shell.js"></script>
 </body>
 </html>
-
+</body>
+</html>

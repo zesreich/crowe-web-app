@@ -1,0 +1,236 @@
+/**
+ * Atlas auth / landing — same tokens, no app rail
+ */
+
+body.atlas-auth {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.atlas-auth-card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2rem 1.75rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.atlas-auth-card.wide {
+  max-width: 56rem;
+}
+
+.atlas-auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.atlas-auth-brand img {
+  height: 5rem;
+  width: auto;
+}
+
+.atlas-auth-brand h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.atlas-auth-brand p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.atlas-auth .form-control {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--ink);
+  min-height: 2.5rem;
+}
+
+.atlas-auth .form-control:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--primary) 18%, transparent);
+}
+
+.atlas-auth .btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-ink);
+  border-radius: var(--radius);
+  font-weight: 500;
+  min-height: 2.5rem;
+}
+
+.atlas-auth .btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.atlas-auth .btn-outline-light,
+.atlas-auth .btn-ghost {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: var(--radius);
+}
+
+.atlas-auth-top {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+}
+
+.atlas-auth-top .icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.atlas-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.atlas-feature {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.atlas-feature h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.atlas-feature p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+/* Auditor login canvas stays behind */
+body.atlas-auth.has-canvas {
+  display: block;
+  padding: 0;
+}
+
+body.atlas-auth.has-canvas .atlas-auth-overlay {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+body.atlas-auth.has-canvas .webgl {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.atlas-auth .login-card,
+.atlas-auth .change-card,
+.atlas-auth .home-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+  color: var(--ink);
+  max-width: 28rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.75rem;
+}
+
+.atlas-auth-wide .home-card,
+.atlas-auth-wide .container {
+  max-width: 56rem;
+}
+
+.atlas-auth .login-card .text-primary,
+.atlas-auth .text-primary {
+  color: var(--primary) !important;
+}
+
+.atlas-auth .language-switcher .btn {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 999px;
+}
+
+.atlas-auth #hata,
+.atlas-auth #onay {
+  display: none;
+}
+
+.atlas-auth-wide {
+  align-items: flex-start;
+  padding-top: 3rem;
+}
+
+.atlas-auth-wide .home-card {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.atlas-auth-wide .feature-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.atlas-auth .btn-outline-light {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.atlas-auth .btn-outline-light:hover {
+  background: var(--surface-2);
+  color: var(--primary);
+}
+
+.atlas-auth .brand-logo {
+  height: 6rem;
+  padding: 1rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.atlas-auth .language-switcher {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+}

@@ -1,0 +1,203 @@
+/* Denetçi workspace UI */
+.auditor-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .auditor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auditor-sidebar,
+.auditor-main-panel,
+.auditor-user-panel {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.auditor-sidebar-head,
+.auditor-panel-head {
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.auditor-sidebar-head p,
+.auditor-panel-head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.auditor-workspace-list {
+  max-height: 420px;
+  overflow: auto;
+}
+
+.auditor-workspace-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease);
+}
+
+.auditor-workspace-item:hover,
+.auditor-workspace-item.is-active {
+  background: color-mix(in oklch, var(--primary) 8%, var(--surface));
+}
+
+.auditor-workspace-item strong {
+  display: block;
+  font-size: 0.8125rem;
+}
+
+.auditor-workspace-item span {
+  display: block;
+  font-size: 0.6875rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  margin-top: 0.15rem;
+}
+
+.auditor-section {
+  border-bottom: 1px solid var(--line);
+}
+
+.auditor-section:last-child {
+  border-bottom: 0;
+}
+
+.auditor-section-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.auditor-section-toggle .meta {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.auditor-section-body {
+  padding: 0.35rem 0 0.5rem;
+}
+
+.auditor-file-row {
+  display: grid;
+  grid-template-columns: 4.5rem 1fr auto;
+  gap: 0.65rem;
+  align-items: start;
+  padding: 0.55rem 1rem;
+  border-top: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+}
+
+.auditor-file-row:first-child {
+  border-top: 0;
+}
+
+.auditor-file-code {
+  font-family: var(--mono);
+  font-size: 0.6875rem;
+  color: var(--primary);
+  padding-top: 0.15rem;
+}
+
+.auditor-file-title {
+  font-size: 0.8125rem;
+  color: var(--ink);
+}
+
+.auditor-file-note {
+  margin-top: 0.35rem;
+}
+
+.auditor-file-note textarea {
+  width: 100%;
+  min-height: 2.25rem;
+  resize: vertical;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 0.75rem;
+}
+
+.auditor-status-select {
+  min-width: 7.5rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.auditor-user-panel .atlas-table tbody tr.is-suspended {
+  opacity: 0.65;
+}
+
+.auditor-tabs {
+  display: flex;
+  gap: 0.35rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.auditor-tab {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--muted);
+  border-radius: var(--radius);
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.auditor-tab.is-active {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface));
+  border-color: color-mix(in oklch, var(--primary) 30%, var(--line));
+  color: var(--primary);
+}
+
+.auditor-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auditor-workspace-item {
+    transition: none;
+  }
+}

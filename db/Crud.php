@@ -235,7 +235,7 @@ class Crud
             }
         } catch (Exception $e) {
             error_log("Crud error: " . $e->getMessage());
-            if (defined('Config') && Config::DEBUG_MODE) {
+            if (defined('Config') && Config::getDebugMode()) {
                 return $e->getMessage();
             }
             return "Bir hata oluştu.";
@@ -305,7 +305,7 @@ class Crud
             }
         } catch (Exception $e) {
             error_log("Crud error: " . $e->getMessage());
-            if (defined('Config') && Config::DEBUG_MODE) {
+            if (defined('Config') && Config::getDebugMode()) {
                 return $e->getMessage();
             }
             return "Bir hata oluştu.";
@@ -355,7 +355,7 @@ class Crud
             }
         } catch (Exception $e) {
             error_log("Crud error: " . $e->getMessage());
-            if (defined('Config') && Config::DEBUG_MODE) {
+            if (defined('Config') && Config::getDebugMode()) {
                 return $e->getMessage();
             }
             return "Bir hata oluştu.";
@@ -404,7 +404,7 @@ class Crud
             }
         } catch (Exception $e) {
             error_log("Crud error: " . $e->getMessage());
-            if (defined('Config') && Config::DEBUG_MODE) {
+            if (defined('Config') && Config::getDebugMode()) {
                 return $e->getMessage();
             }
             return "Bir hata oluştu.";

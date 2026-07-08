@@ -1,0 +1,55 @@
+// Frontend Configuration - Example File
+// Bu dosyayı kopyalayıp config.js olarak kaydedin
+// ÖNEMLİ: config.js dosyası git'e commit edilmemelidir!
+
+// ============================================
+// Uygulama Ortamı
+// ============================================
+const APP_ENV = 'development'; // 'development' veya 'production'
+
+// ============================================
+// Backend API Ayarları
+// ============================================
+// Backend sunucu URL'i
+// Production: https://www.crowehsy.com
+// Development: http://localhost:8000 (veya geliştirme sunucunuzun URL'i)
+window.API_BASE_URL = window.API_BASE_URL || 'https://www.crowehsy.com';
+
+// ============================================
+// Supabase Ayarları
+// ============================================
+// Supabase bağlantı bilgileri (supabase-config.js'de de tanımlı olabilir)
+// Burada tanımlarsanız, bu değerler kullanılır
+window.SUPABASE_URL = window.SUPABASE_URL || 'https://your-project.supabase.co';
+window.SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'your_supabase_anon_key_here';
+
+// ============================================
+// Fallback Admin Ayarları (SADECE DEVELOPMENT İÇİN!)
+// ============================================
+// Production'da bu değerler kullanılmamalı, tüm kullanıcılar Supabase'de olmalı
+
+// Fallback admin şifresi (SADECE DEVELOPMENT İÇİN!)
+// Production'da bu değer boş olmalı: ''
+const FALLBACK_DEFAULT_PASSWORD = (APP_ENV === 'production') ? '' : 'Crowe2022!';
+
+// Fallback admin kullanıcıları (SADECE DEVELOPMENT İÇİN!)
+// Production'da bu liste boş olmalı: {}
+const FALLBACK_ADMINS = (APP_ENV === 'production') ? {} : {
+    'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
+    'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
+    'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
+    'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
+    'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
+    'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' }
+};
+
+// Global window objesine ekle (auth.js tarafından kullanılacak)
+window.APP_ENV = APP_ENV;
+window.FALLBACK_DEFAULT_PASSWORD = FALLBACK_DEFAULT_PASSWORD;
+window.FALLBACK_ADMINS = FALLBACK_ADMINS;
+
+// Production modunda uyarı
+if (APP_ENV === 'production' && (FALLBACK_DEFAULT_PASSWORD || Object.keys(FALLBACK_ADMINS).length > 0)) {
+    console.error('⚠️ GÜVENLİK UYARISI: Production modunda fallback şifreler aktif! Güvenlik riski!');
+}
+

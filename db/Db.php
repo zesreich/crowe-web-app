@@ -6,10 +6,18 @@ include_once  __DIR__.'/../config/config.php';
  */
 class Db 
 {    
-    private $_host      = Config::DB_HOST;
-    private $_username  = Config::DB_USER_NAME;
-    private $_password  = Config::DB_PASSWORD;
-    private $_database  = Config::DB_DATABASE;
+    private $_host;
+    private $_username;
+    private $_password;
+    private $_database;
+    
+    public function __construct() {
+        // Environment variable'lardan oku (güvenli yöntem)
+        $this->_host = Config::getDbHost();
+        $this->_username = Config::getDbUser();
+        $this->_password = Config::getDbPassword();
+        $this->_database = Config::getDbName();
+    }
     
     protected $connection;
     
@@ -28,7 +36,7 @@ class Db
                 // Bağlantı hatası kontrolü
                 if ($this->connection->connect_error) {
                     error_log("Database connection error: " . $this->connection->connect_error);
-                    if (Config::DEBUG_MODE) {
+                    if (Config::getDebugMode()) {
                         throw new Exception("Veritabanı bağlantı hatası: " . $this->connection->connect_error);
                     } else {
                         throw new Exception("Veritabanı bağlantı hatası oluştu.");
@@ -45,7 +53,7 @@ class Db
                 
             } catch (Exception $e) {
                 error_log("Database connection exception: " . $e->getMessage());
-                if (Config::DEBUG_MODE) {
+                if (Config::getDebugMode()) {
                     throw $e;
                 } else {
                     throw new Exception("Veritabanı bağlantı hatası oluştu.");

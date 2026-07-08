@@ -11,13 +11,17 @@ try {
     $mail->Encoding="base64";
     $mail->SMTPDebug = SMTP::DEBUG_OFF;                      // Enable verbose debug output
     $mail->isSMTP();                                            // Send using SMTP
-    $mail->Host       = genelConfig::MAIL_HOST;                    // Set the SMTP server to send through
+    // Güvenli konfigürasyon kullanımı (.env dosyasından okunur)
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/../config/_genelConfig.php';
+    
+    $mail->Host       = genelConfig::MAIL_HOST();                    // Set the SMTP server to send through
     $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
-    $mail->Username   = genelConfig::MAIL_USER;                     // SMTP username
-    $mail->Password   = genelConfig::MAIL_PASS;                               // SMTP password
+    $mail->Username   = genelConfig::MAIL_USER();                     // SMTP username
+    $mail->Password   = genelConfig::MAIL_PASS();                               // SMTP password
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
     $mail->Port       = 465;                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
-    $mail->setFrom($mail->Username, genelConfig::MAIL_ISIM);
+    $mail->setFrom($mail->Username, genelConfig::MAIL_ISIM());
     $mail->addAddress('ahmeted88@hotmail.com', 'Joe User');     // Add a recipient
     $mail->isHTML(true);                                  // Set email format to HTML
     $mail->Subject = 'Başlık';

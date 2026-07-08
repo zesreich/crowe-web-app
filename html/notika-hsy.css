@@ -1,0 +1,874 @@
+/**
+ * Crowe HSY — Notika (green-horizontal) inspired shell
+ * Kaynak yapı: notika-master/notika/green-horizotal — Bootstrap 4 uyumlu sürüm
+ */
+:root {
+    --nk-green: #00c292;
+    --nk-green-dark: #00a085;
+    --nk-header-bg: #ffffff;
+    --nk-page-bg: #f3f6f9;
+    --nk-border: #e9ecef;
+    --nk-text: #333333;
+    --nk-muted: #6c757d;
+}
+
+body.notika-page {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--nk-page-bg);
+    color: var(--nk-text);
+}
+
+/* —— Header (Notika .notika-header) —— */
+.notika-header {
+    background: var(--nk-header-bg);
+    padding: 14px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid var(--nk-border);
+    position: relative;
+    z-index: 1030;
+}
+
+.notika-brand a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.notika-brand img {
+    height: 40px;
+    width: auto;
+    transition: transform 0.2s ease;
+}
+
+.notika-brand a:hover img {
+    transform: scale(1.02);
+}
+
+.notika-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: nowrap;
+}
+
+/* Header’da görünür kısayol arama (md+) */
+.notika-header-search-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: min(380px, 46vw);
+    margin-right: auto;
+}
+
+.notika-header .header-search-inline input.form-control {
+    padding: 8px 36px 8px 12px;
+    font-size: 13px;
+    border-radius: 10px;
+    height: 40px;
+}
+
+.notika-header .header-search-inline .search-icon {
+    right: 10px;
+    font-size: 14px;
+}
+
+.notika-nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    color: #666;
+    font-size: 17px;
+    transition: background 0.2s ease, color 0.2s ease;
+    cursor: pointer;
+    padding: 0;
+}
+
+.notika-nav-link:hover,
+.notika-nav-link:focus {
+    background: #f8f9fa;
+    color: var(--nk-green);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 194, 146, 0.15);
+}
+
+.notika-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: #ff5722;
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.notika-dropdown {
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    padding: 0;
+    overflow: hidden;
+    min-width: 300px;
+    border: none;
+}
+
+.notika-dropdown-header {
+    background: linear-gradient(135deg, var(--nk-green), var(--nk-green-dark));
+    color: #fff;
+    padding: 14px 18px;
+    margin: 0;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.notika-dropdown-body {
+    padding: 6px 0;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.notika-dropdown-item {
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    text-decoration: none !important;
+    color: #333 !important;
+    transition: background 0.15s ease;
+    border: 0;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+}
+
+.notika-dropdown-item:hover {
+    background: #f8f9fa;
+    color: var(--nk-green) !important;
+}
+
+.notika-dropdown-footer {
+    padding: 10px 16px;
+    background: #f8f9fa;
+    text-align: center;
+    border-top: 1px solid var(--nk-border);
+}
+
+.notika-dropdown-footer a {
+    color: var(--nk-green);
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.search-dropdown {
+    min-width: 300px;
+    padding: 16px !important;
+}
+
+.search-input-group {
+    position: relative;
+}
+
+.search-input-group input.form-control {
+    border: 2px solid var(--nk-border);
+    border-radius: 8px;
+    padding: 10px 38px 10px 14px;
+    font-size: 14px;
+    width: 100%;
+}
+
+.search-input-group input.form-control:focus {
+    border-color: var(--nk-green);
+    box-shadow: 0 0 0 3px rgba(0, 194, 146, 0.12);
+}
+
+.search-input-group .search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.notika-user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px 4px 4px;
+    border-radius: 999px;
+    border: 1px solid var(--nk-border);
+    background: #fafafa;
+    max-width: 220px;
+}
+
+.notika-user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nk-green), #6366f1);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notika-env-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(0, 194, 146, 0.12);
+    color: var(--nk-green-dark);
+    border: 1px solid rgba(0, 194, 146, 0.35);
+    white-space: nowrap;
+}
+
+.notika-env-pill.is-dev {
+    background: rgba(234, 179, 8, 0.15);
+    border-color: rgba(234, 179, 8, 0.45);
+    color: #b45309;
+}
+
+/* —— Horizontal navbar (Notika .notika-navbar) —— */
+.notika-navbar {
+    background: #fff;
+    padding: 0;
+    border-bottom: 1px solid var(--nk-border);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1020;
+}
+
+.notika-navbar .navbar-nav {
+    gap: 0;
+}
+
+.notika-navbar .nav-item {
+    position: relative;
+}
+
+.notika-navbar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 18px;
+    color: #666 !important;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: none !important;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.notika-navbar .nav-link:hover,
+.notika-navbar .nav-link:focus {
+    color: var(--nk-green) !important;
+    background: rgba(0, 194, 146, 0.06);
+    border-bottom-color: var(--nk-green);
+}
+
+.notika-navbar .nav-link.active {
+    color: var(--nk-green) !important;
+    background: rgba(0, 194, 146, 0.08);
+    border-bottom-color: var(--nk-green);
+    font-weight: 600;
+}
+
+.notika-navbar .nav-link i {
+    font-size: 15px;
+    opacity: 0.85;
+}
+
+.notika-navbar .dropdown-menu {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    padding: 8px;
+    margin-top: 0;
+    min-width: 220px;
+}
+
+.notika-navbar .dropdown-item {
+    padding: 9px 14px;
+    border-radius: 6px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.notika-navbar .dropdown-item:hover,
+.notika-navbar .dropdown-item:focus {
+    background: var(--nk-green);
+    color: #fff !important;
+    transform: translateX(3px);
+}
+
+.notika-navbar .dropdown-toggle::after {
+    margin-left: 6px;
+}
+
+/* —— Main —— */
+.notika-main {
+    padding-bottom: 32px;
+}
+
+.notika-breadcomb {
+    background: #fff;
+    border-bottom: 1px solid var(--nk-border);
+    padding: 12px 0;
+    margin-bottom: 16px;
+}
+
+.notika-breadcomb .breadcrumb {
+    background: transparent;
+    margin-bottom: 0;
+    padding: 0 4px;
+    font-size: 13px;
+}
+
+.notika-breadcomb .breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #adb5bd;
+}
+
+/* Page header + quick actions (HSY) */
+.notika-page .page-header-admin h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.25rem;
+}
+
+.notika-page .page-header-admin p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--nk-muted);
+}
+
+.notika-page .page-header-meta {
+    font-size: 12px;
+    color: #868e96;
+}
+
+.notika-page .quick-actions .qa-card {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 12px;
+    border: 1px solid var(--nk-border);
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    text-decoration: none !important;
+    color: #333 !important;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.notika-page .quick-actions .qa-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 194, 146, 0.45);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.notika-page .quick-actions .qa-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.notika-page .quick-actions .qa-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin: 0;
+}
+
+.notika-page .quick-actions .qa-desc {
+    font-size: 11px;
+    color: var(--nk-muted);
+    margin: 0;
+}
+
+@media (min-width: 992px) {
+    .notika-page .quick-actions.quick-actions--toolbar {
+        width: auto;
+        max-width: 720px;
+        flex: 0 1 auto;
+    }
+}
+
+/* —— Widget cards: light “Notika” tiles —— */
+.notika-page .header-stats {
+    background: transparent;
+    padding: 8px 0 16px;
+}
+
+/* İstatistik kartları — ikon alanı okunaklı boyut */
+.notika-page .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.notika-page .stat-icon i {
+    font-size: 1.45rem;
+    line-height: 1;
+}
+
+.darkmode .notika-page .stat-icon {
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+/* Kontrol paneli — Gelen ödemeler kartı */
+.notika-page .card-dashboard-payments {
+    overflow: hidden;
+    border: 1px solid var(--nk-border);
+}
+
+.notika-page .card-dashboard-payments-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--nk-border);
+    background: linear-gradient(135deg, rgba(0, 194, 146, 0.08), rgba(99, 102, 241, 0.06));
+}
+
+@media (max-width: 575px) {
+    .notika-page .btn-dashboard-payments-cta {
+        width: 100%;
+        margin-left: 0;
+        text-align: center;
+    }
+}
+
+.notika-page .card-dashboard-payments-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--nk-green), var(--nk-green-dark));
+    color: #fff;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    box-shadow: 0 8px 22px rgba(0, 194, 146, 0.35);
+}
+
+.notika-page .card-dashboard-payments-titles .card-chart-subtitle {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.notika-page .card-dashboard-payments-titles .card-chart-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-top: 2px;
+}
+
+.notika-page .btn-dashboard-payments-cta {
+    margin-left: auto;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 8px 14px;
+    border: 1px solid rgba(0, 194, 146, 0.45);
+    color: var(--nk-green-dark);
+    background: #fff;
+    white-space: nowrap;
+}
+
+.notika-page .btn-dashboard-payments-cta:hover {
+    background: var(--nk-green);
+    border-color: var(--nk-green);
+    color: #fff;
+    text-decoration: none;
+}
+
+.notika-page .card-dashboard-payments-body {
+    padding: 16px 18px 20px;
+    background: #fafbfc;
+}
+
+.notika-page .card-chart-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--nk-border);
+    background: linear-gradient(180deg, #fafbfc, #fff);
+}
+
+.notika-page .card-chart-body {
+    padding: 14px 18px 18px;
+    background: #fff;
+}
+
+.notika-page .card-stats,
+.notika-page .card-chart,
+.notika-page .card-table {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--nk-border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.notika-page .card-stats:hover {
+    border-color: rgba(0, 194, 146, 0.45);
+}
+
+.notika-page .stat-subtitle,
+.notika-page .card-chart-subtitle {
+    color: #868e96;
+}
+
+.notika-page .stat-title,
+.notika-page .card-chart-title,
+.notika-page .card-table-title {
+    color: #212529;
+}
+
+.notika-page .stat-description {
+    color: #868e96;
+}
+
+.notika-page .card-table-header {
+    border-bottom: 1px solid var(--nk-border);
+}
+
+.notika-page .table-notus thead {
+    background: #f8f9fa;
+}
+
+.notika-page .table-notus th {
+    color: #495057;
+    border-bottom: 1px solid var(--nk-border);
+}
+
+.notika-page .table-notus td {
+    color: #343a40;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.notika-page .table-notus tbody tr:nth-child(even) {
+    background: #fafbfc;
+}
+
+.notika-page .table-notus tbody tr:hover {
+    background: #f1f9f7;
+}
+
+.notika-page .btn {
+    border-radius: 8px;
+}
+
+.notika-page .btn-primary {
+    background: var(--nk-green);
+    border-color: var(--nk-green);
+}
+
+.notika-page .btn-primary:hover {
+    background: var(--nk-green-dark);
+    border-color: var(--nk-green-dark);
+}
+
+.notika-page .btn-outline-primary {
+    color: var(--nk-green);
+    border-color: var(--nk-green);
+}
+
+.notika-page .btn-outline-primary:hover {
+    background: var(--nk-green);
+    color: #fff;
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    z-index: 9999;
+    padding: 0.5rem 1rem;
+    background: var(--nk-green);
+    color: #fff;
+}
+
+.skip-link:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+}
+
+/* —— Dark mode (body.darkmode) —— */
+body.darkmode.notika-page {
+    background: #0b0f14;
+    color: #e5e7eb;
+}
+
+.darkmode .notika-header {
+    background: #111827;
+    border-bottom-color: rgba(148, 163, 184, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.darkmode .notika-brand .text-dark {
+    color: #f1f5f9 !important;
+}
+
+.darkmode .notika-nav-link {
+    color: #cbd5e1;
+}
+
+.darkmode .notika-nav-link:hover {
+    background: rgba(15, 23, 42, 0.9);
+    color: #5eead4;
+}
+
+.darkmode .notika-user-trigger {
+    background: rgba(15, 23, 42, 0.85);
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+.darkmode .notika-user-trigger .text-dark {
+    color: #e5e7eb !important;
+}
+
+.darkmode .notika-navbar {
+    background: #0f172a;
+    border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+.darkmode .notika-navbar .nav-link {
+    color: #cbd5e1 !important;
+}
+
+.darkmode .notika-navbar .nav-link:hover,
+.darkmode .notika-navbar .nav-link.active {
+    color: #5eead4 !important;
+    background: rgba(0, 194, 146, 0.08);
+    border-bottom-color: #2dd4bf;
+}
+
+.darkmode .notika-navbar .dropdown-menu {
+    background: #111827;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.darkmode .notika-navbar .dropdown-item {
+    color: #e5e7eb !important;
+}
+
+.darkmode .notika-navbar .dropdown-item:hover {
+    background: var(--nk-green);
+    color: #fff !important;
+}
+
+.darkmode .notika-breadcomb {
+    background: #111827;
+    border-bottom-color: rgba(148, 163, 184, 0.2);
+}
+
+.darkmode .notika-page .page-header-admin h1 {
+    color: #f9fafb;
+}
+
+.darkmode .notika-page .page-header-admin p,
+.darkmode .notika-page .page-header-meta {
+    color: #94a3b8;
+}
+
+.darkmode .notika-page .quick-actions .qa-card {
+    background: rgba(17, 24, 39, 0.95);
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #e5e7eb !important;
+}
+
+.darkmode .notika-page .card-stats,
+.darkmode .notika-page .card-chart,
+.darkmode .notika-page .card-table {
+    background: radial-gradient(circle at top left, rgba(45, 212, 191, 0.08), #111827);
+    border-color: rgba(148, 163, 184, 0.25);
+}
+
+.darkmode .notika-page .card-chart-header {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.92));
+    border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.darkmode .notika-page .card-chart-body {
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.darkmode .notika-page .card-dashboard-payments-head {
+    background: linear-gradient(135deg, rgba(0, 194, 146, 0.12), rgba(99, 102, 241, 0.1));
+    border-bottom-color: rgba(148, 163, 184, 0.22);
+}
+
+.darkmode .notika-page .card-dashboard-payments-body {
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.darkmode .notika-page .btn-dashboard-payments-cta {
+    background: rgba(15, 23, 42, 0.85);
+    color: #e5e7eb;
+    border-color: rgba(45, 212, 191, 0.45);
+}
+
+.darkmode .notika-page .btn-dashboard-payments-cta:hover {
+    background: var(--nk-green);
+    color: #fff;
+    border-color: var(--nk-green);
+}
+
+.darkmode .notika-page .chart-container,
+.darkmode .notika-page .payment-chart-container {
+    background: transparent !important;
+}
+
+.darkmode .notika-page .stat-subtitle,
+.darkmode .notika-page .card-chart-subtitle {
+    color: #94a3b8 !important;
+}
+
+.darkmode .notika-page .stat-description {
+    color: #94a3b8 !important;
+}
+
+.darkmode .notika-page .stat-title,
+.darkmode .notika-page .card-chart-title,
+.darkmode .notika-page .card-table-title {
+    color: #e5e7eb;
+}
+
+.darkmode .notika-page .table-notus thead {
+    background: rgba(15, 23, 42, 0.98);
+}
+
+.darkmode .notika-page .table-notus th,
+.darkmode .notika-page .table-notus td {
+    color: #e5e7eb;
+    border-color: rgba(51, 65, 85, 0.9);
+}
+
+.darkmode .notika-page .table-notus tbody tr:nth-child(even) {
+    background: rgba(15, 23, 42, 0.65);
+}
+
+.darkmode .notika-page .table-notus tbody tr:hover {
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.darkmode .notika-dropdown {
+    background: #111827;
+}
+
+.darkmode .notika-dropdown-item {
+    color: #e5e7eb !important;
+}
+
+.darkmode .notika-dropdown-item:hover {
+    background: rgba(15, 23, 42, 0.9);
+}
+
+.darkmode .search-input-group input.form-control {
+    background: #0f172a;
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #e5e7eb;
+}
+
+.darkmode .notika-header .header-search-inline input.form-control {
+    background: rgba(15, 23, 42, 0.92);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #e5e7eb;
+}
+
+.darkmode .notika-header .header-search-inline .search-icon {
+    color: #94a3b8;
+}
+
+@media (max-width: 991px) {
+    .notika-navbar .navbar-nav {
+        padding-top: 8px;
+    }
+
+    .notika-navbar .nav-link {
+        padding: 12px 14px;
+    }
+}
+
+.fade-in {
+    animation: nkFadeIn 0.4s ease-out;
+}
+
+@keyframes nkFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* —— İçerik sayfaları: liste / form kartları (client-list, offers, payments, contracts) —— */
+.notika-page main .card.shadow {
+    border-radius: 12px;
+    border: 1px solid var(--nk-border);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
+    overflow: hidden;
+}
+
+body.notika-page:not(.darkmode) main .card.shadow > .card-header {
+    background: linear-gradient(135deg, var(--nk-green), var(--nk-green-dark)) !important;
+    color: #fff !important;
+    border-bottom: none;
+}
+
+.notika-page main .container-fluid > .row > [class*="col-"] > .card {
+    border-radius: 12px;
+    border: 1px solid var(--nk-border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+body.notika-page:not(.darkmode) main .table thead th {
+    background-color: #f1f3f5;
+    color: #343a40;
+    border-color: var(--nk-border);
+}
+
+.darkmode.notika-page main .card.shadow,
+.darkmode.notika-page main .card.mb-4 {
+    background: rgba(17, 24, 39, 0.96);
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+.darkmode.notika-page main .bg-white.rounded.border {
+    background: rgba(15, 23, 42, 0.92) !important;
+    border-color: rgba(148, 163, 184, 0.25) !important;
+    color: #e5e7eb;
+}

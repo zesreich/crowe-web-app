@@ -1,0 +1,10 @@
+{
+  "name": "crowe-hsy-web-app",
+  "private": true,
+  "scripts": {
+    "dev": "cd html && python3 -m http.server 8000",
+    "build": "node scripts/build-config.js",
+    "vercel:preview": "vercel",
+    "vercel:prod": "vercel --prod"
+  }
+}

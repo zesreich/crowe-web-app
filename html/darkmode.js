@@ -1,172 +1,144 @@
-// Dark Mode Toggle System - Synchronized across all pages
-(function() {
-  'use strict';
-  
-  // Get current theme state
-  let darkmode = localStorage.getItem('darkmode')
+// Dark Mode Toggle — Atlas-synced (data-theme + legacy .darkmode)
+(function () {
+  "use strict";
+
+  const STORAGE_KEY = "darkmode";
+  const ATLAS_KEY = "hsy-atlas-theme";
   let themeSwitch = null;
-  
-  // Function to get theme switch button (may not exist on all pages)
+  let isApplyingTheme = false;
+
   function getThemeSwitch() {
     if (!themeSwitch) {
-      themeSwitch = document.getElementById('theme-switch');
+      themeSwitch = document.getElementById("theme-switch");
     }
     return themeSwitch;
   }
-  
-  // Enable dark mode
-  const enableDarkmode = () => {
-    document.body.classList.add('darkmode')
-    localStorage.setItem('darkmode', 'active')
-    const switchBtn = getThemeSwitch();
-    if (switchBtn) {
-      switchBtn.setAttribute('aria-label', 'Switch to light mode')
-      // Update icon visibility
-      const svgs = switchBtn.querySelectorAll('svg');
-      if (svgs.length >= 2) {
-        svgs[0].style.display = 'none';
-        svgs[1].style.display = 'block';
-      }
+
+  function readIsDark() {
+    const legacy = localStorage.getItem(STORAGE_KEY);
+    const atlas = localStorage.getItem(ATLAS_KEY);
+    if (legacy === "active") return true;
+    if (legacy === null && atlas === "dark") return true;
+    if (legacy === "active" || atlas === "dark") return true;
+    if (legacy === null && atlas === null) {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
-    
-    // Dispatch custom event for other scripts
-    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: 'dark' } }));
+    return false;
   }
-  
-  // Disable dark mode
-  const disableDarkmode = () => {
-    document.body.classList.remove('darkmode')
-    localStorage.setItem('darkmode', null)
+
+  function updateSwitchUI(isDark) {
     const switchBtn = getThemeSwitch();
-    if (switchBtn) {
-      switchBtn.setAttribute('aria-label', 'Switch to dark mode')
-      // Update icon visibility
-      const svgs = switchBtn.querySelectorAll('svg');
-      if (svgs.length >= 2) {
-        svgs[0].style.display = 'block';
-        svgs[1].style.display = 'none';
-      }
+    if (!switchBtn) return;
+    switchBtn.setAttribute("aria-label", isDark ? "Açık temaya geç" : "Koyu temaya geç");
+    const svgs = switchBtn.querySelectorAll("svg");
+    if (svgs.length >= 2) {
+      svgs[0].style.display = isDark ? "none" : "block";
+      svgs[1].style.display = isDark ? "block" : "none";
     }
-    
-    // Dispatch custom event for other scripts
-    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: 'light' } }));
   }
-  
-  // Apply theme based on localStorage
-  // Use a flag to prevent infinite loops
-  let isApplyingTheme = false;
-  const applyTheme = () => {
-    if (isApplyingTheme) return; // Prevent re-entry
+
+  function enableDarkmode() {
+    document.documentElement.setAttribute("data-theme", "dark");
+    document.documentElement.classList.add("darkmode");
+    document.body.classList.add("darkmode");
+    localStorage.setItem(STORAGE_KEY, "active");
+    localStorage.setItem(ATLAS_KEY, "dark");
+    updateSwitchUI(true);
+    window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme: "dark" } }));
+  }
+
+  function disableDarkmode() {
+    document.documentElement.setAttribute("data-theme", "light");
+    document.documentElement.classList.remove("darkmode");
+    document.body.classList.remove("darkmode");
+    localStorage.setItem(STORAGE_KEY, "light");
+    localStorage.setItem(ATLAS_KEY, "light");
+    updateSwitchUI(false);
+    window.dispatchEvent(new CustomEvent("themeChanged", { detail: { theme: "light" } }));
+  }
+
+  function applyTheme() {
+    if (isApplyingTheme) return;
     isApplyingTheme = true;
-    darkmode = localStorage.getItem('darkmode')
-    if (darkmode === "active") {
-      enableDarkmode()
+    if (readIsDark()) {
+      enableDarkmode();
     } else {
-      disableDarkmode()
+      disableDarkmode();
     }
-    setTimeout(() => { isApplyingTheme = false; }, 50);
+    setTimeout(function () {
+      isApplyingTheme = false;
+    }, 50);
   }
-  
-  // Initialize dark mode on page load
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyTheme);
+
+  // Early apply before paint if possible
+  try {
+    if (readIsDark()) {
+      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.add("darkmode");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  } catch (e) {}
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", applyTheme);
   } else {
     applyTheme();
   }
-  
-  // Add click event listener to theme switch button
+
   function initThemeSwitch() {
     const switchBtn = getThemeSwitch();
-    if (switchBtn) {
-      // Remove existing listeners to prevent duplicates
-      const newSwitchBtn = switchBtn.cloneNode(true);
-      switchBtn.parentNode.replaceChild(newSwitchBtn, switchBtn);
-      themeSwitch = newSwitchBtn;
-      
-      newSwitchBtn.addEventListener("click", () => {
-        darkmode = localStorage.getItem('darkmode')
-        if (darkmode !== "active") {
-          enableDarkmode()
-        } else {
-          disableDarkmode()
-        }
-      });
-    }
+    if (!switchBtn) return;
+    const fresh = switchBtn.cloneNode(true);
+    switchBtn.parentNode.replaceChild(fresh, switchBtn);
+    themeSwitch = fresh;
+    fresh.addEventListener("click", function () {
+      if (readIsDark()) {
+        disableDarkmode();
+      } else {
+        enableDarkmode();
+      }
+    });
   }
-  
-  // Initialize theme switch after DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initThemeSwitch);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initThemeSwitch);
   } else {
     initThemeSwitch();
   }
-  
-  // Listen for storage changes (when theme is changed in another tab/window)
-  // Note: storage event only fires in OTHER tabs, not the current tab
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'darkmode') {
+
+  window.addEventListener("storage", function (e) {
+    if (e.key === STORAGE_KEY || e.key === ATLAS_KEY) {
       applyTheme();
     }
   });
-  
-  // Listen for custom theme change events (same window/tab)
-  // This ensures theme changes are reflected immediately in the same window
-  // Note: We don't call applyTheme() here because it would cause infinite loop
-  // The theme is already applied when enableDarkmode/disableDarkmode is called
-  window.addEventListener('themeChanged', (e) => {
-    // Theme already changed, just update UI elements if needed
-    const switchBtn = getThemeSwitch();
-    if (switchBtn) {
-      const isDark = e.detail.theme === 'dark';
-      switchBtn.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
-      const svgs = switchBtn.querySelectorAll('svg');
-      if (svgs.length >= 2) {
-        svgs[0].style.display = isDark ? 'none' : 'block';
-        svgs[1].style.display = isDark ? 'block' : 'none';
-      }
-    }
+
+  window.addEventListener("themeChanged", function (e) {
+    updateSwitchUI(e.detail && e.detail.theme === "dark");
   });
-  
-  // Listen for pageshow event (when navigating between pages in same tab)
-  window.addEventListener('pageshow', (e) => {
-    // Check if theme changed while on another page
-    applyTheme();
-  });
-  
-  // Also listen for focus event (when user switches back to this tab)
-  window.addEventListener('focus', () => {
-    // Re-apply theme in case it was changed in another tab
-    applyTheme();
-  });
-  
-  // Poll localStorage periodically to catch changes (fallback for same-tab sync)
-  // This is a backup mechanism in case events don't fire
-  setInterval(() => {
+
+  window.addEventListener("pageshow", applyTheme);
+  window.addEventListener("focus", applyTheme);
+
+  setInterval(function () {
     if (isApplyingTheme) return;
-    const currentTheme = localStorage.getItem('darkmode');
-    const isDarkActive = document.body.classList.contains('darkmode');
-    const shouldBeDark = currentTheme === 'active';
-    
+    const isDarkActive =
+      document.body.classList.contains("darkmode") ||
+      document.documentElement.getAttribute("data-theme") === "dark";
+    const shouldBeDark = readIsDark();
     if (isDarkActive !== shouldBeDark) {
       applyTheme();
     }
-  }, 500); // Check every 500ms
-  
-  // Expose functions globally for manual control if needed
+  }, 800);
+
   window.DarkMode = {
     enable: enableDarkmode,
     disable: disableDarkmode,
-    toggle: () => {
-      darkmode = localStorage.getItem('darkmode')
-      darkmode !== "active" ? enableDarkmode() : disableDarkmode()
+    toggle: function () {
+      readIsDark() ? disableDarkmode() : enableDarkmode();
     },
-    isActive: () => localStorage.getItem('darkmode') === 'active'
+    isActive: function () {
+      return readIsDark();
+    },
   };
 })();
-
-
-
-
-
-
-

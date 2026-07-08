@@ -13,7 +13,7 @@
         const normalizedCurrent = currentPage.toLowerCase();
         
         // Find all sidebar navigation links
-        document.querySelectorAll('.sidebar .nav-link[href]').forEach(link => {
+        document.querySelectorAll('.sidebar .nav-link[href], .notika-navbar .nav-link[href]').forEach(link => {
             // Remove existing handler if any
             const existingHandler = linkHandlers.get(link);
             if (existingHandler) {

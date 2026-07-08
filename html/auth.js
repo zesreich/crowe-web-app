@@ -5,26 +5,84 @@ const SUPABASE_URL = window.SUPABASE_URL || 'YOUR_SUPABASE_URL';
 const SUPABASE_ANON_KEY = window.SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY';
 const SUPABASE_PLACEHOLDER = SUPABASE_URL.includes('YOUR_') || SUPABASE_ANON_KEY.includes('YOUR_');
 
-const FALLBACK_DEFAULT_PASSWORD = 'Crowe2022!';
-const FALLBACK_ADMINS = {
-    'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
-    'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
-    'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
-    'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
-    'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' }
-};
+// Fallback configuration - config.js window.* üzerinden gelir.
+// NOT: config.js ile aynı global isimde const tanımlanamaz (Safari duplicate variable hatası).
+const authAppEnv = (typeof window !== 'undefined' && window.APP_ENV) || 'development';
+const authFallbackDefaultPassword = (typeof window !== 'undefined' && window.FALLBACK_DEFAULT_PASSWORD !== undefined)
+    ? window.FALLBACK_DEFAULT_PASSWORD
+    : (authAppEnv === 'production' ? '' : 'Crowe2022!');
+const authFallbackAdmins = (typeof window !== 'undefined' && window.FALLBACK_ADMINS)
+    ? window.FALLBACK_ADMINS
+    : (authAppEnv === 'production' ? {} : {
+        'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
+        'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
+        'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
+        'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
+        'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
+        'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' }
+    });
+
+if (authAppEnv === 'production' && (authFallbackDefaultPassword || Object.keys(authFallbackAdmins).length > 0)) {
+    console.warn('⚠️ GÜVENLİK UYARISI: Production modunda fallback şifreler kullanılıyor! config.js dosyasını kontrol edin.');
+}
 
 let supabaseClient = null;
 let currentSupabaseSession = null;
 
-if (typeof window !== 'undefined' && typeof window.supabase !== 'undefined' && !SUPABASE_PLACEHOLDER) {
-    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: {
-            persistSession: true,
-            storage: window.localStorage
+// Wait for supabase-config.js to initialize global instance
+// Use a small delay to ensure supabase-config.js has run
+(function() {
+    function initSupabaseClient() {
+        // First, check if global instance already exists (from supabase-config.js)
+        if (window.__supabaseClientInstance) {
+            supabaseClient = window.__supabaseClientInstance;
+            console.log('✅ auth.js: Global Supabase client instance kullanılıyor');
+            return;
         }
-    });
-}
+        
+        // If global instance doesn't exist yet, wait a bit and check again
+        // This handles the case where auth.js loads before supabase-config.js
+        if (typeof window !== 'undefined' && typeof window.supabase !== 'undefined' && !SUPABASE_PLACEHOLDER) {
+            // Check if global getSupabaseClient function exists
+            if (typeof window.getSupabaseClient === 'function') {
+                supabaseClient = window.getSupabaseClient();
+                if (supabaseClient) {
+                    console.log('✅ auth.js: Global getSupabaseClient() kullanıldı');
+                    return;
+                }
+            }
+            
+            // Last resort: Create instance only if absolutely necessary
+            // But mark it as global to prevent duplicates
+            if (!window.__supabaseClientInstance) {
+                supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: {
+                        persistSession: true,
+                        storage: window.localStorage
+                    }
+                });
+                // Store as global instance for reuse
+                window.__supabaseClientInstance = supabaseClient;
+                console.log('✅ auth.js: Yeni Supabase client oluşturuldu ve global instance olarak kaydedildi');
+            } else {
+                supabaseClient = window.__supabaseClientInstance;
+                console.log('✅ auth.js: Mevcut global instance kullanılıyor');
+            }
+        }
+    }
+    
+    // Try immediately
+    initSupabaseClient();
+    
+    // Also try after a short delay (in case supabase-config.js loads after auth.js)
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initSupabaseClient, 100);
+        });
+    } else {
+        setTimeout(initSupabaseClient, 100);
+    }
+})();
 
 function generateToken() {
     return 'token_' + Date.now() + '_' + Math.random().toString(36).slice(2, 11);
@@ -94,9 +152,9 @@ async function syncSupabaseSession() {
         storeSessionLocally(payload, currentSupabaseSession.access_token, {
             requiresPasswordChange: supUser.user_metadata?.requires_password_change === true
         });
-    } else {
-        clearSessionLocally();
     }
+    // Supabase oturumu yoksa local fallback oturumunu silme —
+    // development login (FALLBACK_ADMINS) localStorage'da tutulur.
 }
 
 const Auth = {
@@ -177,14 +235,24 @@ const Auth = {
             }
         }
 
-        // Fallback: local listed admins
-        const adminInfo = FALLBACK_ADMINS[normalizedEmail];
+        // Fallback: local listed admins (sadece development veya Supabase yoksa)
+        // Production'da bu bölüm çalışmamalı
+        if (authAppEnv === 'production' && supabaseClient) {
+            return { success: false, error: 'Kullanıcı bulunamadı veya şifre hatalı.' };
+        }
+        
+        const adminInfo = authFallbackAdmins[normalizedEmail];
         if (!adminInfo) {
             return { success: false, error: 'Kullanıcı bulunamadı.' };
         }
 
-        const storedPassword = getStoredPassword(normalizedEmail) || FALLBACK_DEFAULT_PASSWORD;
-        if (password !== storedPassword) {
+        // Production'da fallback şifre kullanılmamalı
+        if (authAppEnv === 'production' && !authFallbackDefaultPassword) {
+            return { success: false, error: 'Şifre değiştirilmelidir. Lütfen yönetici ile iletişime geçin.' };
+        }
+
+        const storedPassword = getStoredPassword(normalizedEmail) || authFallbackDefaultPassword;
+        if (!storedPassword || password !== storedPassword) {
             return { success: false, error: 'Şifre hatalı.' };
         }
 
@@ -265,7 +333,7 @@ const Auth = {
 
 if (supabaseClient) {
     syncSupabaseSession();
-    supabaseClient.auth.onAuthStateChange((_event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
         currentSupabaseSession = session;
         if (session) {
             const supUser = session.user;
@@ -277,7 +345,8 @@ if (supabaseClient) {
             };
             const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
             storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
-        } else {
+        } else if (event === 'SIGNED_OUT') {
+            // Yalnızca gerçek çıkışta temizle; INITIAL_SESSION(null) fallback login'i silmesin
             clearSessionLocally();
         }
     });

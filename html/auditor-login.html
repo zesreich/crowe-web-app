@@ -1,162 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
+    <script>
+    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    </script>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Crowe HSY - Auditor Login Page">
-    <meta name="author" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CROWE HSY - Denetçi Girişi</title>
-    
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-        
-        html,
-        body {
-            overflow: hidden;
-        }
-        
-        .webgl {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            outline: none;
-            z-index: 0;
-            pointer-events: none;
-        }
-        
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Nunito', sans-serif;
-            position: relative;
-            background: radial-gradient(circle at top, #010409 0%, #020617 45%, #000000 100%);
-            overflow: hidden;
-        }
-        
-        .container {
-            position: relative;
-            z-index: 10;
-        }
-        
-        .login-card {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            padding: 3rem;
-            max-width: 450px;
-            width: 100%;
-            position: relative;
-            z-index: 10;
-        }
-        
-        .login-card h1,
-        .login-card h2,
-        .login-card p,
-        .login-card label {
-            color: white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .login-icon {
-            width: 150px;
-            height: 150px;
-            margin-bottom: 20px;
-            color: #ffffff;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-        }
-        
-        .form-control {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            color: white;
-            backdrop-filter: blur(5px);
-        }
-        
-        .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-        
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: #4e73df;
-            color: white;
-            box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-        }
-        
-        .btn-primary {
-            background-color: #4e73df;
-            border-color: #4e73df;
-        }
-        
-        .btn-primary:hover {
-            background-color: #224abe;
-            border-color: #224abe;
-        }
-        
-        .btn-secondary {
-            background-color: rgba(108, 117, 125, 0.8);
-            border-color: rgba(108, 117, 125, 0.8);
-        }
-        
-        .btn-secondary:hover {
-            background-color: rgba(90, 98, 104, 0.9);
-            border-color: rgba(90, 98, 104, 0.9);
-        }
-        
-        #hata, #onay {
-            display: none;
-        }
-        
-        .text-center a.small {
-            color: rgba(255, 255, 255, 0.9);
-            text-decoration: none;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .text-center a.small:hover {
-            color: white;
-            text-decoration: underline;
-        }
-        
-        .language-switcher {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        
-        .language-switcher .btn {
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(5px);
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <link href="atlas-shell.css" rel="stylesheet">
+    <link href="atlas-auth.css" rel="stylesheet">
 </head>
-<body>
-    <!-- Language Switcher -->
+<body class="atlas-auth has-canvas">
+
+  <div class="atlas-auth-top">
+    <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema"><i class="ph ph-moon" id="themeIcon"></i></button>
+  </div>
+<!-- Language Switcher -->
     <div class="language-switcher">
         <button class="btn btn-sm btn-outline-light" id="langSwitch" onclick="toggleLanguage()">
             <i class="fas fa-globe"></i> <span id="langText">TR</span>
@@ -451,6 +315,243 @@
             });
         });
     </script>
+<!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
+    
+    <!-- Three.js Galaxy Animation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!window.THREE) {
+                console.error('Three.js yüklenemedi');
+                return;
+            }
+
+            const canvas = document.querySelector('canvas.webgl');
+            const scene = new THREE.Scene();
+
+            const parameters = {
+                count: 80000,
+                size: 0.009,
+                radius: 2.3,
+                branches: 4,
+                spin: 2.5,
+                randomness: 2,
+                randomnessPower: 3,
+                insideColor: '#ffffff',
+                outsideColor: '#38bdf8'
+            };
+
+        let material = null; 
+        let geometry = null; 
+        let points = null; 
+
+        const generateGalaxy = () => {
+                if (points !== null) {
+            geometry.dispose();
+            material.dispose();
+            scene.remove(points);
+        }
+
+        material = new THREE.PointsMaterial({
+            size: parameters.size,
+            sizeAttenuation: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            vertexColors: true
+                });
+
+            geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(parameters.count * 3);
+            const colors = new Float32Array(parameters.count * 3);
+            const colorInside = new THREE.Color(parameters.insideColor);
+            const colorOutside = new THREE.Color(parameters.outsideColor);
+
+                for (let i = 0; i < parameters.count; i++) {
+                    const i3 = i * 3;
+                    const radius = Math.random() * parameters.radius;
+                    const spinAngle = radius * parameters.spin;
+                    const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
+                
+                    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+                    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+                    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
+
+                    positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
+                    positions[i3 + 1] = randomY * 0.4;
+                    positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
+
+                const mixedColor = colorInside.clone();
+                    mixedColor.lerp(colorOutside, radius / parameters.radius);
+
+                colors[i3] = mixedColor.r;
+                    colors[i3 + 1] = mixedColor.g;
+                    colors[i3 + 2] = mixedColor.b;
+                }
+
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            points = new THREE.Points(geometry, material);
+            scene.add(points);
+            };
+
+        generateGalaxy();
+
+        const sizes = {
+            width: window.innerWidth,
+            height: window.innerHeight
+            };
+
+            const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+            camera.position.set(2.5, 2.5, 2.5);
+            scene.add(camera);
+
+            const controls = new THREE.OrbitControls(camera, canvas);
+            controls.enableDamping = true;
+            controls.enablePan = false;
+            controls.enableZoom = false;
+
+        const renderer = new THREE.WebGLRenderer({
+                canvas: canvas,
+                antialias: true
+            });
+            renderer.setSize(sizes.width, sizes.height);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x000000, 0);
+
+            window.addEventListener('resize', () => {
+                sizes.width = window.innerWidth;
+                sizes.height = window.innerHeight;
+
+                camera.aspect = sizes.width / sizes.height;
+                camera.updateProjectionMatrix();
+
+                renderer.setSize(sizes.width, sizes.height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            });
+
+            const clock = new THREE.Clock();
+
+            const tick = () => {
+                const elapsedTime = clock.getElapsedTime();
+
+                controls.update();
+
+                camera.position.x = Math.cos(elapsedTime * 0.04) * 3;
+                camera.position.z = Math.sin(elapsedTime * 0.04) * 3;
+                camera.lookAt(0, 0, 0);
+
+                renderer.render(scene, camera);
+
+                window.requestAnimationFrame(tick);
+            };
+
+            tick();
+        });
+    </script>
+    
+    <script>
+        function toggleLanguage() {
+            const currentLang = document.getElementById('langText').textContent;
+            const newLang = currentLang === 'EN' ? 'TR' : 'EN';
+            document.getElementById('langText').textContent = newLang;
+        }
+        
+        $(function(){
+            function hataAc(icerik){
+                $("#hataMesaji").text(icerik);
+                $("#hata").show();
+                $("#onay").hide();
+            }
+            
+            function onayAc(icerik){
+                $("#onayMesaji").text(icerik);
+                $("#onay").show();
+                $("#hata").hide();
+            }
+            
+            $("#auditorLoginBtn").click(function(e){
+                e.preventDefault();
+                
+                var kul = $("#auditorKul").val();
+                var pas = $("#auditorPas").val();
+                
+                if (!kul || !pas) {
+                    hataAc("Lütfen e-posta adresi ve şifre giriniz!");
+                    return;
+                }
+                
+                const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
+                const auditors = [
+                    "ibrahim.kuvvet@crowehsy.net",
+                    "yunusemre.durmus@crowehsy.net",
+                    "berki.ozkan@crowehsy.net",
+                    "dilan.ulusu@crowehsy.net",
+                    "aykan.altintel@crowehsy.net",
+                    "beste.darcan@crowehsy.net",
+                    "fatih.senturk@crowehsy.net",
+                    "kasim.durmus@crowehsy.net",
+                    "yaprak.tosun@crowehsy.net",
+                    "nida.cetin@crowehsy.net",
+                    "dilek.cinar2@crowehsy.net",
+                    "elif.girgin@crowehsy.net",
+                    "servet.aykanat@crowehsy.net",
+                    "cevahir.dogan@crowehsy.net",
+                    "adar.kilic@crowehsy.net",
+                    "hasan.bozkaya@crowehsy.net",
+                    "mesut.molla@crowehsy.net",
+                    "s.korkmaz@crowehsy.net",
+                    "serdar.karaagin@crowehsy.net"
+                ];
+
+                function getStoredAuditorPassword(email) {
+                    return localStorage.getItem("auditorPassword_" + email.toLowerCase());
+                }
+
+                function hasAuditorPasswordChanged(email) {
+                    return localStorage.getItem("auditorPasswordChanged_" + email.toLowerCase()) === 'true';
+                }
+
+                function saveAuditorSession(email) {
+                    localStorage.setItem('auditorUser', email);
+                }
+                
+                // E-posta küçük harfe çevir (case-insensitive)
+                const normalizedKul = kul.toLowerCase().trim();
+                const auditorExists = auditors.includes(normalizedKul);
+                const storedPassword = getStoredAuditorPassword(normalizedKul) || DEFAULT_AUDITOR_PASSWORD;
+                
+                if (auditorExists && storedPassword === pas) {
+                    saveAuditorSession(normalizedKul);
+
+                    const requiresPasswordChange = storedPassword === DEFAULT_AUDITOR_PASSWORD || !hasAuditorPasswordChanged(normalizedKul);
+
+                    if (requiresPasswordChange) {
+                        localStorage.setItem('auditorPendingPasswordChange', normalizedKul);
+                        onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
+                        setTimeout(function() {
+                            window.location.href = 'auditor-password-change.html';
+                        }, 600);
+                        return;
+                    } else {
+                        localStorage.removeItem('auditorPendingPasswordChange');
+                    }
+
+                    onayAc("Giriş başarılı! OneDrive'a yönlendiriliyorsunuz...");
+                    setTimeout(function() {
+                        window.location.href = 'auditor-dashboard.html';
+                    }, 600);
+                } else {
+                    hataAc("Kullanıcı adı veya şifre hatalı!");
+                }
+            });
+        });
+    </script>
+<script src="atlas-shell.js"></script>
 </body>
 </html>
-

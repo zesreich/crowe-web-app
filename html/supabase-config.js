@@ -1,14 +1,70 @@
 // Supabase Configuration for Crowe HSY
-// Bu dosyayı kullanarak Supabase bağlantı bilgilerinizi ayarlayın
+// Project URL ve anon key: html/config.js dosyasında window.SUPABASE_URL / window.SUPABASE_ANON_KEY ile set edilir.
+// Bu dosyayı yüklerken config.js mutlaka ÖNCE gelmeli (aksi halde istemci oluşmaz).
+// Eski sabit proje URL'si kaldırıldı; yanlış projeye istek gitmesini önler.
 
-// Supabase Project URL
-// Dashboard > Settings > API > Project URL
-window.SUPABASE_URL = 'https://ywiialoujqdbeblaymav.supabase.co';
+// Global Supabase Client Instance (Singleton Pattern)
+// Bu sayede tüm sayfalarda aynı client instance'ı kullanılır
+(function initSupabaseClient() {
+    // Wait for Supabase library to load
+    function createGlobalInstance() {
+        if (typeof window.supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+            if (!window.SUPABASE_URL.includes('YOUR_') && !window.SUPABASE_ANON_KEY.includes('YOUR_')) {
+                // Eğer zaten bir global client varsa, yenisini oluşturma
+                if (!window.__supabaseClientInstance) {
+                    window.__supabaseClientInstance = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+                        auth: {
+                            persistSession: true,
+                            storage: window.localStorage
+                        }
+                    });
+                    console.log('✅ Global Supabase client instance oluşturuldu');
+                } else {
+                    console.log('✅ Mevcut global Supabase client instance kullanılıyor');
+                }
+            }
+        } else if (typeof window.supabase === 'undefined') {
+            // Supabase library henüz yüklenmedi, kısa bir süre bekle
+            setTimeout(createGlobalInstance, 50);
+        }
+    }
+    
+    // Try immediately
+    createGlobalInstance();
+    
+    // Also try on DOMContentLoaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', createGlobalInstance);
+    }
+})();
 
-// Supabase Anon/Public Key
-// Dashboard > Settings > API > Project API keys > anon public
-// NOT: Bu key public'tir ve frontend'de kullanılabilir, ancak RLS politikaları ile korunmalıdır
-window.SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aWlhbG91anFkYmVibGF5bWF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyNTE2OTYsImV4cCI6MjA3NzgyNzY5Nn0.cVoVSEVKWJj2I1VlWViyS1lhZ2I6NSkQ-nunJ2uvJd8';
+// Global getSupabaseClient function - tüm sayfalarda kullanılabilir
+window.getSupabaseClient = function() {
+    // Önce global instance'ı kontrol et
+    if (window.__supabaseClientInstance) {
+        return window.__supabaseClientInstance;
+    }
+    
+    // Fallback: auth.js'deki supabaseClient'ı kontrol et
+    if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+        return supabaseClient;
+    }
+    
+    // Son çare: Yeni client oluştur (sadece gerekirse)
+    if (typeof window.supabase !== 'undefined' && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+        if (!window.SUPABASE_URL.includes('YOUR_') && !window.SUPABASE_ANON_KEY.includes('YOUR_')) {
+            window.__supabaseClientInstance = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
+                auth: {
+                    persistSession: true,
+                    storage: window.localStorage
+                }
+            });
+            return window.__supabaseClientInstance;
+        }
+    }
+    
+    return null;
+};
 
 // Supabase JavaScript Client Library
 // Bu script'i HTML sayfalarınızda yükleyin (auth.js'den önce)
