@@ -151,10 +151,20 @@
 
     tbody.innerHTML = users.map(function (u) {
       var suspended = u.status === 'suspended';
+      var teamCell;
+      if (canManage) {
+        teamCell = '<select class="form-control form-control-sm" data-team-for="' + escapeHtml(u.id) + '" style="min-width:110px;">' +
+          AuditorWorkspace.TEAMS.map(function (t) {
+            return '<option value="' + t + '"' + (t === u.team ? ' selected' : '') + '>' + t + '</option>';
+          }).join('') +
+          '</select>';
+      } else {
+        teamCell = '<span class="team-badge">' + escapeHtml(u.team) + '</span>';
+      }
       return '<tr class="' + (suspended ? 'is-suspended' : '') + '">' +
         '<td>' + escapeHtml(u.fullName) + '</td>' +
         '<td class="mono-cell">' + escapeHtml(u.email) + '</td>' +
-        '<td><span class="team-badge">' + escapeHtml(u.team) + '</span></td>' +
+        '<td>' + teamCell + '</td>' +
         '<td><span class="status-badge ' + (u.role === 'lead' ? 'is-auditor' : 'is-admin') + '">' + escapeHtml(u.role) + '</span></td>' +
         '<td><span class="status-badge ' + (suspended ? 'is-suspended' : 'is-active') + '">' + (suspended ? 'Askıda' : 'Aktif') + '</span></td>' +
         '<td class="text-center">' + (canManage ?
@@ -177,6 +187,12 @@
       btn.addEventListener('click', function () {
         AuditorWorkspace.reactivateTeamUser(btn.getAttribute('data-reactivate'));
         renderTeamUsers();
+      });
+    });
+    tbody.querySelectorAll('[data-team-for]').forEach(function (sel) {
+      sel.addEventListener('change', function () {
+        var res = AuditorWorkspace.updateTeamUser(sel.getAttribute('data-team-for'), { team: sel.value });
+        if (!res.ok) { alert(res.error); renderTeamUsers(); }
       });
     });
 
@@ -217,6 +233,12 @@
 
   function bindPersona() {
     var actor = AuditorWorkspace.getCurrentActor();
+    // Denetçi portalından girenlere admin linklerini gösterme
+    if (actor.source === 'auditor') {
+      document.querySelectorAll('[data-admin-only]').forEach(function (el) {
+        el.style.display = 'none';
+      });
+    }
     var nameEl = document.getElementById('personaName');
     var roleEl = document.getElementById('personaRole');
     var av = document.getElementById('userAvatarInitial');
@@ -240,6 +262,7 @@
         e.stopImmediatePropagation();
         localStorage.removeItem('auditorUser');
         localStorage.removeItem('auditorPendingPasswordChange');
+        localStorage.removeItem('loginPortal');
         window.location.href = 'auditor-login.html';
       }
     }, true);

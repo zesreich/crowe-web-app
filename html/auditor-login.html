@@ -398,6 +398,10 @@
 
             function saveAuditorSession(email) {
                 localStorage.setItem('auditorUser', email);
+                localStorage.setItem('loginPortal', 'auditor');
+                // Denetçi girişi admin oturumu oluşturmasın
+                localStorage.removeItem('auth_user');
+                localStorage.removeItem('auth_token');
             }
 
             function goDashboard() {

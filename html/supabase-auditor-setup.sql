@@ -83,6 +83,17 @@ values
   ('serdar.karaagin@crowehsy.net', 'Serdar Karaağın', 'B3_HAKAN', 'auditor', 'active')
 on conflict (email) do nothing;
 
+-- =====================================================
+-- EKİP GÜNCELLEME
+-- Yukarıdaki B1/B2/B3 atamaları örnektir. Doğru atamaları
+-- iki şekilde yapabilirsiniz:
+--   1) Denetçi paneli → "Ekip kullanıcıları" sekmesindeki
+--      ekip açılır menüsünden (otomatik Supabase'e yazılır)
+--   2) Aşağıdaki gibi SQL ile:
+-- update public.auditor_team_members set team = 'B2_MAS'
+--   where email = 'ibrahim.kuvvet@crowehsy.net';
+-- =====================================================
+
 -- Doğrulama
 select table_name from information_schema.tables
 where table_schema = 'public'

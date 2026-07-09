@@ -156,6 +156,7 @@
                     }
 
                     localStorage.setItem('auditorUser', result.user.username);
+                    localStorage.setItem('loginPortal', 'admin');
                     if (typeof Auth.clearPendingPasswordChange === 'function') {
                         Auth.clearPendingPasswordChange();
                     }

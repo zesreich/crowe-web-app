@@ -161,6 +161,7 @@
         e.preventDefault();
         localStorage.removeItem("auditorUser");
         localStorage.removeItem("auditorPendingPasswordChange");
+        localStorage.removeItem("loginPortal");
         window.location.href = "auditor-login.html";
         return;
       }

@@ -111,7 +111,9 @@
 
   function getCurrentActor() {
     const auditor = localStorage.getItem('auditorUser');
-    if (auditor) return { email: auditor, role: 'auditor', source: 'auditor' };
+    const portal = localStorage.getItem('loginPortal');
+    // auditorUser admin girişinde de set edilebiliyor; portal bilgisi belirleyici
+    if (auditor && portal === 'auditor') return { email: auditor, role: 'auditor', source: 'auditor' };
     try {
       if (global.Auth && Auth.getCurrentUser) {
         const u = Auth.getCurrentUser();
@@ -240,6 +242,17 @@
     return { ok: true, users: users };
   }
 
+  function updateTeamUser(userId, patch) {
+    if (!canManageUsers()) return { ok: false, error: 'Düzenleme yetkiniz yok.' };
+    const users = listTeamUsers();
+    const idx = users.findIndex(function (u) { return u.id === userId; });
+    if (idx === -1) return { ok: false, error: 'Kullanıcı bulunamadı.' };
+    users[idx] = Object.assign({}, users[idx], patch);
+    saveTeamUsers(users);
+    pushUserToSupabase(users[idx]);
+    return { ok: true, users: users };
+  }
+
   function reactivateTeamUser(userId) {
     if (!canManageUsers()) return { ok: false, error: 'Aktifleştirme yetkiniz yok.' };
     const users = listTeamUsers();
@@ -294,6 +307,7 @@
     updateWorkspaceItem: updateWorkspaceItem,
     listTeamUsers: listTeamUsers,
     addTeamUser: addTeamUser,
+    updateTeamUser: updateTeamUser,
     suspendTeamUser: suspendTeamUser,
     reactivateTeamUser: reactivateTeamUser,
     syncWorkspacesFromClients: syncWorkspacesFromClients,

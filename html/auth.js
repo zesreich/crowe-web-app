@@ -303,6 +303,8 @@ const Auth = {
             await supabaseClient.auth.signOut();
         }
         clearSessionLocally();
+        localStorage.removeItem('loginPortal');
+        localStorage.removeItem('auditorUser');
         this.clearPendingPasswordChange();
         if (options.redirect !== false) {
             window.location.href = 'login.html';
@@ -358,22 +360,24 @@ if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' 
     const currentPage = window.location.pathname.split('/').pop();
 
     if (protectedPages.includes(currentPage)) {
+        // Denetçi portalından girenler yönetim paneline erişemez
+        function checkAdminAccess() {
+            if (localStorage.getItem('loginPortal') === 'auditor') {
+                window.location.href = 'auditor-dashboard.html';
+                return;
+            }
+            if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+                window.location.href = 'login.html';
+            }
+        }
         // DOMContentLoaded ile kontrol et, script'lerin yüklenmesi için bekle
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', function() {
-                setTimeout(function() {
-                    if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-                        window.location.href = 'login.html';
-                    }
-                }, 100);
+                setTimeout(checkAdminAccess, 100);
             });
         } else {
             // Sayfa zaten yüklendiyse direkt kontrol et
-            setTimeout(function() {
-                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-                    window.location.href = 'login.html';
-                }
-            }, 100);
+            setTimeout(checkAdminAccess, 100);
         }
     }
 }
