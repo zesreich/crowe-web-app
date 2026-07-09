@@ -251,6 +251,7 @@
     bindLogout();
     bindTabs();
     bindAddUserForm();
+    try { await AuditorWorkspace.pullFromSupabase(); } catch (e) {}
     await loadClients();
     refreshWorkspaceList();
     renderWorkspaceList();

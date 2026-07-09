@@ -218,103 +218,6 @@
         });
     </script>
     
-    <script>
-        function toggleLanguage() {
-            const currentLang = document.getElementById('langText').textContent;
-            const newLang = currentLang === 'EN' ? 'TR' : 'EN';
-            document.getElementById('langText').textContent = newLang;
-        }
-        
-        $(function(){
-            function hataAc(icerik){
-                $("#hataMesaji").text(icerik);
-                $("#hata").show();
-                $("#onay").hide();
-            }
-            
-            function onayAc(icerik){
-                $("#onayMesaji").text(icerik);
-                $("#onay").show();
-                $("#hata").hide();
-            }
-            
-            $("#auditorLoginBtn").click(function(e){
-                e.preventDefault();
-                
-                var kul = $("#auditorKul").val();
-                var pas = $("#auditorPas").val();
-                
-                if (!kul || !pas) {
-                    hataAc("Lütfen e-posta adresi ve şifre giriniz!");
-                    return;
-                }
-                
-                const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
-                const auditors = [
-                    "ibrahim.kuvvet@crowehsy.net",
-                    "yunusemre.durmus@crowehsy.net",
-                    "berki.ozkan@crowehsy.net",
-                    "dilan.ulusu@crowehsy.net",
-                    "aykan.altintel@crowehsy.net",
-                    "beste.darcan@crowehsy.net",
-                    "fatih.senturk@crowehsy.net",
-                    "kasim.durmus@crowehsy.net",
-                    "yaprak.tosun@crowehsy.net",
-                    "nida.cetin@crowehsy.net",
-                    "dilek.cinar2@crowehsy.net",
-                    "elif.girgin@crowehsy.net",
-                    "servet.aykanat@crowehsy.net",
-                    "cevahir.dogan@crowehsy.net",
-                    "adar.kilic@crowehsy.net",
-                    "hasan.bozkaya@crowehsy.net",
-                    "mesut.molla@crowehsy.net",
-                    "s.korkmaz@crowehsy.net",
-                    "serdar.karaagin@crowehsy.net"
-                ];
-
-                function getStoredAuditorPassword(email) {
-                    return localStorage.getItem("auditorPassword_" + email.toLowerCase());
-                }
-
-                function hasAuditorPasswordChanged(email) {
-                    return localStorage.getItem("auditorPasswordChanged_" + email.toLowerCase()) === 'true';
-                }
-
-                function saveAuditorSession(email) {
-                    localStorage.setItem('auditorUser', email);
-                }
-                
-                // E-posta küçük harfe çevir (case-insensitive)
-                const normalizedKul = kul.toLowerCase().trim();
-                const auditorExists = auditors.includes(normalizedKul);
-                const storedPassword = getStoredAuditorPassword(normalizedKul) || DEFAULT_AUDITOR_PASSWORD;
-                
-                if (auditorExists && storedPassword === pas) {
-                    saveAuditorSession(normalizedKul);
-
-                    const requiresPasswordChange = storedPassword === DEFAULT_AUDITOR_PASSWORD || !hasAuditorPasswordChanged(normalizedKul);
-
-                    if (requiresPasswordChange) {
-                        localStorage.setItem('auditorPendingPasswordChange', normalizedKul);
-                        onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
-                        setTimeout(function() {
-                            window.location.href = 'auditor-password-change.html';
-                        }, 600);
-                        return;
-                    } else {
-                        localStorage.removeItem('auditorPendingPasswordChange');
-                    }
-
-                    onayAc("Giriş başarılı! OneDrive'a yönlendiriliyorsunuz...");
-                    setTimeout(function() {
-                        window.location.href = 'auditor-dashboard.html';
-                    }, 600);
-                } else {
-                    hataAc("Kullanıcı adı veya şifre hatalı!");
-                }
-            });
-        });
-    </script>
 <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
@@ -455,6 +358,9 @@
         });
     </script>
     
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script>
         function toggleLanguage() {
             const currentLang = document.getElementById('langText').textContent;
@@ -474,8 +380,82 @@
                 $("#onay").show();
                 $("#hata").hide();
             }
-            
-            $("#auditorLoginBtn").click(function(e){
+
+            // Yerel fallback listesi — Supabase erişilemezse kullanılır
+            const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
+            const fallbackAuditors = [
+                "ibrahim.kuvvet@crowehsy.net", "yunusemre.durmus@crowehsy.net",
+                "berki.ozkan@crowehsy.net", "dilan.ulusu@crowehsy.net",
+                "aykan.altintel@crowehsy.net", "beste.darcan@crowehsy.net",
+                "fatih.senturk@crowehsy.net", "kasim.durmus@crowehsy.net",
+                "yaprak.tosun@crowehsy.net", "nida.cetin@crowehsy.net",
+                "dilek.cinar2@crowehsy.net", "elif.girgin@crowehsy.net",
+                "servet.aykanat@crowehsy.net", "cevahir.dogan@crowehsy.net",
+                "adar.kilic@crowehsy.net", "hasan.bozkaya@crowehsy.net",
+                "mesut.molla@crowehsy.net", "s.korkmaz@crowehsy.net",
+                "serdar.karaagin@crowehsy.net"
+            ];
+
+            function saveAuditorSession(email) {
+                localStorage.setItem('auditorUser', email);
+            }
+
+            function goDashboard() {
+                onayAc("Giriş başarılı! Yönlendiriliyorsunuz...");
+                setTimeout(function() {
+                    window.location.href = 'auditor-dashboard.html';
+                }, 600);
+            }
+
+            async function supabaseAuditorLogin(email, password) {
+                const client = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : null;
+                if (!client) return { ok: false, reason: 'no-client' };
+
+                const { data, error } = await client.auth.signInWithPassword({ email: email, password: password });
+                if (error || !data || !data.session) {
+                    return { ok: false, reason: 'auth-failed', message: error ? error.message : '' };
+                }
+
+                // Denetçi kaydını ve askı durumunu kontrol et
+                try {
+                    const res = await client
+                        .from('auditor_team_members')
+                        .select('email, full_name, team, role, status')
+                        .eq('email', email)
+                        .maybeSingle();
+
+                    if (res.data) {
+                        if (res.data.status === 'suspended') {
+                            await client.auth.signOut();
+                            return { ok: false, reason: 'suspended' };
+                        }
+                        localStorage.setItem('auditorProfile', JSON.stringify(res.data));
+                    }
+                } catch (e) { /* tablo yoksa auth yeterli */ }
+
+                return { ok: true };
+            }
+
+            function localFallbackLogin(email, password) {
+                const stored = localStorage.getItem("auditorPassword_" + email) || DEFAULT_AUDITOR_PASSWORD;
+                if (!fallbackAuditors.includes(email) || stored !== password) return false;
+
+                const changed = localStorage.getItem("auditorPasswordChanged_" + email) === 'true';
+                saveAuditorSession(email);
+                if (stored === DEFAULT_AUDITOR_PASSWORD || !changed) {
+                    localStorage.setItem('auditorPendingPasswordChange', email);
+                    onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
+                    setTimeout(function() {
+                        window.location.href = 'auditor-password-change.html';
+                    }, 600);
+                } else {
+                    localStorage.removeItem('auditorPendingPasswordChange');
+                    goDashboard();
+                }
+                return true;
+            }
+
+            $("#auditorLoginBtn").click(async function(e){
                 e.preventDefault();
                 
                 var kul = $("#auditorKul").val();
@@ -485,68 +465,28 @@
                     hataAc("Lütfen e-posta adresi ve şifre giriniz!");
                     return;
                 }
-                
-                const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
-                const auditors = [
-                    "ibrahim.kuvvet@crowehsy.net",
-                    "yunusemre.durmus@crowehsy.net",
-                    "berki.ozkan@crowehsy.net",
-                    "dilan.ulusu@crowehsy.net",
-                    "aykan.altintel@crowehsy.net",
-                    "beste.darcan@crowehsy.net",
-                    "fatih.senturk@crowehsy.net",
-                    "kasim.durmus@crowehsy.net",
-                    "yaprak.tosun@crowehsy.net",
-                    "nida.cetin@crowehsy.net",
-                    "dilek.cinar2@crowehsy.net",
-                    "elif.girgin@crowehsy.net",
-                    "servet.aykanat@crowehsy.net",
-                    "cevahir.dogan@crowehsy.net",
-                    "adar.kilic@crowehsy.net",
-                    "hasan.bozkaya@crowehsy.net",
-                    "mesut.molla@crowehsy.net",
-                    "s.korkmaz@crowehsy.net",
-                    "serdar.karaagin@crowehsy.net"
-                ];
 
-                function getStoredAuditorPassword(email) {
-                    return localStorage.getItem("auditorPassword_" + email.toLowerCase());
-                }
+                const email = kul.toLowerCase().trim();
 
-                function hasAuditorPasswordChanged(email) {
-                    return localStorage.getItem("auditorPasswordChanged_" + email.toLowerCase()) === 'true';
-                }
-
-                function saveAuditorSession(email) {
-                    localStorage.setItem('auditorUser', email);
-                }
-                
-                // E-posta küçük harfe çevir (case-insensitive)
-                const normalizedKul = kul.toLowerCase().trim();
-                const auditorExists = auditors.includes(normalizedKul);
-                const storedPassword = getStoredAuditorPassword(normalizedKul) || DEFAULT_AUDITOR_PASSWORD;
-                
-                if (auditorExists && storedPassword === pas) {
-                    saveAuditorSession(normalizedKul);
-
-                    const requiresPasswordChange = storedPassword === DEFAULT_AUDITOR_PASSWORD || !hasAuditorPasswordChanged(normalizedKul);
-
-                    if (requiresPasswordChange) {
-                        localStorage.setItem('auditorPendingPasswordChange', normalizedKul);
-                        onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
-                        setTimeout(function() {
-                            window.location.href = 'auditor-password-change.html';
-                        }, 600);
-                        return;
-                    } else {
+                // 1) Supabase Auth dene
+                try {
+                    const result = await supabaseAuditorLogin(email, pas);
+                    if (result.ok) {
+                        saveAuditorSession(email);
                         localStorage.removeItem('auditorPendingPasswordChange');
+                        goDashboard();
+                        return;
                     }
+                    if (result.reason === 'suspended') {
+                        hataAc("Hesabınız askıya alınmış. Yöneticinizle iletişime geçin.");
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Supabase auditor login hatası:', err);
+                }
 
-                    onayAc("Giriş başarılı! OneDrive'a yönlendiriliyorsunuz...");
-                    setTimeout(function() {
-                        window.location.href = 'auditor-dashboard.html';
-                    }, 600);
-                } else {
+                // 2) Yerel fallback
+                if (!localFallbackLogin(email, pas)) {
                     hataAc("Kullanıcı adı veya şifre hatalı!");
                 }
             });

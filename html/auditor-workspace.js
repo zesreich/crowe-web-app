@@ -8,6 +8,90 @@
   const USERS_KEY = 'auditor_team_users';
   const TEAMS = ['B1_EDA', 'B2_MAS', 'B3_HAKAN'];
 
+  function getClient() {
+    if (typeof global.getSupabaseClient === 'function') {
+      return global.getSupabaseClient();
+    }
+    return global.__supabaseClientInstance || null;
+  }
+
+  // Supabase'e arka planda yaz — hata olursa localStorage tek kaynak kalır
+  function pushWorkspaceToSupabase(ws) {
+    const client = getClient();
+    if (!client) return;
+    client.from('auditor_workspaces').upsert({
+      client_id: String(ws.clientId),
+      team: ws.team,
+      client_name: ws.clientName || '',
+      vergi_no: ws.vergiNo || '',
+      items: ws.items || {}
+    }, { onConflict: 'client_id,team' }).then(function (res) {
+      if (res.error) console.warn('Workspace Supabase sync hatası:', res.error.message);
+    });
+  }
+
+  function pushUserToSupabase(user) {
+    const client = getClient();
+    if (!client) return;
+    client.from('auditor_team_members').upsert({
+      email: user.email,
+      full_name: user.fullName,
+      team: user.team,
+      role: user.role || 'auditor',
+      status: user.status || 'active',
+      joined_at: user.joinedAt || null,
+      suspended_at: user.suspendedAt || null
+    }, { onConflict: 'email' }).then(function (res) {
+      if (res.error) console.warn('Denetçi Supabase sync hatası:', res.error.message);
+    });
+  }
+
+  // Supabase'den localStorage'a yükle (sayfa açılışında çağrılır)
+  async function pullFromSupabase() {
+    const client = getClient();
+    if (!client) return { ok: false };
+    try {
+      const membersRes = await client.from('auditor_team_members').select('*');
+      if (!membersRes.error && membersRes.data && membersRes.data.length) {
+        const users = membersRes.data.map(function (m) {
+          return {
+            id: m.id,
+            fullName: m.full_name,
+            email: m.email,
+            team: m.team,
+            role: m.role,
+            status: m.status,
+            joinedAt: m.joined_at,
+            suspendedAt: m.suspended_at || undefined
+          };
+        });
+        writeJson(USERS_KEY, users);
+      }
+
+      const wsRes = await client.from('auditor_workspaces').select('*');
+      if (!wsRes.error && wsRes.data && wsRes.data.length) {
+        const all = readJson(WS_KEY, {});
+        wsRes.data.forEach(function (row) {
+          const key = workspaceKey(row.client_id, row.team);
+          all[key] = {
+            clientId: row.client_id,
+            team: row.team,
+            clientName: row.client_name || '',
+            vergiNo: row.vergi_no || '',
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            items: row.items || {}
+          };
+        });
+        writeJson(WS_KEY, all);
+      }
+      return { ok: true };
+    } catch (e) {
+      console.warn('Supabase pull hatası:', e);
+      return { ok: false };
+    }
+  }
+
   function readJson(key, fallback) {
     try {
       const raw = localStorage.getItem(key);
@@ -83,6 +167,7 @@
     };
     all[key] = ws;
     writeJson(WS_KEY, all);
+    pushWorkspaceToSupabase(ws);
     return ws;
   }
 
@@ -101,6 +186,7 @@
     ws.updatedAt = new Date().toISOString();
     all[key] = ws;
     writeJson(WS_KEY, all);
+    pushWorkspaceToSupabase(ws);
     return { ok: true, item: ws.items[itemId] };
   }
 
@@ -127,7 +213,7 @@
     if (users.some(function (u) { return u.email === email; })) {
       return { ok: false, error: 'Bu e-posta zaten kayıtlı.' };
     }
-    users.push({
+    const newUser = {
       id: 'u_' + Date.now(),
       fullName: payload.fullName.trim(),
       email: email,
@@ -135,8 +221,10 @@
       role: payload.role || 'auditor',
       status: 'active',
       joinedAt: new Date().toISOString().slice(0, 10)
-    });
+    };
+    users.push(newUser);
     saveTeamUsers(users);
+    pushUserToSupabase(newUser);
     return { ok: true, users: users };
   }
 
@@ -148,6 +236,7 @@
     users[idx].status = 'suspended';
     users[idx].suspendedAt = new Date().toISOString().slice(0, 10);
     saveTeamUsers(users);
+    pushUserToSupabase(users[idx]);
     return { ok: true, users: users };
   }
 
@@ -159,6 +248,7 @@
     users[idx].status = 'active';
     delete users[idx].suspendedAt;
     saveTeamUsers(users);
+    pushUserToSupabase(users[idx]);
     return { ok: true, users: users };
   }
 
@@ -207,6 +297,7 @@
     suspendTeamUser: suspendTeamUser,
     reactivateTeamUser: reactivateTeamUser,
     syncWorkspacesFromClients: syncWorkspacesFromClients,
-    requireAuditorAccess: requireAuditorAccess
+    requireAuditorAccess: requireAuditorAccess,
+    pullFromSupabase: pullFromSupabase
   };
 })(window);
