@@ -537,6 +537,29 @@
         .preview-toolbar { background: var(--surface-2); border-top-color: var(--line); }
         .login-prompt i.fa-microsoft { color: var(--primary) !important; }
         .modal-content { background: var(--surface); color: var(--ink); }
+        .shared-entry { background: var(--surface-2); border-left: 3px solid var(--primary); }
+        .shared-entry:hover { background: var(--line); }
+        .shared-entry-icon { color: var(--primary); }
+        .file-name .fa-share-alt { color: var(--primary); }
+        .file-search-field {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 0.3rem 0.65rem;
+            min-width: 220px;
+        }
+        .file-search-field i { color: var(--muted); }
+        .file-search-field input {
+            border: none;
+            outline: none;
+            background: transparent;
+            color: var(--ink);
+            width: 100%;
+            font-size: 0.8125rem;
+        }
     </style>
 </head>
 <body data-atlas-page="auditor">
@@ -665,6 +688,10 @@
                             </button>
                         </div>
                         <div class="toolbar-right">
+                            <label class="file-search-field" for="fileSearchInput">
+                                <i class="fas fa-search"></i>
+                                <input type="search" id="fileSearchInput" placeholder="Dosya ara…" autocomplete="off" oninput="filterFileList(this.value)">
+                            </label>
                             <select class="sort-select" id="sortSelect" onchange="sortFiles(this.value)">
                                 <option value="name">İsme Göre</option>
                                 <option value="modified">Değiştirilme Tarihine Göre</option>
@@ -1372,8 +1399,8 @@
 
             try {
                 // Önce /me/drive/sharedWithMe endpoint'ini dene (daha güvenilir)
-                // $top=200 (maksimum) kullanıyoruz, pagination ile devam edeceğiz
-                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=200";
+                // allowexternal=true: başka organizasyonlardan paylaşılanları da getir
+                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?allowexternal=true&$top=200";
                 console.log("Paylaşılan dosyalar yükleniyor (yöntem 1):", endpoint);
                 
                 let response = await fetch(endpoint, {
@@ -1887,8 +1914,42 @@
                         console.warn("Insights endpoint hatası:", insightsError);
                     }
                     
-                    // Alternatif 2: /me/drives ile tüm paylaşılan drive'ları listele
-                    if (allFiles.length <= 1) {
+                    // Ek kaynak: OneDrive'a "kısayol olarak eklenen" paylaşılan klasörler
+                    // (kendi drive kökünde remoteItem'ı olan öğeler)
+                    try {
+                        console.log("🔄 Kök klasördeki paylaşım kısayolları taranıyor...");
+                        let rootLink = "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=200";
+                        const rootShortcuts = [];
+                        let rootPage = 0;
+                        while (rootLink && rootPage < 25) {
+                            const rootResp = await fetch(rootLink, { headers: { 'Authorization': 'Bearer ' + accessToken } });
+                            if (!rootResp.ok) break;
+                            const rootData = await rootResp.json();
+                            (rootData.value || []).forEach(function (item) {
+                                if (item.remoteItem) rootShortcuts.push(item);
+                            });
+                            rootLink = rootData['@odata.nextLink'];
+                            rootPage++;
+                        }
+                        if (rootShortcuts.length > 0) {
+                            const knownIds = new Set();
+                            allFiles.forEach(function (f) {
+                                if (f.id) knownIds.add(f.id);
+                                if (f.remoteItem && f.remoteItem.id) knownIds.add(f.remoteItem.id);
+                            });
+                            const newShortcuts = rootShortcuts.filter(function (item) {
+                                const rid = item.remoteItem && item.remoteItem.id;
+                                return !(knownIds.has(item.id) || (rid && knownIds.has(rid)));
+                            });
+                            console.log("✅ Kısayoldan eklenen paylaşılan öğe:", newShortcuts.length, "/", rootShortcuts.length);
+                            allFiles = allFiles.concat(newShortcuts);
+                        }
+                    } catch (shortcutErr) {
+                        console.warn("Kısayol tarama hatası:", shortcutErr);
+                    }
+
+                    // Alternatif 2: /me/drives ile erişilebilir tüm drive'ları listele (her zaman birleştir)
+                    {
                         try {
                             console.log("🔄 Alternatif endpoint 2 deneniyor (drives): /me/drives");
                             const drivesResponse = await fetch("https://graph.microsoft.com/v1.0/me/drives", {
@@ -1946,9 +2007,18 @@
                                         }
                                     }
                                     
-                                    if (sharedItems.length > allFiles.length) {
-                                        console.log("✅ Drives yöntemi daha fazla dosya buldu, kullanılıyor...");
-                                        allFiles = sharedItems;
+                                    if (sharedItems.length > 0) {
+                                        const knownDriveItemIds = new Set();
+                                        allFiles.forEach(function (f) {
+                                            if (f.id) knownDriveItemIds.add(f.id);
+                                            if (f.remoteItem && f.remoteItem.id) knownDriveItemIds.add(f.remoteItem.id);
+                                        });
+                                        const newDriveItems = sharedItems.filter(function (item) {
+                                            const rid = item.remoteItem && item.remoteItem.id;
+                                            return !(knownDriveItemIds.has(item.id) || (rid && knownDriveItemIds.has(rid)));
+                                        });
+                                        console.log("✅ Drives yönteminden", newDriveItems.length, "ek öğe eklendi");
+                                        allFiles = allFiles.concat(newDriveItems);
                                     }
                                 }
                             }
@@ -2327,10 +2397,10 @@
             if (currentFolderId === "root" && !isViewingShared) {
                 const loadFunc = DEMO_MODE ? 'loadDemoSharedFiles()' : 'loadSharedFiles()';
                 html += `
-                    <div class="file-item" onclick="${loadFunc}" style="background-color: #f0f8ff;">
-                        <i class="fas fa-share-alt file-icon" style="color: #0078d4;"></i>
+                    <div class="file-item shared-entry" onclick="${loadFunc}">
+                        <i class="fas fa-share-alt file-icon shared-entry-icon"></i>
                         <div class="file-info">
-                            <div class="file-name">📤 Paylaşılanlar</div>
+                            <div class="file-name">Paylaşılanlar</div>
                             <div class="file-meta">Benimle paylaşılan dosyalar</div>
                         </div>
                         <div class="file-actions">
@@ -2478,7 +2548,7 @@
                         <div class="file-item" onclick="${clickAction}">
                             ${iconHTML}
                             <div class="file-info">
-                                <div class="file-name">${escapeHtml(fileName)}${isSharedItem ? ' <span style="color: #0078d4; font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
+                                <div class="file-name">${escapeHtml(fileName)}${isSharedItem ? ' <span class="shared-entry-icon" style="font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
                                 <div class="file-meta">${size} • ${modified}</div>
                             </div>
                             <div class="file-actions">
@@ -2503,7 +2573,21 @@
 
             fileListContainer.innerHTML = html;
             updateBreadcrumb();
+
+            // Aktif arama varsa yeni listeye de uygula
+            const activeSearch = document.getElementById('fileSearchInput');
+            if (activeSearch && activeSearch.value) filterFileList(activeSearch.value);
         }
+
+        function filterFileList(query) {
+            const q = (query || '').toLocaleLowerCase('tr-TR').trim();
+            document.querySelectorAll('#fileList .file-item, #fileList .file-card').forEach(function (el) {
+                const nameEl = el.querySelector('.file-name, .file-card-name');
+                const name = nameEl ? nameEl.textContent.toLocaleLowerCase('tr-TR') : '';
+                el.style.display = (!q || name.indexOf(q) !== -1) ? '' : 'none';
+            });
+        }
+        window.filterFileList = filterFileList;
 
         function getFileIconFromName(name, isFolder, mimeType) {
             if (isFolder) {
