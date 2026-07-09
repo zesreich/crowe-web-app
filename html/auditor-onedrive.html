@@ -1,0 +1,3768 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Crowe HSY - Denetçi Dashboard - OneDrive Entegrasyonu">
+    <meta name="author" content="">
+    <title>CROWE HSY - Denetçi Panel - OneDrive</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+        }
+        
+        .navbar {
+            background-color: #4e73df;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .navbar .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+        
+        .navbar .nav-link:hover {
+            color: white !important;
+        }
+        
+        .container-fluid {
+            padding: 2rem;
+        }
+        
+        .welcome-header {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        @media (min-width: 768px) {
+            .welcome-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+        }
+        
+        .session-timer-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 12px;
+            padding: 0.6rem 1.1rem;
+            border: 1px solid rgba(37, 99, 235, 0.25);
+            min-width: 200px;
+            justify-content: center;
+        }
+        
+        .session-timer-pill .timer-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        
+        .session-timer-pill .timer-display {
+            font-family: 'JetBrains Mono', 'Fira Mono', 'SFMono-Regular', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        
+        .onedrive-container {
+            background: white;
+            border-radius: 10px;
+            padding: 0;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            min-height: 600px;
+        }
+        
+        .onedrive-header {
+            background: #0078d4;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e3e3e3;
+            background-color: #faf9f8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar .toolbar-left {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .onedrive-toolbar .toolbar-right {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .onedrive-toolbar .btn {
+            font-size: 0.9rem;
+            padding: 0.375rem 0.75rem;
+        }
+        
+        .view-toggle {
+            display: flex;
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .view-toggle button {
+            padding: 0.375rem 0.75rem;
+            border: none;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .view-toggle button:hover {
+            background: #f3f2f1;
+        }
+        
+        .view-toggle button.active {
+            background: #0078d4;
+            color: white;
+        }
+        
+        .view-toggle button:not(:last-child) {
+            border-right: 1px solid #d2d0ce;
+        }
+        
+        .sort-select {
+            border: 1px solid #d2d0ce;
+            border-radius: 4px;
+            padding: 0.375rem 2rem 0.375rem 0.75rem;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .file-list {
+            padding: 1.5rem;
+            margin: 0;
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .file-list.list-view {
+            display: block;
+            padding: 0;
+        }
+        
+        .file-list.grid-view {
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        }
+        
+        .file-card {
+            background: white;
+            border: 1px solid #edebe9;
+            border-radius: 4px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .file-card:hover {
+            box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108);
+            border-color: #0078d4;
+        }
+        
+        .file-card-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-card-name {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 0.25rem;
+            word-break: break-word;
+        }
+        
+        .file-card-meta {
+            font-size: 0.75rem;
+            color: #605e5c;
+        }
+        
+        .file-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e3e3e3;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .file-item:hover {
+            background-color: #f3f2f1;
+        }
+        
+        .file-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            width: 40px;
+            text-align: center;
+        }
+        
+        .file-icon.folder {
+            color: #ffb900;
+        }
+        
+        .file-icon.excel {
+            color: #107c41;
+        }
+        
+        .file-icon.word {
+            color: #185abd;
+        }
+        
+        .file-icon.pdf {
+            color: #dc3545;
+        }
+        
+        .file-icon.image {
+            color: #6c757d;
+        }
+        
+        .file-icon.powerpoint {
+            color: #d24726;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: 600;
+            color: #323130;
+            margin-bottom: 0.25rem;
+        }
+        
+        .file-meta {
+            font-size: 0.85rem;
+            color: #605e5c;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .file-actions .btn {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+        }
+        
+        .breadcrumb {
+            background-color: white;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .onedrive-empty {
+            text-align: center;
+            padding: 3rem;
+            color: #605e5c;
+        }
+        
+        .onedrive-empty i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #d2d0ce;
+        }
+        
+        .login-prompt {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .login-prompt .btn {
+            margin-top: 1rem;
+            padding: 0.75rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .loading .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        #fileUploadInput {
+            display: none;
+        }
+        
+        .storage-info {
+            padding: 1rem 1.5rem;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e3e3e3;
+        }
+        
+        .storage-bar {
+            height: 8px;
+            background-color: #e3e3e3;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .storage-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0078d4, #00bcf2);
+            transition: width 0.3s;
+        }
+        
+        /* Dosya Önizleme Modal */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9999;
+            overflow: auto;
+        }
+        
+        .preview-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-container {
+            background: white;
+            border-radius: 0;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            display: flex;
+            flex-direction: column;
+            box-shadow: none;
+        }
+        
+        .preview-header {
+            background: #0078d4;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 50px;
+        }
+        
+        .preview-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 80%;
+        }
+        
+        .preview-close {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .preview-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .preview-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .preview-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .preview-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        
+        .preview-toolbar {
+            padding: 0.75rem 1.5rem;
+            border-top: 1px solid #e3e3e3;
+            background: #f8f9fa;
+            display: flex;
+            gap: 0.75rem;
+            min-height: 55px;
+            align-items: center;
+        }
+        
+        .preview-toolbar .btn {
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-shield-alt"></i> CROWE HSY - Denetçi Paneli
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="auditor-dashboard.html"><i class="fas fa-folder-open"></i> Workspace</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-user"></i> <span id="userName">Denetçi</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="signOut()"><i class="fas fa-sign-out-alt"></i> Çıkış</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Welcome Header -->
+        <div class="welcome-header">
+            <div>
+                <h2><i class="fas fa-user-shield text-primary"></i> Hoş Geldiniz, <span id="userNameDisplay">Denetçi</span></h2>
+                <p class="mb-0 text-muted">Microsoft OneDrive entegrasyonu ile denetim dosyalarınıza erişin.</p>
+            </div>
+            <div class="session-timer-pill" id="sessionTimerContainer">
+                <span class="timer-label"><i class="far fa-clock"></i> Oturum Süresi</span>
+                <span class="timer-display" id="sessionTimerDisplay">00:00:00</span>
+            </div>
+        </div>
+
+        <!-- OneDrive Container -->
+        <div class="onedrive-container">
+            <!-- OneDrive Header -->
+            <div class="onedrive-header">
+                <div>
+                    <i class="fab fa-microsoft fa-lg"></i> <span id="oneDriveTitle">Microsoft OneDrive</span>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-light" id="refreshBtn" onclick="loadFiles()" style="display: none;">
+                        <i class="fas fa-sync-alt"></i> Yenile
+                    </button>
+                    <button class="btn btn-sm btn-danger" id="signOutBtn" onclick="signOutOneDrive()" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> OneDrive'dan Çık
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div id="contentArea">
+                <!-- Login Prompt -->
+                <div id="loginPrompt" class="login-prompt">
+                    <i class="fab fa-microsoft" style="font-size: 5rem; color: #0078d4;"></i>
+                    <h3 class="mt-3">Microsoft OneDrive'a Bağlan</h3>
+                    <p class="text-muted">Denetim dosyalarınıza erişmek için Microsoft hesabınızla giriş yapın.</p>
+                    <button class="btn btn-primary btn-lg" id="microsoftLoginBtn">
+                        <i class="fab fa-microsoft"></i> Microsoft ile Giriş Yap
+                    </button>
+                    <div class="mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle"></i> Güvenli OAuth2 protokolü kullanılmaktadır.
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingArea" class="loading" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3 text-muted">OneDrive dosyaları yükleniyor...</p>
+                </div>
+
+                <!-- Files Area -->
+                <div id="filesArea" style="display: none;">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb" id="breadcrumb">
+                            <li class="breadcrumb-item active">Yükleniyor...</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Toolbar -->
+                    <div class="onedrive-toolbar">
+                        <div class="toolbar-left">
+                            <button class="btn btn-sm btn-primary" onclick="document.getElementById('fileUploadInput').click()">
+                                <i class="fas fa-upload"></i> Yükle
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="createFolder()">
+                                <i class="fas fa-folder-plus"></i> Yeni
+                            </button>
+                        </div>
+                        <div class="toolbar-right">
+                            <select class="sort-select" id="sortSelect" onchange="sortFiles(this.value)">
+                                <option value="name">İsme Göre</option>
+                                <option value="modified">Değiştirilme Tarihine Göre</option>
+                                <option value="size">Boyuta Göre</option>
+                            </select>
+                            <div class="view-toggle">
+                                <button onclick="changeView('list')" id="listViewBtn" class="active">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                                <button onclick="changeView('grid')" id="gridViewBtn">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File List -->
+                    <div class="file-list list-view" id="fileList">
+                        <!-- Dosyalar JavaScript ile yüklenecek -->
+                    </div>
+
+                    <!-- Storage Info -->
+                    <div class="storage-info">
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Depolama Alanı</small>
+                            <small class="text-muted" id="storageText">Hesaplanıyor...</small>
+                        </div>
+                        <div class="storage-bar">
+                            <div class="storage-bar-fill" id="storageBarFill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden File Upload Input -->
+            <input type="file" id="fileUploadInput" multiple onchange="uploadFiles(this.files)">
+        </div>
+    </div>
+
+    <!-- Dosya Önizleme Modal -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-container">
+            <div class="preview-header">
+                <h4 id="previewFileName">Dosya Önizleme</h4>
+                <button class="preview-close" onclick="closePreview()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="preview-content">
+                <div class="preview-loading" id="previewLoading">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3">Dosya yükleniyor...</p>
+                </div>
+                <iframe id="previewIframe" class="preview-iframe" style="display: none;"></iframe>
+            </div>
+            <div class="preview-toolbar">
+                <button class="btn btn-sm btn-warning" id="previewEditBtn" onclick="editCurrentFile()" style="display: none;">
+                    <i class="fas fa-edit"></i> Düzenle (SharePoint)
+                </button>
+                <button class="btn btn-sm btn-success" id="previewDownloadBtn" onclick="downloadCurrentPreview()">
+                    <i class="fas fa-download"></i> İndir
+                </button>
+                <button class="btn btn-sm btn-primary" id="previewOpenNewTabBtn" onclick="openCurrentPreviewNewTab()">
+                    <i class="fas fa-external-link-alt"></i> Yeni Sekmede Aç
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="closePreview()">
+                    <i class="fas fa-times"></i> Kapat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- İzin Bilgileri Modal -->
+    <div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permissionsModalLabel">
+                        <i class="fas fa-key"></i> Dosya İzin Bilgileri
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="permissionsLoading" class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-2">İzin bilgileri yükleniyor...</p>
+                    </div>
+                    <div id="permissionsContent" style="display: none;">
+                        <h6 class="mb-3" id="permissionsFileName"></h6>
+                        <div id="permissionsList"></div>
+                    </div>
+                    <div id="permissionsError" style="display: none;" class="alert alert-danger"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- MSAL.js - Microsoft Authentication Library -->
+    <script src="https://alcdn.msauth.net/browser/2.38.1/js/msal-browser.min.js"></script>
+    
+    <script>
+        // MSAL Configuration
+        // NOT: Gerçek OneDrive entegrasyonu için Azure AD'de uygulama kayıt gereklidir.
+        // Şu an demo modunda çalışıyor - gerçek Microsoft hesabı gerekmez.
+        
+        // DEMO MODE: Gerçek Azure AD uygulaması için aşağıdaki client ID'yi değiştirin
+        const DEMO_MODE = false; // false = Gerçek OneDrive kullanılıyor
+        const YOUR_CLIENT_ID = "c0addd41-6869-47b6-8329-c0387a406104"; // Azure Portal'dan alındı
+        
+        const msalConfig = {
+            auth: {
+                clientId: DEMO_MODE ? "00000000-0000-0000-0000-000000000000" : YOUR_CLIENT_ID,
+                // Tenant-specific endpoint kullanılıyor (sadece CROWE HSY organizasyonu)
+                // Multi-tenant için: "https://login.microsoftonline.com/common"
+                authority: "https://login.microsoftonline.com/organizations",
+                // Bulunulan sayfayı redirect URI olarak kullan
+                // NOT: Bu URL Azure AD → App registrations → Authentication'da kayıtlı olmalı
+                redirectUri: window.location.origin + window.location.pathname
+            },
+            cache: {
+                cacheLocation: "localStorage",
+                storeAuthStateInCookie: false
+            }
+        };
+
+        const loginRequest = {
+            // Paylaşılanlar için Files.Read.All kullanıyoruz (daha az kısıtlayıcı)
+            // Not: Bazı organizasyonlarda yine admin consent gerektirebilir
+            // Files.Read.Selected ve Files.ReadWrite.AppFolder eklendi (Azure AD'de yeni izinler)
+            scopes: [
+                "User.Read", 
+                "Files.Read.All", 
+                "Sites.Read.All",
+                "Files.Read.Selected",
+                "Files.ReadWrite.AppFolder"
+            ]
+        };
+
+        let msalInstance;
+        let accessToken = null;
+        let currentFolderId = "root";
+        let currentPath = [];
+        let isViewingShared = false; // Paylaşılanlar görünümü kontrolü
+        let currentView = 'list'; // 'list' veya 'grid'
+        let currentFiles = []; // Mevcut dosyaları sakla (sıralama için)
+        let currentPreviewUrl = ''; // Önizlemedeki dosyanın URL'si
+        let currentPreviewFile = {}; // Önizlemedeki dosyanın bilgileri
+        let currentDriveId = null; // Paylaşılan drive içindeyken drive ID'yi sakla
+        
+        const AUDITOR_SESSIONS_KEY = 'auditorSessions';
+        const DEFAULT_AUDITOR_PASSWORD = 'Crowe2022!';
+        let sessionTimerInterval = null;
+        let sessionStartTime = null;
+
+        // Kullanıcı bilgisi
+        const auditorUser = localStorage.getItem('auditorUser') || 'Denetçi';
+        document.getElementById('userName').textContent = auditorUser;
+        document.getElementById('userNameDisplay').textContent = auditorUser;
+
+        function hasAuditorPasswordChanged(email) {
+            return localStorage.getItem('auditorPasswordChanged_' + email.toLowerCase()) === 'true';
+        }
+
+        function getStoredAuditorPassword(email) {
+            return localStorage.getItem('auditorPassword_' + email.toLowerCase());
+        }
+
+        function ensureAuditorPasswordChange(email) {
+            if (!email || email === 'Denetçi') {
+                window.location.href = 'auditor-login.html';
+                return;
+            }
+            // Supabase girişlerinde şifre localStorage'da tutulmaz;
+            // sadece login sırasında işaretlenen bekleyen değişiklik varsa yönlendir
+            if (localStorage.getItem('auditorPendingPasswordChange')) {
+                window.location.href = 'auditor-password-change.html';
+            }
+        }
+
+        ensureAuditorPasswordChange(auditorUser);
+
+        function getAuditorSessionsStore() {
+            const raw = localStorage.getItem(AUDITOR_SESSIONS_KEY);
+            if (!raw) return {};
+            try {
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (err) {
+                console.warn('Auditor session store parse error:', err);
+                return {};
+            }
+        }
+
+        function setAuditorSessionsStore(store) {
+            localStorage.setItem(AUDITOR_SESSIONS_KEY, JSON.stringify(store || {}));
+        }
+
+        function updateAuditorSessionStore(email, patch) {
+            if (!email) {
+                return;
+            }
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized] || {
+                email: email,
+                displayName: email,
+                startTime: null,
+                elapsed: 0,
+                active: false,
+                lastUpdate: null
+            };
+            store[normalized] = Object.assign({}, existing, patch || {}, {
+                email: email,
+                displayName: (patch && patch.displayName) || existing.displayName || email
+            });
+            setAuditorSessionsStore(store);
+            // Storage event not triggered in same tab, manually dispatch custom event
+            window.dispatchEvent(new CustomEvent('auditorSessionsUpdated'));
+        }
+
+        function formatDuration(ms) {
+            if (!ms || Number.isNaN(ms) || ms < 0) {
+                ms = 0;
+            }
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+            const seconds = String(totalSeconds % 60).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
+        function updateSessionTimerDisplay(ms) {
+            const el = document.getElementById('sessionTimerDisplay');
+            if (!el) return;
+            el.textContent = formatDuration(ms);
+        }
+
+        function startAuditorSessionTimer(email) {
+            if (!email) return;
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized];
+            const now = Date.now();
+            if (existing && existing.active && existing.startTime) {
+                sessionStartTime = existing.startTime;
+            } else {
+                sessionStartTime = now;
+            }
+
+            updateSessionTimerDisplay(now - sessionStartTime);
+            updateAuditorSessionStore(email, {
+                displayName: email,
+                startTime: sessionStartTime,
+                lastUpdate: now,
+                elapsed: now - sessionStartTime,
+                active: true
+            });
+
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+            }
+
+            sessionTimerInterval = setInterval(() => {
+                const elapsed = Date.now() - sessionStartTime;
+                updateSessionTimerDisplay(elapsed);
+                updateAuditorSessionStore(email, {
+                    lastUpdate: Date.now(),
+                    elapsed: elapsed,
+                    active: true
+                });
+            }, 1000);
+        }
+
+        function stopAuditorSessionTimer(email) {
+            if (sessionTimerInterval) {
+                clearInterval(sessionTimerInterval);
+                sessionTimerInterval = null;
+            }
+            if (!email) return;
+            const now = Date.now();
+            const elapsed = sessionStartTime ? (now - sessionStartTime) : 0;
+            sessionStartTime = null;
+            updateSessionTimerDisplay(0);
+            updateAuditorSessionStore(email, {
+                lastUpdate: now,
+                elapsed: elapsed,
+                active: false,
+                endTime: now
+            });
+        }
+
+        function restoreAuditorSessionTimer(email) {
+            if (!email) {
+                updateSessionTimerDisplay(0);
+                return;
+            }
+            const normalized = email.toLowerCase();
+            const store = getAuditorSessionsStore();
+            const existing = store[normalized];
+            if (existing && existing.active && existing.startTime) {
+                sessionStartTime = existing.startTime;
+                if (sessionTimerInterval) {
+                    clearInterval(sessionTimerInterval);
+                }
+                updateSessionTimerDisplay(Date.now() - sessionStartTime);
+                sessionTimerInterval = setInterval(() => {
+                    const elapsed = Date.now() - sessionStartTime;
+                    updateSessionTimerDisplay(elapsed);
+                    updateAuditorSessionStore(email, {
+                        lastUpdate: Date.now(),
+                        elapsed: elapsed,
+                        active: true
+                    });
+                }, 1000);
+            } else if (existing && existing.elapsed) {
+                updateSessionTimerDisplay(existing.elapsed);
+            } else {
+                updateSessionTimerDisplay(0);
+            }
+        }
+
+        restoreAuditorSessionTimer(auditorUser);
+
+        window.addEventListener('beforeunload', function() {
+            if (!auditorUser) return;
+            const now = Date.now();
+            if (sessionStartTime !== null) {
+                const elapsed = now - sessionStartTime;
+                updateAuditorSessionStore(auditorUser, {
+                    lastUpdate: now,
+                    elapsed: elapsed,
+                    active: false,
+                    endTime: now
+                });
+            }
+        });
+
+        // MSAL Instance oluştur (sadece gerçek Azure AD kullanıyorsak)
+        if (!DEMO_MODE) {
+            try {
+                msalInstance = new msal.PublicClientApplication(msalConfig);
+                
+                // Redirect response'ı handle et (kritik!)
+                msalInstance.handleRedirectPromise()
+                    .then(response => {
+                        if (response) {
+                            console.log("✅ Redirect sonrası geri dönüldü:", response.account.username);
+                            msalInstance.setActiveAccount(response.account);
+                            accessToken = response.accessToken;
+                            
+                            // Başarılı giriş sonrası OneDrive'ı göster
+                            document.getElementById('oneDriveTitle').textContent = 
+                                'Microsoft OneDrive - ' + response.account.name;
+                            
+                            showFilesArea();
+                            loadFiles();
+                            startAuditorSessionTimer(auditorUser);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Redirect handling error:", error);
+                        showError("Giriş sonrası hata: " + error.message);
+                    });
+            } catch (error) {
+                console.error("MSAL başlatılamadı:", error);
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+            }
+        }
+
+        // Sayfa yüklendiğinde token kontrolü
+        $(document).ready(async function() {
+            console.log("📄 Sayfa yüklendi, hazırlık yapılıyor...");
+            
+            // Buton event listener ekle (onclick yedek olarak)
+            const loginBtn = document.getElementById('microsoftLoginBtn');
+            if (loginBtn) {
+                // Önce mevcut event listener'ları temizle
+                loginBtn.replaceWith(loginBtn.cloneNode(true));
+                const newLoginBtn = document.getElementById('microsoftLoginBtn');
+                
+                newLoginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log("🖱️ Buton tıklandı (addEventListener)");
+                    if (typeof signIn === 'function') {
+                        signIn();
+                    } else if (typeof window.signIn === 'function') {
+                        window.signIn();
+                    } else {
+                        console.error("❌ signIn fonksiyonu bulunamadı!");
+                        alert("Giriş fonksiyonu yüklenemedi. Lütfen sayfayı yenileyin.");
+                    }
+                    return false;
+                });
+                console.log("✅ Buton event listener eklendi");
+            } else {
+                console.warn("⚠️ Microsoft login butonu bulunamadı!");
+            }
+            
+            // İlk olarak mevcut interaction'ları temizle
+            if (!DEMO_MODE && msalInstance) {
+                try {
+                    // Mevcut interaction'ı bekle ve temizle
+                    await msalInstance.handleRedirectPromise();
+                } catch (error) {
+                    console.log("Redirect promise error (normal):", error);
+                }
+            }
+            
+            checkAuthState();
+        });
+
+        async function checkAuthState() {
+            // Demo mode: Login ekranını göster
+            if (DEMO_MODE) {
+                showLoginPrompt();
+                return;
+            }
+            
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+                msalInstance.setActiveAccount(accounts[0]);
+                try {
+                    await getTokenSilent();
+                    showFilesArea();
+                    loadFiles();
+                    startAuditorSessionTimer(auditorUser);
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showLoginPrompt();
+                }
+            } else {
+                showLoginPrompt();
+            }
+        }
+
+        let isSigningIn = false; // Çift tıklama engeli
+
+        // MSAL interaction flag'ini temizle
+        function clearInteractionInProgress() {
+            // LocalStorage'daki tüm interaction flag'lerini temizle
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes('interaction.status') || 
+                    key.includes('interaction_status') ||
+                    key.includes('.interaction.')) {
+                    localStorage.removeItem(key);
+                    console.log('Temizlendi:', key);
+                }
+            });
+        }
+
+        async function signIn() {
+            console.log("🔵 signIn() fonksiyonu çağrıldı");
+            
+            // Eğer zaten giriş işlemi devam ediyorsa, tekrar başlatma
+            if (isSigningIn) {
+                console.log("⚠️ Giriş işlemi zaten devam ediyor, lütfen bekleyin...");
+                return;
+            }
+
+            // DEMO MODE kontrolü
+            if (DEMO_MODE) {
+                console.log("🎭 Demo mode aktif");
+                showLoading();
+                setTimeout(() => {
+                    document.getElementById('oneDriveTitle').textContent = 
+                        'Microsoft OneDrive - ' + auditorUser + ' (Demo Mode)';
+                    accessToken = 'DEMO_TOKEN';
+                    showFilesArea();
+                    loadDemoFiles();
+                }, 1000);
+                return;
+            }
+            
+            // MSAL instance kontrolü
+            if (!msalInstance) {
+                console.error("❌ msalInstance tanımlı değil!");
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen sayfayı yenileyin.");
+                return;
+            }
+            
+            console.log("✅ msalInstance mevcut");
+            
+            // MSAL.js kütüphanesi kontrolü
+            if (typeof msal === 'undefined') {
+                console.error("❌ MSAL.js kütüphanesi yüklenmemiş!");
+                showError("Microsoft Authentication Library yüklenemedi. Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.");
+                return;
+            }
+            
+            console.log("✅ MSAL.js kütüphanesi yüklü");
+            
+            // Client ID kontrolü
+            if (msalConfig.auth.clientId === 'YOUR_CLIENT_ID' || !msalConfig.auth.clientId || msalConfig.auth.clientId === '00000000-0000-0000-0000-000000000000') {
+                console.error("❌ Client ID tanımlı değil veya geçersiz!");
+                showError("Azure AD Client ID yapılandırılmamış. Lütfen yöneticiye başvurun.");
+                return;
+            }
+            
+            console.log("✅ Client ID mevcut:", msalConfig.auth.clientId.substring(0, 8) + '...');
+            console.log("✅ Redirect URI:", msalConfig.auth.redirectUri);
+            console.log("✅ Authority:", msalConfig.auth.authority);
+            console.log("✅ Scopes:", loginRequest.scopes);
+            
+            // Önce interaction flag'lerini temizle
+            clearInteractionInProgress();
+            
+            isSigningIn = true;
+            
+            try {
+                console.log("🔄 Loading gösteriliyor...");
+                showLoading();
+                
+                // Mevcut hesapları kontrol et
+                const accounts = msalInstance.getAllAccounts();
+                console.log("📋 Mevcut hesaplar:", accounts.length);
+                if (accounts.length > 0) {
+                    msalInstance.setActiveAccount(accounts[0]);
+                    console.log('✅ Mevcut hesap bulundu:', accounts[0].username);
+                }
+                
+                console.log('🚀 LoginRedirect başlatılıyor...', loginRequest);
+                
+                // Popup yerine redirect kullan (daha güvenilir)
+                const redirectPromise = msalInstance.loginRedirect(loginRequest);
+                console.log("⏳ loginRedirect promise oluşturuldu, bekleniyor...");
+                
+                await redirectPromise;
+                
+                console.log("✅ loginRedirect çağrıldı, redirect bekleniyor...");
+                // Redirect sonrası sayfa yeniden yüklenecek, bu kod çalışmaz
+                // handleRedirectPromise bu işi yapacak
+            } catch (error) {
+                console.error("❌ signIn hatası:", error);
+                console.error("❌ Hata detayları:", {
+                    errorCode: error.errorCode,
+                    errorMessage: error.errorMessage,
+                    message: error.message,
+                    name: error.name,
+                    stack: error.stack
+                });
+                
+                // Interaction in progress hatası için özel işlem
+                if (error.errorCode === 'interaction_in_progress' || 
+                    error.message && error.message.includes('interaction_in_progress')) {
+                    
+                    console.warn('⚠️ Interaction flag temizleniyor ve tekrar deneniyor...');
+                    clearInteractionInProgress();
+                    isSigningIn = false;
+                    
+                    showError("Önceki giriş işlemi temizlendi. Lütfen tekrar 'Giriş Yap' butonuna tıklayın.");
+                    showLoginPrompt();
+                } else {
+                    showError("Microsoft hesabına giriş yapılamadı: " + (error.errorMessage || error.message || 'Bilinmeyen hata'));
+                    showLoginPrompt();
+                }
+            } finally {
+                isSigningIn = false;
+                console.log("🔓 isSigningIn false yapıldı");
+            }
+        }
+        
+        // Global scope'ta erişilebilir olması için window'a ekle (onclick için)
+        window.signIn = signIn;
+
+        async function getTokenSilent(forceRefresh = false) {
+            const account = msalInstance.getActiveAccount();
+            if (!account) {
+                throw new Error("No active account");
+            }
+
+            const silentRequest = {
+                scopes: loginRequest.scopes,
+                account: account,
+                forceRefresh: forceRefresh // Token'ı zorla yenile
+            };
+
+            try {
+                const response = await msalInstance.acquireTokenSilent(silentRequest);
+                accessToken = response.accessToken;
+                console.log("✅ Token alındı (scopes:", response.scopes, ")");
+                document.getElementById('oneDriveTitle').textContent = 
+                    'Microsoft OneDrive - ' + response.account.name;
+                return accessToken;
+            } catch (error) {
+                console.warn("Silent token alınamadı, popup ile deneniyor...", error);
+                if (error instanceof msal.InteractionRequiredAuthError) {
+                    const popupRequest = {
+                        scopes: loginRequest.scopes,
+                        account: account
+                    };
+                    const popupResponse = await msalInstance.acquireTokenPopup(popupRequest);
+                    accessToken = popupResponse.accessToken;
+                    console.log("✅ Token popup ile alındı (scopes:", popupResponse.scopes, ")");
+                    return accessToken;
+                }
+                throw error;
+            }
+        }
+
+        async function signOutOneDrive() {
+            if (DEMO_MODE) {
+                accessToken = null;
+                stopAuditorSessionTimer(auditorUser);
+                showLoginPrompt();
+                return;
+            }
+            
+            const account = msalInstance.getActiveAccount();
+            if (account) {
+                // Popup yerine redirect kullan
+                await msalInstance.logoutRedirect({
+                    account: account
+                });
+            }
+            accessToken = null;
+            stopAuditorSessionTimer(auditorUser);
+            showLoginPrompt();
+        }
+
+        async function signOut() {
+            await signOutOneDrive();
+            localStorage.removeItem('auditorUser');
+            localStorage.removeItem('auditorPendingPasswordChange');
+            localStorage.removeItem('loginPortal');
+            window.location.href = 'auditor-login.html';
+        }
+        
+        // Global scope'ta erişilebilir olması için window'a ekle (onclick için)
+        // Fonksiyonlar tanımlandıktan sonra ekleniyor
+        if (typeof window !== 'undefined') {
+            window.signOut = signOut;
+            window.signOutOneDrive = signOutOneDrive;
+        }
+
+        // Kullanıcının kendi drive ID'sini al
+        async function getMyDriveId() {
+            try {
+                const response = await fetch("https://graph.microsoft.com/v1.0/me/drive", {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.id;
+                }
+            } catch (error) {
+                console.warn("Drive ID alınamadı:", error);
+            }
+            return null;
+        }
+
+        async function loadSharedFiles() {
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showError("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            } else {
+                // Mevcut token'ı zorla yenile (yeni izinler için)
+                try {
+                    console.log("🔄 Token yenileniyor (yeni izinler için)...");
+                    await getTokenSilent(true);
+                } catch (error) {
+                    console.warn("Token yenileme hatası (devam ediliyor):", error);
+                }
+            }
+
+            showLoading();
+            isViewingShared = true;
+            currentFolderId = "shared";
+            currentPath = []; // Yolu sıfırla
+            currentDriveId = null; // Drive ID'yi sıfırla
+
+            try {
+                // Önce /me/drive/sharedWithMe endpoint'ini dene (daha güvenilir)
+                // $top=200 (maksimum) kullanıyoruz, pagination ile devam edeceğiz
+                let endpoint = "https://graph.microsoft.com/v1.0/me/drive/sharedWithMe?$top=200";
+                console.log("Paylaşılan dosyalar yükleniyor (yöntem 1):", endpoint);
+                
+                let response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                // Eğer /me/drive/sharedWithMe çalışmazsa, /me/drive/shared'ı dene
+                if (!response.ok || response.status === 404 || response.status === 400) {
+                    console.log("Yöntem 1 başarısız, alternatif endpoint deneniyor...");
+                    endpoint = "https://graph.microsoft.com/v1.0/me/drive/shared?$top=200";
+                    console.log("Paylaşılan dosyalar yükleniyor (yöntem 2):", endpoint);
+                    
+                    response = await fetch(endpoint, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    console.log("Alternatif API yanıt durumu:", response.status, response.statusText);
+                }
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    
+                    // Son çare: /me/drives ile tüm drive'ları listele
+                    console.log("Son çare: Tüm drive'lar listeleniyor...");
+                    const drivesResponse = await fetch("https://graph.microsoft.com/v1.0/me/drives", {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (drivesResponse.ok) {
+                        const drivesData = await drivesResponse.json();
+                        console.log("✅ Bulunan drive sayısı:", drivesData.value ? drivesData.value.length : 0);
+                        
+                        // Paylaşılan drive'ları filtrele (kendi drive'ımız dışındakiler)
+                        const myDriveId = await getMyDriveId();
+                        const sharedDrives = (drivesData.value || []).filter(drive => drive.id !== myDriveId);
+                        
+                        if (sharedDrives.length > 0) {
+                            console.log("✅ Paylaşılan drive sayısı:", sharedDrives.length);
+                            // Paylaşılan drive'ların root klasörlerini göster
+                            const sharedItems = [];
+                            for (const drive of sharedDrives) {
+                                try {
+                                    const driveRootResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${drive.id}/root/children?$top=50`, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (driveRootResponse.ok) {
+                                        const driveRootData = await driveRootResponse.json();
+                                        const items = (driveRootData.value || []).map(item => ({
+                                            ...item,
+                                            remoteItem: {
+                                                ...item,
+                                                parentReference: {
+                                                    driveId: drive.id
+                                                }
+                                            },
+                                            sharedDriveName: drive.name || drive.owner?.user?.displayName || 'Paylaşılan Drive'
+                                        }));
+                                        sharedItems.push(...items);
+                                    }
+                                } catch (err) {
+                                    console.warn(`Drive ${drive.id} yüklenemedi:`, err);
+                                }
+                            }
+                            
+                            displayFiles(sharedItems);
+                            loadStorageInfo();
+                            showFilesArea();
+                            return;
+                        }
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("📦 API Yanıtı (TAM):", JSON.stringify(data, null, 2));
+                console.log("İlk yüklemede paylaşılan dosya sayısı:", data.value ? data.value.length : 0);
+                console.log("🔗 @odata.nextLink var mı?", data['@odata.nextLink'] ? 'EVET' : 'HAYIR');
+                if (data['@odata.nextLink']) {
+                    console.log("🔗 nextLink:", data['@odata.nextLink'].substring(0, 100) + "...");
+                }
+                
+                // Eğer data.value boşsa veya undefined ise, alternatif formatları kontrol et
+                let allFiles = [];
+                if (!data.value || data.value.length === 0) {
+                    console.warn("⚠️ data.value boş! Alternatif formatlar kontrol ediliyor...");
+                    console.log("data:", data);
+                    console.log("data.value:", data.value);
+                    console.log("data['value']:", data['value']);
+                    
+                    // Eğer direkt array ise
+                    if (Array.isArray(data)) {
+                        console.log("✅ Veri direkt array formatında:", data.length, "dosya");
+                        allFiles = data;
+                    } else {
+                        allFiles = [];
+                        console.warn("⚠️ Paylaşılan dosya bulunamadı! Token'ı yenilemek için çıkış yapıp tekrar giriş yapın.");
+                    }
+                } else {
+                    allFiles = data.value || [];
+                }
+                
+                // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
+                let nextLink = data['@odata.nextLink'];
+                let pageCount = 1;
+                console.log(`📄 Pagination başlıyor - Sayfa ${pageCount}, nextLink:`, nextLink ? 'VAR' : 'YOK');
+                
+                while (nextLink && pageCount < 50) { // Maksimum 50 sayfa (10,000 dosya)
+                    console.log(`📄 Paylaşılan dosyalar - Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        console.log(`📦 Sayfa ${pageCount + 1} yanıtı:`, nextData.value ? nextData.value.length : 0, "dosya");
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                        pageCount++;
+                        console.log(`✅ Toplam paylaşılan dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
+                        console.log(`🔗 Sonraki sayfa var mı?`, nextLink ? 'EVET' : 'HAYIR');
+                    } else {
+                        const errorText = await nextResponse.text();
+                        console.warn("❌ Pagination hatası:", nextResponse.status, errorText);
+                        break;
+                    }
+                }
+                
+                console.log("✅ Toplam paylaşılan dosya:", allFiles.length, `(${pageCount} sayfa)`);
+                
+                // Eğer sadece 1 dosya varsa ama daha fazla olması gerekiyorsa, alternatif endpoint'leri dene
+                if (allFiles.length <= 1) {
+                    console.warn("⚠️ Sadece", allFiles.length, "dosya bulundu, alternatif endpoint'ler deneniyor...");
+                    
+                    // Alternatif 1: /me/insights/shared endpoint'i (daha kapsamlı)
+                    try {
+                        const insightsEndpoint = "https://graph.microsoft.com/v1.0/me/insights/shared?$top=200";
+                        console.log("🔄 Alternatif endpoint 1 deneniyor (insights):", insightsEndpoint);
+                        const insightsResponse = await fetch(insightsEndpoint, {
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken
+                            }
+                        });
+                        
+                        if (insightsResponse.ok) {
+                            const insightsData = await insightsResponse.json();
+                            console.log("✅ Insights endpoint başarılı, dosya sayısı:", insightsData.value ? insightsData.value.length : 0);
+                            if (insightsData.value && insightsData.value.length > allFiles.length) {
+                                console.log("✅ Insights endpoint daha fazla dosya buldu, detaylı bilgiler alınıyor...");
+                                // Insights formatını sharedWithMe formatına dönüştür
+                                // Her dosya için detaylı bilgi al
+                                const convertedFiles = [];
+                                for (const insight of insightsData.value) {
+                                    try {
+                                        // Insights API formatı: resourceReference ve resourceVisualization ayrı objeler
+                                        const resourceRef = insight.resourceReference || {};
+                                        const resourceViz = insight.resourceVisualization || {};
+                                        
+                                        // Resource ID'yi al: resourceReference.id veya resourceVisualization.containerDisplayName
+                                        const resourceId = resourceRef.id || resourceViz.containerId || resourceRef.webUrl;
+                                        
+                                        if (!resourceId) {
+                                            console.warn("⚠️ Resource ID bulunamadı:", insight);
+                                            continue;
+                                        }
+                                        
+                                        // Dosya adını al: resourceVisualization.title (Insights API'de dosya adı burada)
+                                        const fileTitle = resourceViz.title || resourceRef.name || 'İsimsiz Dosya';
+                                        
+                                        // Resource ID'den driveId ve itemId'yi parse et
+                                        // Format: "SPO@driveId,itemId" veya "https://.../drives/{driveId}/items/{itemId}"
+                                        let driveId = resourceRef.driveId;
+                                        let itemId = resourceId;
+                                        
+                                        // Format 1: SPO@driveId,itemId
+                                        if (resourceId.includes('@') && resourceId.includes(',')) {
+                                            const parts = resourceId.split(',');
+                                            if (parts.length >= 2) {
+                                                driveId = parts[0].split('@')[1];
+                                                itemId = parts[1];
+                                            }
+                                        }
+                                        // Format 2: URL formatı - drives/{driveId}/items/{itemId} veya /drives/{driveId}/items/{itemId}
+                                        else if (resourceId.includes('drives/') && resourceId.includes('/items/')) {
+                                            // Hem başında / olan hem de olmayan formatları destekle
+                                            // Örnek: "drives/b!.../items/..." veya "/drives/b!.../items/..."
+                                            const match = resourceId.match(/(?:^|\/)drives\/([^\/]+)\/items\/(.+?)(?:\?|$)/);
+                                            if (match) {
+                                                driveId = match[1];
+                                                itemId = match[2];
+                                                console.log("✅ resourceId parse edildi:", {resourceId, driveId, itemId});
+                                            } else {
+                                                console.warn("⚠️ resourceId regex match başarısız:", resourceId);
+                                            }
+                                        }
+                                        // Format 3: resourceReference.driveId varsa kullan
+                                        else if (resourceRef.driveId) {
+                                            driveId = resourceRef.driveId;
+                                            itemId = resourceId;
+                                        }
+                                        
+                                        // Eğer hala driveId yoksa, resourceId'den çıkar
+                                        if (!driveId && resourceId.includes(',')) {
+                                            const parts = resourceId.split(',');
+                                            driveId = parts[0].replace('SPO@', '');
+                                            itemId = parts[1];
+                                        }
+                                        
+                                        // Dosya detaylarını al
+                                        if (driveId && itemId) {
+                                            try {
+                                                const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,mimeType,folder,parentReference`, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (detailResponse.ok) {
+                                                    const detailData = await detailResponse.json();
+                                                    // parentReference'dan driveId'yi al, yoksa parse ettiğimizi kullan
+                                                    const finalDriveId = detailData.parentReference?.driveId || driveId;
+                                                    
+                                                    // Dosya adını belirle: önce detailData.name (en güvenilir), sonra resourceVisualization.title
+                                                    let fileDisplayName = detailData.name || fileTitle;
+                                                    if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/') || fileDisplayName.length > 150) {
+                                                        fileDisplayName = fileTitle || 'İsimsiz Dosya';
+                                                    }
+                                                    
+                                                    convertedFiles.push({
+                                                        id: detailData.id,
+                                                        name: fileDisplayName,
+                                                        webUrl: detailData.webUrl || resourceRef.webUrl,
+                                                        size: detailData.size || 0,
+                                                        lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                        downloadUrl: detailData['@microsoft.graph.downloadUrl'],
+                                                        folder: detailData.folder,
+                                                        file: detailData.file,
+                                                        mimeType: detailData.file?.mimeType || detailData.mimeType,
+                                                        remoteItem: {
+                                                            ...detailData,
+                                                            id: detailData.id,
+                                                            name: fileDisplayName,
+                                                            parentReference: {
+                                                                ...(detailData.parentReference || {}),
+                                                                driveId: finalDriveId
+                                                            }
+                                                        },
+                                                        originalName: fileDisplayName,
+                                                        _driveId: finalDriveId,
+                                                        _itemId: detailData.id
+                                                    });
+                                                } else {
+                                                    // Detay alınamazsa, mevcut bilgileri kullan
+                                                    const errorText = await detailResponse.text();
+                                                    console.warn("⚠️ Dosya detayı alınamadı:", resourceId, detailResponse.status, errorText);
+                                                    convertedFiles.push({
+                                                        name: fileTitle,
+                                                        id: itemId,
+                                                        webUrl: resourceRef.webUrl,
+                                                        remoteItem: {
+                                                            id: itemId,
+                                                            name: fileTitle,
+                                                            webUrl: resourceRef.webUrl,
+                                                            parentReference: {
+                                                                driveId: driveId
+                                                            }
+                                                        },
+                                                        originalName: fileTitle,
+                                                        _driveId: driveId,
+                                                        _itemId: itemId
+                                                    });
+                                                }
+                                            } catch (detailError) {
+                                                console.warn("Dosya detayı hatası:", detailError);
+                                                // Hata durumunda mevcut bilgileri kullan
+                                                convertedFiles.push({
+                                                    name: fileTitle,
+                                                    id: itemId || resourceId,
+                                                    webUrl: resourceRef.webUrl,
+                                                    remoteItem: {
+                                                        id: itemId || resourceId,
+                                                        name: fileTitle,
+                                                        webUrl: resourceRef.webUrl,
+                                                        parentReference: {
+                                                            driveId: driveId
+                                                        }
+                                                    },
+                                                    originalName: fileTitle,
+                                                    _driveId: driveId,
+                                                    _itemId: itemId || resourceId
+                                                });
+                                            }
+                                        } else {
+                                            // DriveId veya itemId yoksa, mevcut bilgileri kullan
+                                            console.warn("⚠️ DriveId veya ItemId bulunamadı:", {resourceId, driveId, itemId, insight});
+                                            convertedFiles.push({
+                                                name: fileTitle,
+                                                id: resourceId,
+                                                webUrl: resourceRef.webUrl,
+                                                remoteItem: {
+                                                    id: resourceId,
+                                                    name: fileTitle,
+                                                    webUrl: resourceRef.webUrl
+                                                },
+                                                originalName: fileTitle,
+                                                _driveId: driveId || '',
+                                                _itemId: resourceId
+                                            });
+                                        }
+                                    } catch (error) {
+                                        console.warn("Insight işleme hatası:", error, insight);
+                                    }
+                                }
+                                
+                                console.log("✅ Insights'tan", convertedFiles.length, "dosya detayı alındı");
+                                allFiles = convertedFiles;
+                                
+                                // Pagination ile devam et
+                                let insightsNextLink = insightsData['@odata.nextLink'];
+                                let insightsPageCount = 1;
+                                while (insightsNextLink && insightsPageCount < 50) {
+                                    const insightsNextResponse = await fetch(insightsNextLink, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (insightsNextResponse.ok) {
+                                        const insightsNextData = await insightsNextResponse.json();
+                                        const nextConverted = [];
+                                        
+                                        for (const insight of insightsNextData.value) {
+                                            try {
+                                                // Insights API formatı: resourceReference ve resourceVisualization ayrı objeler
+                                                const resourceRef = insight.resourceReference || {};
+                                                const resourceViz = insight.resourceVisualization || {};
+                                                
+                                                // Resource ID'yi al
+                                                const resourceId = resourceRef.id || resourceViz.containerId || resourceRef.webUrl;
+                                                
+                                                if (!resourceId) continue;
+                                                
+                                                // Dosya adını al: resourceVisualization.title (Insights API'de dosya adı burada)
+                                                const fileTitle = resourceViz.title || resourceRef.name || 'İsimsiz Dosya';
+                                                
+                                                // Resource ID'den driveId ve itemId'yi parse et
+                                                let driveId = resourceRef.driveId;
+                                                let itemId = resourceId;
+                                                
+                                                // Format 1: SPO@driveId,itemId
+                                                if (resourceId.includes('@') && resourceId.includes(',')) {
+                                                    const parts = resourceId.split(',');
+                                                    if (parts.length >= 2) {
+                                                        driveId = parts[0].split('@')[1];
+                                                        itemId = parts[1];
+                                                    }
+                                                }
+                                                // Format 2: URL formatı - drives/{driveId}/items/{itemId} veya /drives/{driveId}/items/{itemId}
+                                                else if (resourceId.includes('drives/') && resourceId.includes('/items/')) {
+                                                    // Hem başında / olan hem de olmayan formatları destekle
+                                                    // Örnek: "drives/b!.../items/..." veya "/drives/b!.../items/..."
+                                                    const match = resourceId.match(/(?:^|\/)drives\/([^\/]+)\/items\/(.+?)(?:\?|$)/);
+                                                    if (match) {
+                                                        driveId = match[1];
+                                                        itemId = match[2];
+                                                        console.log("✅ resourceId parse edildi (pagination):", {resourceId, driveId, itemId});
+                                                    } else {
+                                                        console.warn("⚠️ resourceId regex match başarısız (pagination):", resourceId);
+                                                    }
+                                                }
+                                                // Format 3: resourceReference.driveId varsa kullan
+                                                else if (resourceRef.driveId) {
+                                                    driveId = resourceRef.driveId;
+                                                    itemId = resourceId;
+                                                }
+                                                
+                                                if (driveId && itemId) {
+                                                    try {
+                                                        const detailResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,size,lastModifiedDateTime,file,mimeType,folder,parentReference`, {
+                                                            headers: {
+                                                                'Authorization': 'Bearer ' + accessToken
+                                                            }
+                                                        });
+                                                        
+                                                        if (detailResponse.ok) {
+                                                            const detailData = await detailResponse.json();
+                                                            const finalDriveId = detailData.parentReference?.driveId || driveId;
+                                                            
+                                                            // Dosya adını belirle: önce detailData.name (en güvenilir), sonra resourceVisualization.title
+                                                            let fileDisplayName = detailData.name || fileTitle;
+                                                            if (!fileDisplayName || fileDisplayName.includes('drives/') || fileDisplayName.includes('items/') || fileDisplayName.length > 150) {
+                                                                fileDisplayName = fileTitle || 'İsimsiz Dosya';
+                                                            }
+                                                            
+                                                            nextConverted.push({
+                                                                id: detailData.id,
+                                                                name: fileDisplayName,
+                                                                webUrl: detailData.webUrl || resourceRef.webUrl,
+                                                                size: detailData.size || 0,
+                                                                lastModifiedDateTime: detailData.lastModifiedDateTime,
+                                                                downloadUrl: detailData['@microsoft.graph.downloadUrl'],
+                                                                folder: detailData.folder,
+                                                                file: detailData.file,
+                                                                mimeType: detailData.file?.mimeType || detailData.mimeType,
+                                                                remoteItem: {
+                                                                    ...detailData,
+                                                                    id: detailData.id,
+                                                                    name: fileDisplayName,
+                                                                    parentReference: {
+                                                                        ...(detailData.parentReference || {}),
+                                                                        driveId: finalDriveId
+                                                                    }
+                                                                },
+                                                                originalName: fileDisplayName,
+                                                                _driveId: finalDriveId,
+                                                                _itemId: detailData.id
+                                                            });
+                                                        } else {
+                                                            nextConverted.push({
+                                                                name: fileTitle,
+                                                                id: itemId,
+                                                                webUrl: resourceRef.webUrl,
+                                                                remoteItem: {
+                                                                    id: itemId,
+                                                                    name: fileTitle,
+                                                                    webUrl: resourceRef.webUrl,
+                                                                    parentReference: {
+                                                                        driveId: driveId
+                                                                    }
+                                                                },
+                                                                originalName: fileTitle,
+                                                                _driveId: driveId,
+                                                                _itemId: itemId
+                                                            });
+                                                        }
+                                                    } catch (detailError) {
+                                                        nextConverted.push({
+                                                            name: fileTitle,
+                                                            id: itemId || resourceId,
+                                                            webUrl: resourceRef.webUrl,
+                                                            remoteItem: {
+                                                                id: itemId || resourceId,
+                                                                name: fileTitle,
+                                                                webUrl: resourceRef.webUrl,
+                                                                parentReference: {
+                                                                    driveId: driveId
+                                                                }
+                                                            },
+                                                            originalName: fileTitle,
+                                                            _driveId: driveId,
+                                                            _itemId: itemId || resourceId
+                                                        });
+                                                    }
+                                                } else {
+                                                    nextConverted.push({
+                                                        name: fileTitle,
+                                                        id: resourceId,
+                                                        webUrl: resourceRef.webUrl,
+                                                        remoteItem: {
+                                                            id: resourceId,
+                                                            name: fileTitle,
+                                                            webUrl: resourceRef.webUrl
+                                                        },
+                                                        originalName: fileTitle,
+                                                        _driveId: driveId || '',
+                                                        _itemId: resourceId
+                                                    });
+                                                }
+                                            } catch (error) {
+                                                console.warn("Insight işleme hatası:", error, insight);
+                                            }
+                                        }
+                                        
+                                        allFiles = allFiles.concat(nextConverted);
+                                        insightsNextLink = insightsNextData['@odata.nextLink'];
+                                        insightsPageCount++;
+                                        console.log(`✅ Insights yöntem - Toplam dosya (sayfa ${insightsPageCount}):`, allFiles.length);
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            console.warn("⚠️ Insights endpoint hatası:", insightsResponse.status);
+                        }
+                    } catch (insightsError) {
+                        console.warn("Insights endpoint hatası:", insightsError);
+                    }
+                    
+                    // Alternatif 2: /me/drives ile tüm paylaşılan drive'ları listele
+                    if (allFiles.length <= 1) {
+                        try {
+                            console.log("🔄 Alternatif endpoint 2 deneniyor (drives): /me/drives");
+                            const drivesResponse = await fetch("https://graph.microsoft.com/v1.0/me/drives", {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (drivesResponse.ok) {
+                                const drivesData = await drivesResponse.json();
+                                const myDriveId = await getMyDriveId();
+                                const sharedDrives = (drivesData.value || []).filter(drive => drive.id !== myDriveId);
+                                
+                                if (sharedDrives.length > 0) {
+                                    console.log("✅ Paylaşılan drive sayısı:", sharedDrives.length);
+                                    const sharedItems = [];
+                                    
+                                    for (const drive of sharedDrives) {
+                                        try {
+                                            // Drive'ın root klasöründeki tüm dosyaları al
+                                            let driveNextLink = `https://graph.microsoft.com/v1.0/drives/${drive.id}/root/children?$top=200`;
+                                            let drivePageCount = 0;
+                                            
+                                            while (driveNextLink && drivePageCount < 10) {
+                                                const driveResponse = await fetch(driveNextLink, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (driveResponse.ok) {
+                                                    const driveData = await driveResponse.json();
+                                                    const items = (driveData.value || []).map(item => ({
+                                                        ...item,
+                                                        name: item.name,
+                                                        remoteItem: {
+                                                            ...item,
+                                                            parentReference: {
+                                                                driveId: drive.id
+                                                            }
+                                                        },
+                                                        sharedDriveName: drive.name || drive.owner?.user?.displayName || 'Paylaşılan Drive'
+                                                    }));
+                                                    sharedItems.push(...items);
+                                                    
+                                                    driveNextLink = driveData['@odata.nextLink'];
+                                                    drivePageCount++;
+                                                    console.log(`✅ Drive ${drive.name} - Sayfa ${drivePageCount}, toplam öğe:`, sharedItems.length);
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+                                        } catch (err) {
+                                            console.warn(`Drive ${drive.id} yüklenemedi:`, err);
+                                        }
+                                    }
+                                    
+                                    if (sharedItems.length > allFiles.length) {
+                                        console.log("✅ Drives yöntemi daha fazla dosya buldu, kullanılıyor...");
+                                        allFiles = sharedItems;
+                                    }
+                                }
+                            }
+                        } catch (drivesError) {
+                            console.warn("Drives endpoint hatası:", drivesError);
+                        }
+                    }
+                }
+                
+                // Debug: İlk dosyanın yapısını göster
+                if (allFiles.length > 0) {
+                    console.log("🔍 İlk paylaşılan dosya yapısı (TAM):", JSON.stringify(allFiles[0], null, 2));
+                    console.log("🔍 remoteItem var mı?", allFiles[0].remoteItem !== undefined);
+                    console.log("🔍 file.name:", allFiles[0].name);
+                    console.log("🔍 file.webUrl:", allFiles[0].webUrl);
+                    if (allFiles[0].remoteItem) {
+                        console.log("🔍 remoteItem.name:", allFiles[0].remoteItem.name);
+                        console.log("🔍 remoteItem.id:", allFiles[0].remoteItem.id);
+                        console.log("🔍 remoteItem.driveId:", allFiles[0].remoteItem.parentReference?.driveId);
+                        console.log("🔍 remoteItem.lastModifiedDateTime:", allFiles[0].remoteItem.lastModifiedDateTime);
+                        console.log("🔍 remoteItem.size:", allFiles[0].remoteItem.size);
+                    }
+                } else {
+                    console.warn("⚠️ Paylaşılan dosya bulunamadı! API yanıtı boş olabilir.");
+                }
+                
+                // Veri formatını kontrol et ve düzelt
+                const processedFiles = allFiles.map(file => {
+                    // sharedWithMe endpoint'i remoteItem içinde tüm bilgileri döndürür
+                    // Ancak file.name direkt olarak da olabilir
+                    if (file.remoteItem) {
+                        return {
+                            ...file,
+                            name: file.name || file.remoteItem.name, // İsim için öncelik sırası
+                            lastModifiedDateTime: file.remoteItem.lastModifiedDateTime || file.lastModifiedDateTime,
+                            size: file.remoteItem.size || file.size,
+                            webUrl: file.webUrl || file.remoteItem.webUrl
+                        };
+                    }
+                    return file;
+                });
+                
+                console.log("📋 İşlenmiş dosya sayısı:", processedFiles.length);
+                displayFiles(processedFiles);
+                loadStorageInfo();
+                showFilesArea();
+            } catch (error) {
+                console.error("Paylaşılan dosyalar yükleme hatası:", error);
+                showError("Paylaşılan dosyalar yüklenirken hata oluştu: " + error.message);
+                // Ana klasöre geri dön ama oturumu kapatma
+                loadFiles('root');
+            }
+        }
+
+        async function loadFiles(folderId = "root") {
+            if (DEMO_MODE) {
+                loadDemoFiles();
+                return;
+            }
+            
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    showError("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            }
+
+            showLoading();
+            isViewingShared = false;
+            currentFolderId = folderId;
+            currentPath = []; // Normal klasörlerde yolu sıfırla
+            currentDriveId = null; // Kendi drive'ımıza döndük
+
+            try {
+                // OneDrive API çağrısı - $top=200 (maksimum) ile dosyaları yükle
+                // Microsoft Graph API maksimum 200 öğe döndürebilir
+                const endpoint = folderId === "root" 
+                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children?$top=200&$orderby=name"
+                    : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$top=200&$orderby=name`;
+
+                console.log("OneDrive API isteği gönderiliyor:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    
+                    // Alternatif: Tüm öğeleri almak için farklı bir yöntem dene
+                    console.log("Alternatif yöntem deneniyor: /me/drive/root/children (filtresiz)");
+                    const altEndpoint = folderId === "root"
+                        ? "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                        : `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`;
+                    
+                    const altResponse = await fetch(altEndpoint, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (altResponse.ok) {
+                        const altData = await altResponse.json();
+                        console.log("Alternatif yöntem başarılı, dosya sayısı:", altData.value ? altData.value.length : 0);
+                        let allFiles = altData.value || [];
+                        
+                        // Pagination ile tüm dosyaları yükle
+                        let nextLink = altData['@odata.nextLink'];
+                        while (nextLink) {
+                            console.log("Daha fazla dosya yükleniyor...", nextLink.substring(0, 100) + "...");
+                            const nextResponse = await fetch(nextLink, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (nextResponse.ok) {
+                                const nextData = await nextResponse.json();
+                                allFiles = allFiles.concat(nextData.value || []);
+                                nextLink = nextData['@odata.nextLink'];
+                                console.log("Toplam dosya sayısı:", allFiles.length);
+                            } else {
+                                console.warn("Pagination hatası:", nextResponse.status);
+                                break;
+                            }
+                        }
+                        
+                        console.log("✅ Toplam yüklenen dosya:", allFiles.length);
+                        displayFiles(allFiles);
+                        loadStorageInfo();
+                        showFilesArea();
+                        return;
+                    }
+                    
+                    throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+                }
+
+                const data = await response.json();
+                console.log("İlk yüklemede dosya sayısı:", data.value ? data.value.length : 0);
+                
+                // Debug: İlk dosyanın yapısını göster
+                if (data.value && data.value.length > 0) {
+                    console.log("🔍 İlk dosya örneği:", {
+                        name: data.value[0].name,
+                        id: data.value[0].id,
+                        folder: data.value[0].folder !== undefined,
+                        size: data.value[0].size,
+                        webUrl: data.value[0].webUrl
+                    });
+                }
+                
+                let allFiles = data.value || [];
+                
+                // Eğer daha fazla dosya varsa (@odata.nextLink), onları da yükle
+                let nextLink = data['@odata.nextLink'];
+                let pageCount = 1;
+                while (nextLink && pageCount < 50) { // Maksimum 50 sayfa (10,000 dosya)
+                    console.log(`Sayfa ${pageCount + 1} yükleniyor...`, nextLink.substring(0, 100) + "...");
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                        pageCount++;
+                        console.log(`Toplam dosya sayısı (sayfa ${pageCount}):`, allFiles.length);
+                    } else {
+                        console.warn("Pagination hatası:", nextResponse.status);
+                        break;
+                    }
+                }
+                
+                console.log("✅ Toplam yüklenen dosya:", allFiles.length, `(${pageCount} sayfa)`);
+                
+                // Dosyaları filtrele: Gizli dosyaları ve sistem dosyalarını göster
+                // (Şimdilik tüm dosyaları göster, filtreleme yapmıyoruz)
+                displayFiles(allFiles);
+                
+                // Storage bilgisini al
+                loadStorageInfo();
+
+                showFilesArea();
+            } catch (error) {
+                console.error("Dosya yükleme hatası:", error);
+                
+                // 401 veya 403 hatası ise token geçersiz, yeniden giriş gerekli
+                if (error.message.includes('401') || error.message.includes('403')) {
+                    alert("Oturum süresi doldu. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                } else {
+                    // Diğer hatalar için oturumu kapatma
+                    alert("Dosyalar yüklenirken hata oluştu: " + error.message);
+                }
+            }
+        }
+
+        function loadDemoSharedFiles() {
+            isViewingShared = true;
+            currentFolderId = "shared";
+            
+            const demoSharedFiles = [
+                { name: 'Ortak-Proje-2024.xlsx', folder: false, size: 1200000, lastModified: '2024-11-05', id: 'demo-shared-1' },
+                { name: 'Paylaşılan-Sunum.pptx', folder: false, size: 3500000, lastModified: '2024-11-04', id: 'demo-shared-2' },
+                { name: 'Ekip-Notları.docx', folder: false, size: 450000, lastModified: '2024-11-03', id: 'demo-shared-3' }
+            ];
+
+            const files = demoSharedFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                folder: f.folder ? { childCount: f.childCount } : undefined,
+                size: f.size,
+                lastModifiedDateTime: f.lastModified
+            }));
+
+            displayFiles(files);
+            document.getElementById('storageText').textContent = '8.5 GB / 15 GB kullanıldı (56.7%)';
+            document.getElementById('storageBarFill').style.width = '56.7%';
+            showFilesArea();
+        }
+
+        function loadDemoFiles() {
+            isViewingShared = false;
+            currentFolderId = "root";
+            
+            const demoFiles = [
+                { name: 'Denetim Raporları 2024', folder: true, childCount: 24, lastModified: '2024-11-05', id: 'demo-folder-1' },
+                { name: 'Mali Tablolar', folder: true, childCount: 15, lastModified: '2024-11-04', id: 'demo-folder-2' },
+                { name: 'Belgeler', folder: true, childCount: 8, lastModified: '2024-11-03', id: 'demo-folder-3' },
+                { name: 'Q3-2024-Denetim-Raporu.xlsx', folder: false, size: 2400000, lastModified: '2024-11-06', id: 'demo-file-1' },
+                { name: 'Mali-Analiz-Raporu.docx', folder: false, size: 1800000, lastModified: '2024-11-05', id: 'demo-file-2' },
+                { name: 'Finansal-Ozet.pdf', folder: false, size: 856000, lastModified: '2024-11-04', id: 'demo-file-3' },
+                { name: 'Yillik-Rapor-2024.pdf', folder: false, size: 3200000, lastModified: '2024-11-03', id: 'demo-file-4' }
+            ];
+
+            const files = demoFiles.map(f => ({
+                id: f.id,
+                name: f.name,
+                folder: f.folder ? { childCount: f.childCount } : undefined,
+                size: f.size,
+                lastModifiedDateTime: f.lastModified
+            }));
+
+            displayFiles(files);
+            
+            // Demo storage info
+            document.getElementById('storageText').textContent = '8.5 GB / 15 GB kullanıldı (56.7%)';
+            document.getElementById('storageBarFill').style.width = '56.7%';
+        }
+
+        async function loadStorageInfo() {
+            if (DEMO_MODE) {
+                return; // Demo mode'da loadDemoFiles zaten storage bilgisini yüklüyor
+            }
+            
+            try {
+                const response = await fetch("https://graph.microsoft.com/v1.0/me/drive", {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const quota = data.quota;
+                    const used = quota.used;
+                    const total = quota.total;
+                    const percentage = (used / total * 100).toFixed(1);
+
+                    document.getElementById('storageText').textContent = 
+                        `${formatBytes(used)} / ${formatBytes(total)} kullanıldı (${percentage}%)`;
+                    document.getElementById('storageBarFill').style.width = percentage + '%';
+                }
+            } catch (error) {
+                console.error("Storage bilgisi alınamadı:", error);
+            }
+        }
+
+        function changeView(viewType) {
+            currentView = viewType;
+            const fileListContainer = document.getElementById('fileList');
+            
+            // Buton aktif durumlarını güncelle
+            document.getElementById('listViewBtn').classList.toggle('active', viewType === 'list');
+            document.getElementById('gridViewBtn').classList.toggle('active', viewType === 'grid');
+            
+            // View class'ını güncelle
+            fileListContainer.className = `file-list ${viewType}-view`;
+            
+            // Dosyaları yeniden render et
+            displayFiles(currentFiles);
+        }
+        
+        function sortFiles(sortBy) {
+            if (currentFiles.length === 0) return;
+            
+            const sorted = [...currentFiles].sort((a, b) => {
+                if (sortBy === 'name') {
+                    return a.name.localeCompare(b.name, 'tr');
+                } else if (sortBy === 'modified') {
+                    return new Date(b.lastModifiedDateTime) - new Date(a.lastModifiedDateTime);
+                } else if (sortBy === 'size') {
+                    const sizeA = a.size || 0;
+                    const sizeB = b.size || 0;
+                    return sizeB - sizeA;
+                }
+                return 0;
+            });
+            
+            currentFiles = sorted;
+            displayFiles(sorted);
+        }
+
+        function displayFiles(files) {
+            console.log("📋 displayFiles çağrıldı:", {
+                dosyaSayisi: files ? files.length : 0,
+                currentFolderId: currentFolderId,
+                isViewingShared: isViewingShared
+            });
+            
+            const fileListContainer = document.getElementById('fileList');
+            
+            if (!fileListContainer) {
+                console.error("❌ fileListContainer bulunamadı!");
+                return;
+            }
+            
+            currentFiles = files; // Dosyaları sakla
+            
+            if (files.length === 0 && currentFolderId === "shared") {
+                fileListContainer.innerHTML = `
+                    <div class="onedrive-empty">
+                        <i class="fas fa-share-alt"></i>
+                        <h5>Paylaşılan Dosya Yok</h5>
+                        <p class="text-muted">Sizinle paylaşılan dosya bulunmuyor.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            if (files.length === 0) {
+                fileListContainer.innerHTML = `
+                    <div class="onedrive-empty">
+                        <i class="fas fa-folder-open"></i>
+                        <h5>Bu klasör boş</h5>
+                        <p class="text-muted">Dosya yüklemek için "Yükle" butonuna tıklayın.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // Root klasördeyse, en üstte "Paylaşılanlar" sanal klasörünü ekle
+            if (currentFolderId === "root" && !isViewingShared) {
+                const loadFunc = DEMO_MODE ? 'loadDemoSharedFiles()' : 'loadSharedFiles()';
+                html += `
+                    <div class="file-item" onclick="${loadFunc}" style="background-color: #f0f8ff;">
+                        <i class="fas fa-share-alt file-icon" style="color: #0078d4;"></i>
+                        <div class="file-info">
+                            <div class="file-name">📤 Paylaşılanlar</div>
+                            <div class="file-meta">Benimle paylaşılan dosyalar</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); ${loadFunc}">
+                                <i class="fas fa-folder-open"></i> Aç
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            files.forEach(file => {
+                // Paylaşılan dosyalar için remoteItem kullan
+                const isSharedItem = file.remoteItem !== undefined;
+                
+                // Shared item ise remoteItem'dan bilgileri al
+                const fileData = isSharedItem ? file.remoteItem : file;
+                const isFolder = fileData.folder !== undefined;
+                
+                // Dosya adı: sharedWithMe'de file.name direkt olabilir veya remoteItem.name olabilir
+                let fileName = file.name || fileData.name || 'İsimsiz';
+                const looksLikeId = fileName.includes('drives/') || fileName.includes('items/') || fileName.includes('SPO@') || fileName.length > 150;
+                if (looksLikeId) {
+                    if (fileData.name && !fileData.name.includes('drives/') && !fileData.name.includes('items/')) {
+                        fileName = fileData.name;
+                    } else if (file.remoteItem?.name && !file.remoteItem.name.includes('drives/') && !file.remoteItem.name.includes('items/')) {
+                        fileName = file.remoteItem.name;
+                    } else if (file.originalName && !file.originalName.includes('drives/')) {
+                        fileName = file.originalName;
+                    } else {
+                        fileName = 'İsimsiz Dosya';
+                    }
+                }
+                // MimeType'ı al: file.mimeType veya file.file?.mimeType
+                const mimeType = file.mimeType || fileData.mimeType || file.file?.mimeType || fileData.file?.mimeType;
+                const iconHTML = getFileIconFromName(fileName, isFolder, mimeType);
+                const size = isFolder ? (fileData.folder?.childCount + ' öğe' || 'Klasör') : formatBytes(fileData.size || file.size || 0);
+                
+                // lastModifiedDateTime: sharedWithMe'de remoteItem içinde olabilir
+                const modifiedDate = file.lastModifiedDateTime || fileData.lastModifiedDateTime || file.modifiedDateTime || fileData.modifiedDateTime;
+                const modified = modifiedDate ? new Date(modifiedDate).toLocaleDateString('tr-TR') : 'Bilinmiyor';
+                
+                // ID ve Drive bilgilerini al
+                let actualId = isSharedItem ? (file._itemId || fileData.id || file.id) : (file.id || file._itemId || '');
+                
+                // Eğer actualId "drives/{driveId}/items/{itemId}" formatındaysa parse et
+                if (actualId && actualId.includes('drives/') && actualId.includes('/items/')) {
+                    const match = actualId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                    if (match) {
+                        const parsedDriveId = match[1];
+                        const parsedItemId = match[2];
+                        console.log("🔍 actualId parse edildi:", {original: actualId, parsedDriveId, parsedItemId});
+                        actualId = parsedItemId;
+                        // Parse edilen driveId'yi de sakla
+                        if (!file._driveId) {
+                            file._driveId = parsedDriveId;
+                        }
+                    }
+                }
+                
+                // Drive ID'yi belirle: 
+                // 1. Shared item ise remoteItem'dan al
+                // 2. Paylaşılan drive içindeysek (currentDriveId varsa) onu kullan
+                // 3. Değilse boş bırak (kendi drive'ımız)
+                let driveId = '';
+                if (isSharedItem) {
+                    // Önce direkt saklanan driveId'yi kontrol et (Insights API için)
+                    driveId = file._driveId || fileData.parentReference?.driveId || file.parentReference?.driveId || '';
+                } else if (currentDriveId) {
+                    driveId = currentDriveId; // Paylaşılan drive içindeyiz
+                }
+                
+                const webUrl = file.webUrl || fileData.webUrl || '';
+                
+                // Debug log (ilk 3 dosya için)
+                if (files.indexOf(file) < 3) {
+                    console.log(`🔍 Dosya render [${files.indexOf(file)}]:`, {
+                        fileName: fileName,
+                        file_name: file.name,
+                        remoteItem_name: fileData.name,
+                        isSharedItem,
+                        isFolder,
+                        actualId,
+                        driveId,
+                        modified,
+                        size,
+                        webUrl: webUrl ? webUrl.substring(0, 50) + '...' : 'yok'
+                    });
+                }
+                
+                // Paylaşılan drive içinde miyiz?
+                const isInSharedDrive = (currentDriveId !== null);
+                
+                // Güvenli string dönüşümü (onclick için)
+                const safeWebUrl = webUrl ? webUrl.replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
+                const safeDriveId = (driveId || '').replace(/'/g, "\\'");
+                const safeActualId = (actualId || '').replace(/'/g, "\\'");
+
+                if (currentView === 'grid') {
+                    // Kart görünümü
+                    let clickAction;
+                    if (isFolder) {
+                        // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')`;
+                        } else {
+                            clickAction = `loadFiles('${safeActualId}')`;
+                        }
+                    } else {
+                        // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}', '${safeWebUrl}')`;
+                        } else {
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(fileName)}')`;
+                        }
+                    }
+                    
+                    html += `
+                        <div class="file-card" onclick="${clickAction}">
+                            <div class="file-card-icon">${iconHTML}</div>
+                            <div class="file-card-name" title="${escapeHtml(fileName)}">${escapeHtml(fileName)}</div>
+                            <div class="file-card-meta">${size}</div>
+                        </div>
+                    `;
+                } else {
+                    // Liste görünümü
+                    let clickAction;
+                    if (isFolder) {
+                        // Klasör: Paylaşılan drive içindeysek veya shared item ise openSharedFolder kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `loadSharedFolderContent('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')`;
+                        } else {
+                            clickAction = `loadFiles('${safeActualId}')`;
+                        }
+                    } else {
+                        // Dosya: Paylaşılan drive içindeysek veya shared item ise openSharedFile kullan
+                        if (isInSharedDrive || isSharedItem) {
+                            clickAction = `openSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}', '${safeWebUrl}')`;
+                        } else {
+                            clickAction = `openFile('${safeActualId}', '${escapeHtml(fileName)}')`;
+                        }
+                    }
+                    
+                    html += `
+                        <div class="file-item" onclick="${clickAction}">
+                            ${iconHTML}
+                            <div class="file-info">
+                                <div class="file-name">${escapeHtml(fileName)}${isSharedItem ? ' <span style="color: #0078d4; font-size: 0.75rem;"><i class="fas fa-share-alt"></i></span>' : ''}</div>
+                                <div class="file-meta">${size} • ${modified}</div>
+                            </div>
+                            <div class="file-actions">
+                                ${!isFolder ? `
+                                <button class="btn btn-sm btn-outline-success" onclick="event.stopPropagation(); ${(isInSharedDrive || isSharedItem) ? `downloadSharedFile('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')` : `downloadFile('${safeActualId}', '${escapeHtml(fileName)}')`}">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                ` : ''}
+                                ${(isInSharedDrive || isSharedItem) ? `
+                                <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); showFilePermissions('${safeDriveId}', '${safeActualId}', '${escapeHtml(fileName)}')" title="İzin Bilgileri">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); ${safeWebUrl ? `window.open('${safeWebUrl}', '_blank')` : `shareFile('${safeActualId}')`}">
+                                    <i class="fas fa-share-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            fileListContainer.innerHTML = html;
+            updateBreadcrumb();
+        }
+
+        function getFileIconFromName(name, isFolder, mimeType) {
+            if (isFolder) {
+                return '<i class="fas fa-folder file-icon folder"></i>';
+            }
+
+            // Önce mimeType'dan icon belirle (daha güvenilir)
+            if (mimeType) {
+                const mimeIcons = {
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '<i class="fas fa-file-excel file-icon excel"></i>',
+                    'application/vnd.ms-excel': '<i class="fas fa-file-excel file-icon excel"></i>',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '<i class="fas fa-file-word file-icon word"></i>',
+                    'application/msword': '<i class="fas fa-file-word file-icon word"></i>',
+                    'application/pdf': '<i class="fas fa-file-pdf file-icon pdf"></i>',
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                    'application/vnd.ms-powerpoint': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                    'image/png': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/jpeg': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/jpg': '<i class="fas fa-file-image file-icon image"></i>',
+                    'image/gif': '<i class="fas fa-file-image file-icon image"></i>',
+                    'text/plain': '<i class="fas fa-file-alt file-icon"></i>',
+                    'text/csv': '<i class="fas fa-file-csv file-icon"></i>'
+                };
+                
+                // MimeType'ın başlangıcına göre de kontrol et
+                if (mimeType.startsWith('image/')) {
+                    return '<i class="fas fa-file-image file-icon image"></i>';
+                } else if (mimeType.startsWith('video/')) {
+                    return '<i class="fas fa-file-video file-icon"></i>';
+                } else if (mimeType.startsWith('audio/')) {
+                    return '<i class="fas fa-file-audio file-icon"></i>';
+                } else if (mimeIcons[mimeType]) {
+                    return mimeIcons[mimeType];
+                }
+            }
+
+            // MimeType yoksa dosya adından uzantı çıkar
+            const ext = name.split('.').pop().toLowerCase();
+            const icons = {
+                'xlsx': '<i class="fas fa-file-excel file-icon excel"></i>',
+                'xls': '<i class="fas fa-file-excel file-icon excel"></i>',
+                'docx': '<i class="fas fa-file-word file-icon word"></i>',
+                'doc': '<i class="fas fa-file-word file-icon word"></i>',
+                'pdf': '<i class="fas fa-file-pdf file-icon pdf"></i>',
+                'pptx': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                'ppt': '<i class="fas fa-file-powerpoint file-icon powerpoint"></i>',
+                'png': '<i class="fas fa-file-image file-icon image"></i>',
+                'jpg': '<i class="fas fa-file-image file-icon image"></i>',
+                'jpeg': '<i class="fas fa-file-image file-icon image"></i>',
+                'gif': '<i class="fas fa-file-image file-icon image"></i>',
+                'txt': '<i class="fas fa-file-alt file-icon"></i>',
+                'csv': '<i class="fas fa-file-csv file-icon"></i>'
+            };
+
+            return icons[ext] || '<i class="fas fa-file file-icon"></i>';
+        }
+
+        function updateBreadcrumb() {
+            const breadcrumb = document.getElementById('breadcrumb');
+            
+            if (isViewingShared) {
+                breadcrumb.innerHTML = `
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadFiles('root'); return false;">
+                            <i class="fas fa-home"></i> Ana Klasör
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadSharedFiles(); return false;">
+                            <i class="fas fa-share-alt"></i> Paylaşılanlar
+                        </a>
+                    </li>
+                `;
+                
+                // Paylaşılan klasör yolunu göster
+                if (currentPath.length > 0) {
+                    currentPath.forEach((folder, index) => {
+                        if (index < currentPath.length - 1) {
+                            breadcrumb.innerHTML += `
+                                <li class="breadcrumb-item">
+                                    <a href="#" onclick="loadSharedFolderContent('${folder.driveId}', '${folder.id}', '${escapeHtml(folder.name)}'); return false;">
+                                        ${escapeHtml(folder.name)}
+                                    </a>
+                                </li>
+                            `;
+                        } else {
+                            breadcrumb.innerHTML += `
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    ${escapeHtml(folder.name)}
+                                </li>
+                            `;
+                        }
+                    });
+                }
+            } else {
+                breadcrumb.innerHTML = `
+                    <li class="breadcrumb-item">
+                        <a href="#" onclick="loadFiles('root'); return false;">
+                            <i class="fas fa-home"></i> Ana Klasör
+                        </a>
+                    </li>
+                `;
+                
+                if (currentFolderId !== "root") {
+                    breadcrumb.innerHTML += `
+                        <li class="breadcrumb-item active" aria-current="page">Klasör</li>
+                    `;
+                }
+            }
+        }
+
+        async function downloadFile(fileId, fileName) {
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası indiriliyor...\n\nGerçek OneDrive entegrasyonunda bu dosya indirilecektir.`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/content`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya indirilemedi");
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                showSuccess("Dosya başarıyla indirildi: " + fileName);
+            } catch (error) {
+                console.error("Dosya indirme hatası:", error);
+                showError("Dosya indirilemedi: " + error.message);
+            }
+        }
+
+        async function openSharedFolder(driveId, itemId, folderName, webUrl) {
+            console.log("📁 openSharedFolder çağrıldı:", {driveId, itemId, folderName});
+            
+            // Paylaşılan klasörün içeriğini yükle (aynı arayüzde)
+            if (driveId && driveId !== 'null' && itemId && itemId !== 'null') {
+                loadSharedFolderContent(driveId, itemId, folderName);
+            } else {
+                alert(`Klasör bilgileri eksik.`);
+            }
+        }
+        
+        async function loadSharedFolderContent(driveId, itemId, folderName) {
+            if (!accessToken) {
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("Token alınamadı:", error);
+                    alert("Token alınamadı. Lütfen tekrar giriş yapın.");
+                    return;
+                }
+            }
+
+            showLoading();
+            isViewingShared = true;
+            currentFolderId = itemId;
+            currentDriveId = driveId; // Drive ID'yi sakla (alt klasörler için)
+
+            try {
+                const endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/children?$top=999&$orderby=name`;
+                console.log("📁 Paylaşılan klasör içeriği yükleniyor:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                console.log("API yanıt durumu:", response.status, response.statusText);
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("API Hatası:", errorText);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log("✅ Klasör içeriği yüklendi:", data.value ? data.value.length : 0, "öğe");
+                
+                // Breadcrumb'a klasör adını ekle (eğer yoksa)
+                const alreadyInPath = currentPath.find(p => p.id === itemId);
+                if (!alreadyInPath) {
+                    currentPath.push({name: folderName, id: itemId, driveId: driveId});
+                }
+                
+                let allFiles = data.value || [];
+                
+                // Pagination
+                let nextLink = data['@odata.nextLink'];
+                while (nextLink) {
+                    const nextResponse = await fetch(nextLink, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+                    
+                    if (nextResponse.ok) {
+                        const nextData = await nextResponse.json();
+                        allFiles = allFiles.concat(nextData.value || []);
+                        nextLink = nextData['@odata.nextLink'];
+                    } else {
+                        break;
+                    }
+                }
+                
+                console.log("✅ Toplam yüklenen öğe:", allFiles.length);
+                displayFiles(allFiles);
+                loadStorageInfo();
+                showFilesArea();
+            } catch (error) {
+                console.error("Paylaşılan klasör yükleme hatası:", error);
+                alert("Klasör içeriği yüklenirken hata oluştu: " + error.message);
+                loadSharedFiles();
+            }
+        }
+
+        async function openSharedFile(driveId, itemId, fileName, webUrl) {
+            console.log("📂 openSharedFile çağrıldı:", {driveId, itemId, fileName, webUrl});
+            
+            // Token kontrolü ve yenileme
+            if (!accessToken) {
+                console.log("🔄 Access token yok, token alınıyor...");
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("❌ Token alınamadı:", error);
+                    showError("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+                    showLoginPrompt();
+                    return;
+                }
+            }
+            
+            // itemId formatı "drives/{driveId}/items/{itemId}" olabilir, parse et
+            if (itemId && itemId.includes('drives/') && itemId.includes('/items/')) {
+                console.log("🔍 itemId formatı parse ediliyor:", itemId);
+                const match = itemId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                if (match) {
+                    const parsedDriveId = match[1];
+                    const parsedItemId = match[2];
+                    console.log("✅ Parse edildi:", {parsedDriveId, parsedItemId});
+                    driveId = parsedDriveId;
+                    itemId = parsedItemId;
+                }
+            }
+            
+            // Eğer driveId veya itemId eksikse, currentFiles'dan dosyayı bul ve _driveId/_itemId'yi kullan
+            if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
+                console.warn("⚠️ Drive ID veya Item ID eksik, currentFiles'dan aranıyor:", {driveId, itemId, fileName});
+                
+                // currentFiles'dan bu dosyayı bul
+                const foundFile = currentFiles.find(f => {
+                    const fName = f.name || f.remoteItem?.name || '';
+                    const fId = f.id || f._itemId || f.remoteItem?.id || '';
+                    // itemId hala "drives/..." formatındaysa, sadece itemId kısmını karşılaştır
+                    const searchItemId = itemId && itemId.includes('/items/') ? itemId.split('/items/')[1] : itemId;
+                    return fName === fileName || fId === itemId || fId === searchItemId || f._itemId === searchItemId;
+                });
+                
+                if (foundFile) {
+                    // _driveId ve _itemId varsa onları kullan
+                    const foundDriveId = foundFile._driveId || foundFile.remoteItem?.parentReference?.driveId || foundFile.parentReference?.driveId;
+                    let foundItemId = foundFile._itemId || foundFile.remoteItem?.id || foundFile.id;
+                    
+                    // Eğer foundItemId "drives/..." formatındaysa parse et
+                    if (foundItemId && foundItemId.includes('drives/') && foundItemId.includes('/items/')) {
+                        const match = foundItemId.match(/drives\/([^\/]+)\/items\/(.+)/);
+                        if (match) {
+                            foundItemId = match[2];
+                            if (!foundDriveId) {
+                                driveId = match[1];
+                            }
+                        }
+                    }
+                    
+                    console.log("🔍 Bulunan dosya detayları:", {
+                        _driveId: foundFile._driveId,
+                        _itemId: foundFile._itemId,
+                        remoteItem_parentReference_driveId: foundFile.remoteItem?.parentReference?.driveId,
+                        remoteItem_id: foundFile.remoteItem?.id,
+                        file_id: foundFile.id,
+                        foundDriveId,
+                        foundItemId
+                    });
+                    
+                    if (foundDriveId && foundItemId) {
+                        console.log("✅ Dosya currentFiles'da bulundu, driveId ve itemId kullanılıyor:", {foundDriveId, foundItemId});
+                        driveId = foundDriveId;
+                        itemId = foundItemId;
+                    } else {
+                        console.warn("⚠️ Dosya bulundu ama driveId/itemId yok. Dosya objesi:", JSON.stringify(foundFile, null, 2));
+                    }
+                } else {
+                    console.warn("⚠️ Dosya currentFiles'da bulunamadı. Aranan:", fileName, "Toplam dosya sayısı:", currentFiles.length);
+                }
+                
+                // Hala eksikse, webUrl'den parse etmeyi dene
+                if ((!driveId || driveId === 'null' || driveId === '') || (!itemId || itemId === 'null' || itemId === '')) {
+                    console.warn("⚠️ Drive ID veya Item ID hala eksik, webUrl'den parse ediliyor:", {driveId, itemId, webUrl});
+                    
+                    if (webUrl && webUrl.includes('/sites/')) {
+                        // SharePoint URL formatı: https://domain.sharepoint.com/sites/.../Shared%20Documents/...
+                        // Bu URL'den direkt dosya içeriğini almak zor, bu yüzden blob olarak yüklemeyi dene
+                        console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor, blob olarak yükleniyor...");
+                        
+                        // SharePoint URL'den dosyayı blob olarak yüklemeyi dene
+                        // URL'den driveId ve itemId'yi parse edemiyoruz, bu yüzden kullanıcıya bilgi ver
+                        console.warn("⚠️ SharePoint URL'den dosya bilgisi alınamıyor");
+                        alert(
+                            `"${fileName}" dosyası için detaylı bilgi alınamadı.\n\n` +
+                            `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                            `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                        );
+                        return;
+                    } else if (webUrl) {
+                        // Diğer URL'ler için iframe'de açmayı dene
+                        openPreview(fileName, webUrl, {
+                            fileName,
+                            webUrl: webUrl
+                        });
+                        return;
+                    } else {
+                        console.error("❌ Drive ID, Item ID ve WebUrl eksik:", {driveId, itemId, webUrl});
+                        alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
+                        return;
+                    }
+                }
+            }
+            
+            // Her zaman API'den dosya bilgilerini al
+            if (driveId && driveId !== 'null' && itemId && itemId !== 'null') {
+                try {
+                    console.log("📡 API isteği (dosya bilgileri için): drives/" + driveId + "/items/" + itemId);
+                    // downloadUrl'i almak için $select ile özel field'ları request et
+                    const response = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}?$select=id,name,webUrl,@microsoft.graph.downloadUrl,@microsoft.graph.previewUrl,file,mimeType,size,lastModifiedDateTime`, {
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error("❌ API Hatası:", errorText);
+                        
+                        // 401 Unauthorized hatası: Token süresi dolmuş olabilir, yenile
+                        if (response.status === 401) {
+                            console.log("🔄 401 hatası, token yenileniyor...");
+                            try {
+                                await getTokenSilent(true); // Force refresh
+                                // Token yenilendikten sonra tekrar dene
+                                const retryResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}`, {
+                                    headers: {
+                                        'Authorization': 'Bearer ' + accessToken
+                                    }
+                                });
+                                
+                                if (!retryResponse.ok) {
+                                    const retryErrorText = await retryResponse.text();
+                                    console.error("❌ Retry API Hatası:", retryErrorText);
+                                    throw new Error("Paylaşılan dosya bilgisi alınamadı: " + retryResponse.status);
+                                }
+                                
+                                // Retry başarılı, devam et
+                                const data = await retryResponse.json();
+                                // Aşağıdaki kod bloğuna devam et
+                                const actualFileName = data.name || fileName;
+                                const downloadUrl = data['@microsoft.graph.downloadUrl'];
+                                
+                                console.log("✅ Paylaşılan dosya URL'si alındı (retry):", {
+                                    downloadUrl: downloadUrl ? 'var' : 'yok',
+                                    webUrl: data.webUrl ? 'var' : 'yok',
+                                    fileName: actualFileName
+                                });
+                                
+                                if (downloadUrl) {
+                                    openPreview(actualFileName, downloadUrl, {
+                                        driveId, 
+                                        itemId, 
+                                        fileName: actualFileName, 
+                                        webUrl: data.webUrl, 
+                                        downloadUrl: downloadUrl
+                                    });
+                                } else {
+                                    // Retry sonrası da downloadUrl yok, alternatif yöntemler dene
+                                    console.warn("⚠️ downloadUrl yok (retry sonrası), alternatif yöntemler deneniyor...");
+                                    try {
+                                        const blobResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                            headers: {
+                                                'Authorization': 'Bearer ' + accessToken
+                                            }
+                                        });
+                                        
+                                        if (!blobResponse.ok) {
+                                            throw new Error("Blob yükleme hatası: " + blobResponse.status);
+                                        }
+                                        
+                                        const blob = await blobResponse.blob();
+                                        const blobUrl = URL.createObjectURL(blob);
+                                        openPreview(actualFileName, blobUrl, {
+                                            driveId, 
+                                            itemId, 
+                                            fileName: actualFileName, 
+                                            webUrl: data.webUrl
+                                        });
+                                    } catch (blobError) {
+                                        console.error("Blob yükleme hatası:", blobError);
+                                        alert(
+                                            `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                            `downloadUrl alınamadı ve /content endpoint'i çalışmadı.\n\n` +
+                                            `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                            `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                                        );
+                                    }
+                                }
+                                return;
+                            } catch (tokenError) {
+                                console.error("Token yenileme hatası:", tokenError);
+                                showError("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.");
+                                showLoginPrompt();
+                                return;
+                            }
+                        }
+                        
+                        throw new Error("Paylaşılan dosya bilgisi alınamadı: " + response.status);
+                    }
+
+                    const data = await response.json();
+                    
+                    // Dosya adını güncelle (API'den gelen gerçek isim)
+                    const actualFileName = data.name || fileName;
+                    
+                    // Öncelik sırası: downloadUrl (kendi arayüzümüzde açmak için)
+                    // webUrl SharePoint'e yönlendirir, bu yüzden downloadUrl kullanmalıyız
+                    let downloadUrl = data['@microsoft.graph.downloadUrl'];
+                    let previewUrl = data['@microsoft.graph.previewUrl'];
+                    
+                    console.log("✅ Paylaşılan dosya URL'si alındı:", {
+                        downloadUrl: downloadUrl ? 'var' : 'yok',
+                        previewUrl: previewUrl ? 'var' : 'yok',
+                        webUrl: data.webUrl ? 'var' : 'yok',
+                        fileName: actualFileName,
+                        remoteItem: data.remoteItem ? 'var' : 'yok'
+                    });
+                    
+                    // Eğer downloadUrl yoksa ve remoteItem varsa, remoteItem'dan downloadUrl'i almayı dene
+                    if (!downloadUrl && data.remoteItem) {
+                        console.log("🔄 downloadUrl yok, remoteItem'dan alınıyor...");
+                        downloadUrl = data.remoteItem['@microsoft.graph.downloadUrl'];
+                        previewUrl = data.remoteItem['@microsoft.graph.previewUrl'] || previewUrl;
+                        
+                        if (downloadUrl) {
+                            console.log("✅ remoteItem'dan downloadUrl alındı");
+                        }
+                    }
+                    
+                    // Eğer hala downloadUrl yoksa ama previewUrl varsa, previewUrl'i kullanmayı dene
+                    // Preview URL genellikle paylaşılan dosyalar için daha iyi çalışır
+                    if (!downloadUrl && previewUrl) {
+                        console.log("🔄 downloadUrl yok, previewUrl kullanılıyor...");
+                        // Preview URL'i iframe'de açmayı dene
+                        try {
+                            openPreview(actualFileName, previewUrl, {
+                            driveId, 
+                            itemId, 
+                                fileName: actualFileName, 
+                            webUrl: data.webUrl, 
+                                downloadUrl: previewUrl,
+                                isPreviewUrl: true
+                            });
+                            return;
+                        } catch (previewError) {
+                            console.warn("⚠️ Preview URL açılamadı:", previewError);
+                        }
+                    }
+                    
+                    // Eğer hala downloadUrl yoksa, alternatif yöntemler dene
+                    if (!downloadUrl) {
+                        console.log("🔄 downloadUrl yok, alternatif yöntemler deneniyor...");
+                        
+                        // Yöntem 1: /content endpoint'ini kontrol et
+                        try {
+                            const contentCheckResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                method: 'HEAD',
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (contentCheckResponse.ok) {
+                                // /content endpoint'i çalışıyor, downloadUrl olarak kullan
+                                downloadUrl = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`;
+                                console.log("✅ /content endpoint'i çalışıyor, downloadUrl oluşturuldu");
+                    } else {
+                                console.warn("⚠️ /content endpoint'i çalışmıyor:", contentCheckResponse.status);
+                                
+                                // Yöntem 2: Paylaşılan dosyalar için /me/drives endpoint'ini kullan
+                                // Bazen paylaşılan dosyalar için farklı bir drive ID gerekiyor
+                                try {
+                                    console.log("🔄 /me/drives endpoint'i deneniyor (alternatif drive'lar)...");
+                                    const drivesResponse = await fetch(`https://graph.microsoft.com/v1.0/me/drives`, {
+                                        headers: {
+                                            'Authorization': 'Bearer ' + accessToken
+                                        }
+                                    });
+                                    
+                                    if (drivesResponse.ok) {
+                                        const drivesData = await drivesResponse.json();
+                                        // Paylaşılan drive'ları bul ve dosyayı oradan açmayı dene
+                                        for (const drive of drivesData.value || []) {
+                                            if (drive.id === driveId) {
+                                                // Aynı drive, devam et
+                                                continue;
+                                            }
+                                            
+                                            // Farklı drive'dan dosyayı açmayı dene
+                                            try {
+                                                const altResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${drive.id}/items/${itemId}?$select=@microsoft.graph.downloadUrl`, {
+                                                    headers: {
+                                                        'Authorization': 'Bearer ' + accessToken
+                                                    }
+                                                });
+                                                
+                                                if (altResponse.ok) {
+                                                    const altData = await altResponse.json();
+                                                    if (altData['@microsoft.graph.downloadUrl']) {
+                                                        downloadUrl = altData['@microsoft.graph.downloadUrl'];
+                                                        console.log("✅ Alternatif drive'dan downloadUrl alındı:", drive.id);
+                                                        break;
+                                                    }
+                                                }
+                                            } catch (altError) {
+                                                // Devam et
+                                            }
+                                        }
+                                    }
+                                } catch (drivesError) {
+                                    console.warn("⚠️ /me/drives endpoint hatası:", drivesError);
+                                }
+                            }
+                        } catch (contentCheckError) {
+                            console.warn("⚠️ /content endpoint kontrolü hatası:", contentCheckError);
+                        }
+                    }
+                    
+                    console.log("🔍 Final downloadUrl durumu:", {
+                        downloadUrl: downloadUrl ? 'var' : 'yok',
+                        fileName: actualFileName
+                    });
+                    
+                    // Paylaşılan dosyalar için öncelik: downloadUrl (iframe'de açılabilir)
+                    // Eğer downloadUrl yoksa, webUrl kullan (yeni sekmede açılacak)
+                    if (downloadUrl) {
+                        // downloadUrl varsa, iframe'de açılabilir (X-Frame-Options hatası yok)
+                        console.log("✅ Paylaşılan dosya downloadUrl ile açılıyor (iframe'de)");
+                        openPreview(actualFileName, downloadUrl, {
+                            driveId, 
+                            itemId, 
+                            fileName: actualFileName, 
+                            webUrl: data.webUrl, 
+                            downloadUrl: downloadUrl,
+                            isSharedFile: true
+                        });
+                    } else {
+                        // downloadUrl yoksa, /content endpoint'inden blob olarak yükle
+                        console.log("⚠️ downloadUrl yok, /content endpoint'inden blob yükleniyor...");
+                        try {
+                            const contentResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (contentResponse.ok) {
+                                // /content endpoint'i çalıştı, blob olarak yükle
+                                const blob = await contentResponse.blob();
+                                const blobUrl = URL.createObjectURL(blob);
+                                console.log("✅ Dosya blob olarak yüklendi, önizleniyor");
+                                openPreview(actualFileName, blobUrl, {
+                                    driveId, 
+                                    itemId, 
+                                    fileName: actualFileName, 
+                                    webUrl: data.webUrl, 
+                                    downloadUrl: blobUrl,
+                                    isSharedFile: true
+                                });
+                            } else {
+                                // /content endpoint'i çalışmadı, kullanıcıya bilgi ver
+                                const errorText = await contentResponse.text();
+                                console.error("❌ /content endpoint hatası:", contentResponse.status, errorText);
+                                alert(
+                                    `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                    `downloadUrl alınamadı ve /content endpoint'i çalışmadı (${contentResponse.status}).\n\n` +
+                                    `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                    `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                                );
+                            }
+                        } catch (contentError) {
+                            console.error("❌ /content endpoint hatası:", contentError);
+                            alert(
+                                `"${actualFileName}" dosyası için önizleme yapılamıyor.\n\n` +
+                                `downloadUrl alınamadı ve /content endpoint'i çalışmadı.\n\n` +
+                                `Bu paylaşılan dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                                `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                            );
+                        }
+                    }
+                } catch (error) {
+                    console.error("❌ Paylaşılan dosya açma hatası:", error);
+                    alert(
+                        `"${fileName}" dosyası açılamadı.\n\n` +
+                        `Hata: ${error.message}\n\n` +
+                        `Bu dosya için Microsoft Graph API kısıtlamaları bulunmaktadır.\n\n` +
+                        `Lütfen dosyayı SharePoint'ten açmayı deneyin.`
+                    );
+                }
+            }
+        }
+
+        async function downloadSharedFile(driveId, itemId, fileName) {
+            if (!driveId || !itemId) {
+                alert("Dosya bilgileri eksik. Paylaş butonuna tıklayarak SharePoint'ten açabilirsiniz.");
+                return;
+            }
+            
+            try {
+                console.log("📥 İndiriliyor: drives/" + driveId + "/items/" + itemId);
+                const response = await fetch(`https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/content`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ İndirme hatası:", errorText);
+                    throw new Error("HTTP " + response.status);
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+                console.log("✅ Paylaşılan dosya indirildi:", fileName);
+            } catch (error) {
+                console.error("❌ Paylaşılan dosya indirme hatası:", error);
+                alert("Dosya indirilemedi: " + error.message + "\n\nLütfen paylaş butonuna tıklayarak SharePoint'ten açmayı deneyin.");
+                // OTURUMU KAPATMA!
+            }
+        }
+
+        async function openFile(fileId, fileName) {
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası açılıyor...\n\nGerçek OneDrive entegrasyonunda bu dosya arayüz içinde önizlenecektir.`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya bilgisi alınamadı");
+                }
+
+                const data = await response.json();
+                
+                // Önizleme için downloadUrl kullan (CSP bypass için)
+                const downloadUrl = data['@microsoft.graph.downloadUrl'];
+                
+                if (downloadUrl) {
+                    console.log("✅ Dosya downloadUrl ile önizleniyor");
+                    openPreview(fileName, downloadUrl, {fileId, fileName, webUrl: data.webUrl, downloadUrl: downloadUrl});
+                } else if (data.webUrl) {
+                    console.log("⚠️ downloadUrl yok, webUrl kullanılıyor");
+                    openPreview(fileName, data.webUrl, {fileId, fileName, webUrl: data.webUrl});
+                } else {
+                    console.log("❌ Önizleme URL'si yok, indiriliyor");
+                    downloadFile(fileId, fileName);
+                }
+            } catch (error) {
+                console.error("Dosya açma hatası:", error);
+                alert("Dosya açılamadı: " + error.message);
+            }
+        }
+
+        async function deleteFile(fileId, fileName) {
+            if (!confirm(`"${fileName}" dosyasını silmek istediğinizden emin misiniz?`)) {
+                return;
+            }
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${fileName}" dosyası silindi (simülasyon).`);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error("Dosya silinemedi");
+                }
+
+                showSuccess("Dosya başarıyla silindi: " + fileName);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Dosya silme hatası:", error);
+                showError("Dosya silinemedi: " + error.message);
+            }
+        }
+
+        async function uploadFiles(files) {
+            if (!files || files.length === 0) return;
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: ${files.length} dosya yükleniyor...\n\nSeçilen dosyalar:\n${Array.from(files).map(f => '- ' + f.name).join('\n')}\n\nGerçek OneDrive entegrasyonunda bu dosyalar yüklenecektir.`);
+                document.getElementById('fileUploadInput').value = '';
+                return;
+            }
+
+            showLoading();
+
+            try {
+                for (let file of files) {
+                    const endpoint = currentFolderId === "root"
+                        ? `https://graph.microsoft.com/v1.0/me/drive/root:/${file.name}:/content`
+                        : `https://graph.microsoft.com/v1.0/me/drive/items/${currentFolderId}:/${file.name}:/content`;
+
+                    const response = await fetch(endpoint, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': 'Bearer ' + accessToken,
+                            'Content-Type': file.type
+                        },
+                        body: file
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Dosya yüklenemedi: ${file.name}`);
+                    }
+                }
+
+                showSuccess(`${files.length} dosya başarıyla yüklendi`);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Dosya yükleme hatası:", error);
+                showError("Dosya yüklenirken hata oluştu: " + error.message);
+                showFilesArea();
+            }
+
+            document.getElementById('fileUploadInput').value = '';
+        }
+
+        async function createFolder() {
+            const folderName = prompt('Yeni klasör adı:');
+            if (!folderName) return;
+
+            if (DEMO_MODE) {
+                alert(`Demo Mode: "${folderName}" klasörü oluşturuldu (simülasyon).`);
+                return;
+            }
+
+            try {
+                const endpoint = currentFolderId === "root"
+                    ? "https://graph.microsoft.com/v1.0/me/drive/root/children"
+                    : `https://graph.microsoft.com/v1.0/me/drive/items/${currentFolderId}/children`;
+
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: folderName,
+                        folder: {},
+                        '@microsoft.graph.conflictBehavior': 'rename'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Klasör oluşturulamadı");
+                }
+
+                showSuccess("Klasör başarıyla oluşturuldu: " + folderName);
+                loadFiles(currentFolderId);
+            } catch (error) {
+                console.error("Klasör oluşturma hatası:", error);
+                showError("Klasör oluşturulamadı: " + error.message);
+            }
+        }
+
+        async function shareFile(fileId) {
+            if (DEMO_MODE) {
+                const demoLink = 'https://onedrive.live.com/demo-share-link';
+                navigator.clipboard.writeText(demoLink).catch(() => {});
+                alert(`Demo Mode: Paylaşım Linki\n\n${demoLink}\n\n(Simülasyon - Gerçek link değildir)`);
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://graph.microsoft.com/v1.0/me/drive/items/${fileId}/createLink`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'view',
+                        scope: 'anonymous'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Paylaşım linki oluşturulamadı");
+                }
+
+                const data = await response.json();
+                const shareLink = data.link.webUrl;
+
+                // Linki kopyala
+                navigator.clipboard.writeText(shareLink);
+                showSuccess("Paylaşım linki panoya kopyalandı!");
+                
+                // Link göster
+                alert("Paylaşım Linki:\n\n" + shareLink + "\n\nLink panoya kopyalandı!");
+            } catch (error) {
+                console.error("Paylaşım hatası:", error);
+                showError("Paylaşım linki oluşturulamadı: " + error.message);
+            }
+        }
+
+        function downloadSelected() {
+            alert("Birden fazla dosya indirme özelliği yakında eklenecek.");
+        }
+
+        function deleteSelected() {
+            alert("Birden fazla dosya silme özelliği yakında eklenecek.");
+        }
+
+        // İzin Bilgilerini Göster
+        async function showFilePermissions(driveId, itemId, fileName) {
+            console.log("🔑 İzin bilgileri isteniyor:", {driveId, itemId, fileName});
+            
+            const modal = $('#permissionsModal');
+            const loading = $('#permissionsLoading');
+            const content = $('#permissionsContent');
+            const error = $('#permissionsError');
+            const fileNameElement = $('#permissionsFileName');
+            const permissionsList = $('#permissionsList');
+            
+            // Modal'ı aç ve loading göster
+            modal.modal('show');
+            loading.show();
+            content.hide();
+            error.hide();
+            fileNameElement.text(fileName);
+            
+            // Token kontrolü ve yenileme
+            if (!accessToken) {
+                console.log("🔄 Access token yok, token alınıyor...");
+                try {
+                    await getTokenSilent();
+                } catch (error) {
+                    console.error("❌ Token alınamadı:", error);
+                    loading.hide();
+                    error.text("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.").show();
+                    showLoginPrompt();
+                    return;
+                }
+            }
+            
+            // DriveId ve ItemId kontrolü
+            if (!driveId || driveId === 'null' || driveId === '' || !itemId || itemId === 'null' || itemId === '') {
+                console.error("❌ Drive ID veya Item ID eksik:", {driveId, itemId});
+                loading.hide();
+                error.text("Bu dosya için izin bilgileri alınamıyor. Drive ID veya Item ID eksik.").show();
+                return;
+            }
+            
+            try {
+                // Microsoft Graph API'den izin bilgilerini al
+                const endpoint = `https://graph.microsoft.com/v1.0/drives/${driveId}/items/${itemId}/permissions`;
+                console.log("📡 İzin API isteği:", endpoint);
+                
+                const response = await fetch(endpoint, {
+                    headers: {
+                        'Authorization': 'Bearer ' + accessToken
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error("❌ İzin API Hatası:", errorText);
+                    
+                    // 401 Unauthorized hatası: Token süresi dolmuş olabilir, yenile
+                    if (response.status === 401) {
+                        console.log("🔄 401 hatası, token yenileniyor...");
+                        try {
+                            await getTokenSilent(true); // Force refresh
+                            // Token yenilendikten sonra tekrar dene
+                            const retryResponse = await fetch(endpoint, {
+                                headers: {
+                                    'Authorization': 'Bearer ' + accessToken
+                                }
+                            });
+                            
+                            if (!retryResponse.ok) {
+                                const retryErrorText = await retryResponse.text();
+                                console.error("❌ Retry İzin API Hatası:", retryErrorText);
+                                
+                                if (retryResponse.status === 400) {
+                                    throw new Error("Dosya bilgileri geçersiz. Bu dosya için izin bilgileri alınamıyor.");
+                                }
+                                throw new Error(`HTTP ${retryResponse.status}: ${retryResponse.statusText}`);
+                            }
+                            
+                            // Retry başarılı, devam et
+                            const permissionsData = await retryResponse.json();
+                            displayPermissionsData(permissionsData, permissionsList, loading, content);
+                            return;
+                        } catch (tokenError) {
+                            console.error("Token yenileme hatası:", tokenError);
+                            loading.hide();
+                            error.text("Oturum süreniz dolmuş. Lütfen tekrar giriş yapın.").show();
+                            showLoginPrompt();
+                            return;
+                        }
+                    }
+                    
+                    // 400 hatası genelde driveId formatı yanlış olduğunda olur
+                    if (response.status === 400) {
+                        throw new Error("Dosya bilgileri geçersiz. Bu dosya için izin bilgileri alınamıyor.");
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log("✅ İzin bilgileri alındı:", data);
+                
+                // İzinleri göster (helper fonksiyon)
+                displayPermissionsData(data, permissionsList, loading, content);
+                
+            } catch (error) {
+                console.error("İzin bilgileri yükleme hatası:", error);
+                loading.hide();
+                const errorMessage = error.message || error.toString() || "Bilinmeyen hata";
+                error.text(`İzin bilgileri yüklenirken hata oluştu: ${errorMessage}`).show();
+            }
+        }
+        
+        // İzinleri gösteren helper fonksiyon
+        function displayPermissionsData(data, permissionsList, loading, content) {
+            const permissions = data.value || [];
+            
+            if (permissions.length === 0) {
+                permissionsList.html('<p class="text-muted">Bu dosya için izin bilgisi bulunamadı.</p>');
+            } else {
+                let html = '<div class="table-responsive"><table class="table table-sm table-bordered">';
+                html += '<thead class="thead-light"><tr><th>Kullanıcı/Grup</th><th>E-posta</th><th>İzin Türü</th><th>Rol</th><th>Paylaşım Tarihi</th></tr></thead>';
+                html += '<tbody>';
+                
+                permissions.forEach(perm => {
+                    const grantTo = perm.grantedTo || perm.grantedToV2 || {};
+                    const user = grantTo.user || grantTo.siteUser || {};
+                    const displayName = user.displayName || perm.grantedToIdentities?.[0]?.displayName || 'Bilinmeyen';
+                    const email = user.email || perm.grantedToIdentities?.[0]?.email || user.userPrincipalName || '-';
+                    
+                    // İzin türlerini Türkçe'ye çevir
+                    const roles = perm.roles || [];
+                    const roleLabels = roles.map(role => {
+                        const roleMap = {
+                            'read': 'Oku',
+                            'write': 'Yaz',
+                            'owner': 'Sahip',
+                            'member': 'Üye',
+                            'editor': 'Düzenleyici',
+                            'viewer': 'Görüntüleyici'
+                        };
+                        return roleMap[role] || role;
+                    }).join(', ') || '-';
+                    
+                    // İzin türü (link veya direct)
+                    const linkType = perm.link ? 'Link Paylaşımı' : 'Doğrudan Paylaşım';
+                    const shareId = perm.link?.scope || perm.shareId || '-';
+                    
+                    // Paylaşım tarihi
+                    const sharedDate = perm.shareId ? (new Date(perm.shared?.dateTime || Date.now()).toLocaleDateString('tr-TR')) : '-';
+                    
+                    html += `<tr>`;
+                    html += `<td>${escapeHtml(displayName)}</td>`;
+                    html += `<td>${escapeHtml(email)}</td>`;
+                    html += `<td><span class="badge badge-info">${linkType}</span></td>`;
+                    html += `<td><span class="badge badge-primary">${roleLabels}</span></td>`;
+                    html += `<td>${sharedDate}</td>`;
+                    html += `</tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                permissionsList.html(html);
+            }
+            
+            loading.hide();
+            content.show();
+        }
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        }
+
+        function showLoginPrompt() {
+            document.getElementById('loginPrompt').style.display = 'block';
+            document.getElementById('loadingArea').style.display = 'none';
+            document.getElementById('filesArea').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'none';
+            document.getElementById('signOutBtn').style.display = 'none';
+            stopAuditorSessionTimer(auditorUser);
+        }
+
+        function showLoading() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingArea').style.display = 'block';
+            document.getElementById('filesArea').style.display = 'none';
+        }
+
+        function showFilesArea() {
+            document.getElementById('loginPrompt').style.display = 'none';
+            document.getElementById('loadingArea').style.display = 'none';
+            document.getElementById('filesArea').style.display = 'block';
+            document.getElementById('refreshBtn').style.display = 'inline-block';
+            document.getElementById('signOutBtn').style.display = 'inline-block';
+        }
+
+        function showError(message) {
+            alert("HATA: " + message);
+        }
+
+        function showSuccess(message) {
+            // Toast notification eklenebilir
+            console.log("Başarılı:", message);
+        }
+
+        // Dosya Önizleme Fonksiyonları
+        async function openPreview(fileName, fileUrl, downloadInfo) {
+            currentPreviewUrl = fileUrl;
+            currentPreviewFile = downloadInfo || {};
+            
+            const modal = document.getElementById('previewModal');
+            const iframe = document.getElementById('previewIframe');
+            const loading = document.getElementById('previewLoading');
+            const fileNameElement = document.getElementById('previewFileName');
+            const editBtn = document.getElementById('previewEditBtn');
+            
+            // Modal'ı göster
+            modal.classList.add('active');
+            fileNameElement.textContent = fileName;
+            
+            // Loading göster
+            loading.style.display = 'block';
+            iframe.style.display = 'none';
+            
+            // Dosya uzantısını kontrol et
+            const ext = fileName.split('.').pop().toLowerCase();
+            
+            // Office dosyaları için "Düzenle" butonunu göster
+            const isOfficeFile = ['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext);
+            if (isOfficeFile && downloadInfo && downloadInfo.webUrl) {
+                editBtn.style.display = 'inline-block';
+            } else {
+                editBtn.style.display = 'none';
+            }
+            
+            // PDF için özel işlem: Blob olarak indir ve göster (CSP bypass)
+            if (ext === 'pdf') {
+                try {
+                    console.log("📕 PDF indiriliyor ve önizleniyor:", fileUrl);
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>PDF Yükleniyor...</strong></p>
+                        <p class="text-muted">Büyük dosyalar biraz zaman alabilir</p>
+                    `;
+                    
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) throw new Error("PDF yüklenemedi");
+                    
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    console.log("✅ PDF blob URL oluşturuldu:", blobUrl);
+                    iframe.src = blobUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    
+                    // iframe yüklenme süresi
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                } catch (error) {
+                    console.error("PDF yükleme hatası:", error);
+                    loading.innerHTML = `
+                        <i class="fas fa-file-pdf" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p class="mt-3"><strong>PDF önizlemesi yüklenemedi</strong></p>
+                        <p class="text-muted">${error.message}</p>
+                        <button class="btn btn-success mt-3" onclick="downloadCurrentPreview()">
+                            <i class="fas fa-download"></i> PDF'i İndir
+                        </button>
+                    `;
+                }
+                return;
+            }
+            
+            // Office dosyaları için Office 365 Online Viewer
+            if (['docx', 'doc', 'xlsx', 'xls', 'pptx', 'ppt'].includes(ext)) {
+                // Paylaşılan dosyalar için downloadUrl kullan (iframe'de açılabilir)
+                // downloadUrl yoksa /content endpoint'inden blob olarak yükle
+                if (downloadInfo && downloadInfo.isSharedFile && downloadInfo.downloadUrl) {
+                    // Paylaşılan dosya için downloadUrl var, Office Online Viewer'da aç
+                    const sourceUrl = downloadInfo.downloadUrl;
+                    const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
+                    
+                    console.log("📊 Office 365 Online Viewer açılıyor (Paylaşılan Dosya - downloadUrl ile):", {
+                        fileName: fileName,
+                        downloadUrl: sourceUrl.substring(0, 80) + '...',
+                        viewer: 'Office 365 Online'
+                    });
+                    
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Microsoft Office 365 Online (Görüntüleme)</p>
+                    `;
+                    
+                    // Office Online Viewer kullan (downloadUrl ile iframe'de açılabilir)
+                    iframe.src = previewUrl;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    
+                    // Düzenle butonunu göster (webUrl varsa)
+                    if (editBtn && downloadInfo.webUrl) {
+                        editBtn.style.display = 'inline-block';
+                        editBtn.onclick = function() {
+                            // SharePoint'te düzenleme modunu aç (yeni sekmede)
+                            const editUrl = downloadInfo.webUrl.replace('/view.aspx', '/edit.aspx');
+                            window.open(editUrl || downloadInfo.webUrl, '_blank');
+                        };
+                    }
+                } else if (downloadInfo && downloadInfo.isSharedFile && downloadInfo.webUrl && !downloadInfo.downloadUrl) {
+                    // Paylaşılan dosya için downloadUrl yok, /content endpoint'inden blob olarak yükle
+                    console.log("📊 Paylaşılan dosya için /content endpoint'inden blob yükleniyor...");
+                    
+                    loading.innerHTML = `
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="sr-only">Yükleniyor...</span>
+                        </div>
+                        <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                        <p class="text-muted">Dosya içeriği alınıyor...</p>
+                    `;
+                    
+                    // /content endpoint'inden blob olarak yükle
+                    try {
+                        const contentResponse = await fetch(`https://graph.microsoft.com/v1.0/drives/${downloadInfo.driveId}/items/${downloadInfo.itemId}/content`, {
+                            headers: {
+                                'Authorization': 'Bearer ' + accessToken
+                            }
+                        });
+                        
+                        if (contentResponse.ok) {
+                            const blob = await contentResponse.blob();
+                            const blobUrl = URL.createObjectURL(blob);
+                            const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(blobUrl)}&wdStartOn=1`;
+                            
+                            console.log("✅ Blob yüklendi, Office Online Viewer'da açılıyor");
+                            iframe.src = previewUrl;
+                            iframe.style.width = '100%';
+                            iframe.style.height = '100%';
+                            
+                            // Düzenle butonunu göster (webUrl varsa)
+                            if (editBtn && downloadInfo.webUrl) {
+                                editBtn.style.display = 'inline-block';
+                                editBtn.onclick = function() {
+                                    const editUrl = downloadInfo.webUrl.replace('/view.aspx', '/edit.aspx');
+                                    window.open(editUrl || downloadInfo.webUrl, '_blank');
+                                };
+                            }
+                        } else {
+                            throw new Error("Blob yüklenemedi: " + contentResponse.status);
+                        }
+                    } catch (blobError) {
+                        console.error("❌ Blob yükleme hatası:", blobError);
+                        loading.innerHTML = `
+                            <i class="fas fa-file-alt" style="font-size: 3rem; color: #dc3545;"></i>
+                            <p class="mt-3"><strong>Dosya yüklenemedi</strong></p>
+                            <p class="text-muted">${blobError.message}</p>
+                            <div class="mt-3">
+                                <button class="btn btn-success mr-2" onclick="downloadCurrentPreview()">
+                                    <i class="fas fa-download"></i> Dosyayı İndir
+                                </button>
+                                ${downloadInfo.webUrl ? `<button class="btn btn-primary" onclick="window.open('${downloadInfo.webUrl}', '_blank')">
+                                    <i class="fas fa-external-link-alt"></i> SharePoint'te Aç
+                                </button>` : ''}
+                            </div>
+                        `;
+                    }
+                } else {
+                    // Kendi dosyalarımız için downloadUrl kullan (sadece görüntüleme)
+                const sourceUrl = downloadInfo && downloadInfo.downloadUrl ? downloadInfo.downloadUrl : fileUrl;
+                const previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(sourceUrl)}&wdStartOn=1`;
+                
+                console.log("📊 Office Online Viewer açılıyor:", {
+                    fileName: fileName,
+                    sourceUrl: sourceUrl.substring(0, 80) + '...',
+                    viewer: 'https://view.officeapps.live.com'
+                });
+                
+                loading.innerHTML = `
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="sr-only">Yükleniyor...</span>
+                    </div>
+                    <p class="mt-3"><strong>${ext.toUpperCase()} Dosyası Yükleniyor...</strong></p>
+                    <p class="text-muted">Microsoft Office Online Viewer (Sadece Görüntüleme)</p>
+                    <p class="text-warning" style="font-size: 0.85rem;"><i class="fas fa-info-circle"></i> Düzenlemek için "Düzenle (SharePoint)" butonunu kullanın</p>
+                `;
+                
+                // Office Online viewer kullan
+                iframe.src = previewUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                }
+                
+                // Yükleme timeout (Office dosyaları yavaş yüklenebilir)
+                const loadTimeout = setTimeout(() => {
+                    if (loading.style.display !== 'none') {
+                        loading.innerHTML = `
+                            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                                <span class="sr-only">Yükleniyor...</span>
+                            </div>
+                            <p class="mt-3"><strong>Dosya yükleniyor...</strong></p>
+                            <p class="text-muted">Büyük Office dosyaları uzun sürebilir</p>
+                        `;
+                    }
+                }, 3000);
+                
+                iframe.onload = function() {
+                    clearTimeout(loadTimeout);
+                    setTimeout(() => {
+                        loading.style.display = 'none';
+                        iframe.style.display = 'block';
+                    }, 500);
+                };
+                
+                iframe.onerror = function() {
+                    clearTimeout(loadTimeout);
+                    loading.innerHTML = `
+                        <i class="fas fa-file-alt" style="font-size: 3rem; color: #dc3545;"></i>
+                        <p class="mt-3"><strong>Office dosyası yüklenemedi</strong></p>
+                        <p class="text-muted">Dosya önizlemesi başarısız oldu</p>
+                        <div class="mt-3">
+                            <button class="btn btn-success mr-2" onclick="downloadCurrentPreview()">
+                                <i class="fas fa-download"></i> Dosyayı İndir
+                            </button>
+                            <button class="btn btn-primary" onclick="openCurrentPreviewNewTab()">
+                                <i class="fas fa-external-link-alt"></i> SharePoint'te Aç
+                            </button>
+                        </div>
+                    `;
+                };
+                
+                return;
+            }
+            
+            // Resimler için direkt göster
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'].includes(ext)) {
+                console.log("🖼️ Resim önizleniyor:", fileUrl);
+                iframe.src = fileUrl;
+                iframe.style.width = '100%';
+                iframe.style.height = '100%';
+                
+                iframe.onload = function() {
+                    loading.style.display = 'none';
+                    iframe.style.display = 'block';
+                };
+                
+                return;
+            }
+            
+            // Diğer dosya türleri için direkt deneme
+            console.log("📄 Dosya önizleniyor:", fileUrl);
+            iframe.src = fileUrl;
+            iframe.style.width = '100%';
+            iframe.style.height = '100%';
+            
+            iframe.onload = function() {
+                loading.style.display = 'none';
+                iframe.style.display = 'block';
+            };
+            
+            iframe.onerror = function() {
+                loading.innerHTML = `
+                    <i class="fas fa-file" style="font-size: 3rem; color: #6c757d;"></i>
+                    <p class="mt-3"><strong>Önizleme desteklenmiyor</strong></p>
+                    <p class="text-muted">Bu dosya türü tarayıcıda açılamıyor.</p>
+                    <button class="btn btn-success mt-3" onclick="downloadCurrentPreview()">
+                        <i class="fas fa-download"></i> Dosyayı İndir
+                    </button>
+                `;
+            };
+        }
+        
+        function closePreview() {
+            const modal = document.getElementById('previewModal');
+            const iframe = document.getElementById('previewIframe');
+            
+            modal.classList.remove('active');
+            iframe.src = 'about:blank';
+            currentPreviewUrl = '';
+            currentPreviewFile = {};
+        }
+        
+        function downloadCurrentPreview() {
+            if (currentPreviewFile.driveId && currentPreviewFile.itemId) {
+                downloadSharedFile(currentPreviewFile.driveId, currentPreviewFile.itemId, currentPreviewFile.fileName);
+            } else if (currentPreviewFile.fileId) {
+                downloadFile(currentPreviewFile.fileId, currentPreviewFile.fileName);
+            } else if (currentPreviewUrl) {
+                window.open(currentPreviewUrl, '_blank');
+            }
+        }
+        
+        function openCurrentPreviewNewTab() {
+            if (currentPreviewFile.webUrl) {
+                window.open(currentPreviewFile.webUrl, '_blank');
+            } else if (currentPreviewUrl) {
+                window.open(currentPreviewUrl, '_blank');
+            }
+        }
+        
+        function editCurrentFile() {
+            // Office dosyalarını düzenlemek için SharePoint'te aç
+            if (currentPreviewFile.webUrl) {
+                console.log("📝 Dosya düzenleme için SharePoint'te açılıyor:", currentPreviewFile.webUrl);
+                window.open(currentPreviewFile.webUrl, '_blank');
+            } else {
+                alert("Düzenleme linki bulunamadı. Lütfen 'Yeni Sekmede Aç' butonunu kullanın.");
+            }
+        }
+        
+        // ESC tuşu ile modal'ı kapat
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePreview();
+            }
+        });
+    </script>
+</body>
+</html>
