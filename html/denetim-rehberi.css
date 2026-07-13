@@ -2,6 +2,8 @@
 
 .denetim-rehberi-page {
   padding-bottom: 2rem;
+  --dr-cols: 4.5rem minmax(12rem, 1fr) minmax(6.5rem, 8.125rem) minmax(5.5rem, 6.875rem) minmax(5rem, 6.875rem);
+  --dr-cols-7: 4.5rem minmax(9rem, 1.4fr) minmax(6rem, 1fr) minmax(6rem, 1fr) minmax(7.5rem, 1.2fr) minmax(6rem, 1fr) minmax(5rem, 0.9fr);
 }
 
 .denetim-rehberi-page .container {
@@ -10,7 +12,7 @@
 }
 
 /* Sekmeler */
-.dr-tabs {
+.denetim-rehberi-page .dr-tabs {
   flex-wrap: wrap;
   margin-bottom: 1rem;
   border-radius: var(--radius-lg);
@@ -24,23 +26,24 @@
   border: none;
   box-shadow: none;
   margin: 0;
+  overflow: visible;
 }
 
-.dr-workspace {
+.denetim-rehberi-page .dr-workspace {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
 /* Üst meta bar */
-.file-review-header {
+.denetim-rehberi-page .file-review-header {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem;
 }
 
-.file-review-header-top {
+.denetim-rehberi-page .file-review-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -48,19 +51,19 @@
   flex-wrap: wrap;
 }
 
-.file-review-logo {
+.denetim-rehberi-page .file-review-logo {
   max-height: 36px;
   width: auto;
 }
 
-.file-review-company-info {
+.denetim-rehberi-page .file-review-company-info {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.company-box,
-.dr-meta-label {
+.denetim-rehberi-page .company-box,
+.denetim-rehberi-page .dr-meta-label {
   background: var(--surface-2);
   color: var(--ink);
   border: 1px solid var(--line);
@@ -72,15 +75,17 @@
 }
 
 /* Form paneli */
-.dr-form-panel {
+.denetim-rehberi-page .dr-form-panel {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 1rem 1.25rem 1.25rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Template yükle toolbar */
-.dr-template-bar {
+.denetim-rehberi-page .dr-template-bar {
   margin-bottom: 0.75rem;
   padding: 0.65rem 1rem;
   border-radius: var(--radius-lg);
@@ -89,11 +94,17 @@
   justify-content: flex-end;
 }
 
-/* Grid başlık */
-.dr-grid-head {
+/* Grid başlık + satırlar */
+.denetim-rehberi-page .dr-grid-head,
+.denetim-rehberi-page .question-row {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) 130px 110px 110px;
+  grid-template-columns: var(--dr-cols);
   gap: 0.5rem;
+  align-items: start;
+  min-width: 52rem;
+}
+
+.denetim-rehberi-page .dr-grid-head {
   padding: 0.55rem 0.75rem;
   margin-bottom: 0.75rem;
   background: var(--surface-2);
@@ -106,14 +117,20 @@
   color: var(--muted);
 }
 
-.dr-col {
+.denetim-rehberi-page .dr-grid-head.dr-cols-7,
+.denetim-rehberi-page .question-row.dr-cols-7 {
+  grid-template-columns: var(--dr-cols-7);
+  min-width: 68rem;
+}
+
+.denetim-rehberi-page .dr-col {
   min-width: 0;
 }
 
 /* Uyarı */
-.warning-box {
-  background: color-mix(in oklch, var(--warn) 14%, var(--surface));
-  border: 1px solid color-mix(in oklch, var(--warn) 35%, var(--line));
+.denetim-rehberi-page .warning-box {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   border-left: 3px solid var(--warn);
   color: var(--ink);
   padding: 0.75rem 1rem;
@@ -123,8 +140,22 @@
   line-height: 1.55;
 }
 
+.denetim-rehberi-page .warning-box strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.875rem;
+  color: var(--warn);
+}
+
+@supports (background: color-mix(in oklch, white 50%, black)) {
+  .denetim-rehberi-page .warning-box {
+    background: color-mix(in oklch, var(--warn) 12%, var(--surface));
+    border-color: color-mix(in oklch, var(--warn) 30%, var(--line));
+  }
+}
+
 /* Bölüm başlığı */
-.dr-section-head {
+.denetim-rehberi-page .dr-section-head {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -134,10 +165,10 @@
   border-bottom: 1px solid var(--line);
 }
 
-.section-badge-large {
-  background: color-mix(in oklch, var(--primary) 14%, var(--surface));
+.denetim-rehberi-page .section-badge-large {
+  background: var(--surface-2);
   color: var(--primary);
-  border: 1px solid color-mix(in oklch, var(--primary) 28%, var(--line));
+  border: 1px solid var(--line);
   padding: 0.35rem 0.7rem;
   border-radius: var(--radius);
   font-weight: 700;
@@ -145,7 +176,14 @@
   font-family: var(--mono);
 }
 
-.section-title-bar {
+@supports (background: color-mix(in oklch, white 50%, black)) {
+  .denetim-rehberi-page .section-badge-large {
+    background: color-mix(in oklch, var(--primary) 14%, var(--surface));
+    border-color: color-mix(in oklch, var(--primary) 28%, var(--line));
+  }
+}
+
+.denetim-rehberi-page .section-title-bar {
   flex: 1;
   min-width: 200px;
   font-size: 0.875rem;
@@ -156,27 +194,34 @@
   padding: 0;
 }
 
-.dr-risk-hint {
+.denetim-rehberi-page .dr-risk-hint {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
   padding: 0.35rem 0.65rem;
-  background: color-mix(in oklch, var(--danger) 10%, var(--surface));
-  border: 1px solid color-mix(in oklch, var(--danger) 25%, var(--line));
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   font-size: 0.6875rem;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.dr-risk-hint .risk-box {
+@supports (background: color-mix(in oklch, white 50%, black)) {
+  .denetim-rehberi-page .dr-risk-hint {
+    background: color-mix(in oklch, var(--danger) 10%, var(--surface));
+    border-color: color-mix(in oklch, var(--danger) 25%, var(--line));
+  }
+}
+
+.denetim-rehberi-page .dr-risk-hint .risk-box {
   width: 14px;
   height: 14px;
   border-radius: 3px;
 }
 
 /* Alt bölüm başlıkları */
-.question-header {
+.denetim-rehberi-page .question-header {
   margin: 1.25rem 0 0.5rem;
   padding: 0.45rem 0.75rem;
   background: var(--surface-2);
@@ -188,18 +233,15 @@
 }
 
 /* Soru kartı */
-.question-section {
+.denetim-rehberi-page .question-section {
   margin-bottom: 0.5rem;
   padding: 0;
   background: transparent;
   border: none;
 }
 
-.question-row {
-  display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) 130px 110px 110px;
+.denetim-rehberi-page .question-row {
   gap: 0.65rem;
-  align-items: start;
   padding: 0.75rem;
   background: var(--bg);
   border: 1px solid var(--line);
@@ -207,18 +249,22 @@
   transition: border-color var(--dur) var(--ease);
 }
 
-.question-row:hover {
-  border-color: color-mix(in oklch, var(--primary) 25%, var(--line));
+.denetim-rehberi-page .question-row > div {
+  min-width: 0;
 }
 
-.dr-ref-badge {
+.denetim-rehberi-page .question-row:hover {
+  border-color: var(--primary);
+}
+
+.denetim-rehberi-page .dr-ref-badge {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 2rem;
   padding: 0.35rem;
-  background: color-mix(in oklch, var(--primary) 10%, var(--surface));
-  border: 1px solid color-mix(in oklch, var(--primary) 22%, var(--line));
+  background: var(--surface-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   font-size: 0.6875rem;
   font-weight: 700;
@@ -226,25 +272,32 @@
   color: var(--primary);
 }
 
-.dr-proc-cell {
+@supports (background: color-mix(in oklch, white 50%, black)) {
+  .denetim-rehberi-page .dr-ref-badge {
+    background: color-mix(in oklch, var(--primary) 10%, var(--surface));
+    border-color: color-mix(in oklch, var(--primary) 22%, var(--line));
+  }
+}
+
+.denetim-rehberi-page .dr-proc-cell {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   min-width: 0;
 }
 
-.question-text {
+.denetim-rehberi-page .question-text {
   font-size: 0.8125rem;
   line-height: 1.5;
   color: var(--ink);
 }
 
 /* Form kontrolleri */
-.question-input,
-.reference-input,
-.other-input,
-.result-dropdown,
-.metadata-value input {
+.denetim-rehberi-page .question-input,
+.denetim-rehberi-page .reference-input,
+.denetim-rehberi-page .other-input,
+.denetim-rehberi-page .result-dropdown,
+.denetim-rehberi-page .metadata-value input {
   width: 100%;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--line);
@@ -254,49 +307,53 @@
   font-size: 0.8125rem;
 }
 
-.question-input:focus,
-.reference-input:focus,
-.result-dropdown:focus {
+.denetim-rehberi-page .question-input:focus,
+.denetim-rehberi-page .reference-input:focus,
+.denetim-rehberi-page .result-dropdown:focus {
   outline: 2px solid var(--focus);
   outline-offset: 1px;
   border-color: var(--primary);
 }
 
 /* Risk kutuları */
-.risk-boxes {
+.denetim-rehberi-page .risk-boxes {
   display: flex;
   gap: 0.35rem;
   justify-content: center;
 }
 
-.risk-box {
+.denetim-rehberi-page .risk-box {
   width: 22px;
   height: 22px;
   border-radius: 4px;
   cursor: default;
 }
 
-.risk-box[data-risk="low"] {
-  background: color-mix(in oklch, var(--ok) 40%, transparent);
+.denetim-rehberi-page .risk-box[data-risk="low"] {
+  background: var(--ok);
   border: 2px solid var(--ok);
+  opacity: 0.65;
 }
 
-.risk-box[data-risk="normal"] {
-  background: color-mix(in oklch, var(--warn) 40%, transparent);
+.denetim-rehberi-page .risk-box[data-risk="normal"] {
+  background: var(--warn);
   border: 2px solid var(--warn);
+  opacity: 0.65;
 }
 
-.risk-box[data-risk="serious"] {
-  background: color-mix(in oklch, var(--danger) 40%, transparent);
+.denetim-rehberi-page .risk-box[data-risk="serious"] {
+  background: var(--danger);
   border: 2px solid var(--danger);
+  opacity: 0.65;
 }
 
-.risk-box.active {
+.denetim-rehberi-page .risk-box.active {
+  opacity: 1;
   box-shadow: 0 0 0 2px var(--focus);
 }
 
 /* Alt eylem çubuğu */
-.dr-action-bar {
+.denetim-rehberi-page .dr-action-bar {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -306,20 +363,51 @@
   border-top: 1px solid var(--line);
 }
 
+.denetim-rehberi-page .dr-b20-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.denetim-rehberi-page .dr-b20-head h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  flex: 1 1 20rem;
+}
+
+.denetim-rehberi-page .dr-b20-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 /* Gizli eski tablo */
 .denetim-rehberi-page .table-container[style*="display: none"] {
   display: none !important;
 }
 
-/* Kapak modal */
-.cover-metadata {
+/* Kapak modal + legacy tablo */
+.denetim-rehberi-page .cover-metadata {
   background: var(--surface-2);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 1rem;
 }
 
-.metadata-label {
+.denetim-rehberi-page .metadata-row {
+  display: flex;
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.denetim-rehberi-page .metadata-label {
   background: var(--surface-2);
   color: var(--muted);
   border: 1px solid var(--line);
@@ -329,72 +417,68 @@
   min-width: 120px;
 }
 
-.reference-link {
+.denetim-rehberi-page .reference-link {
   color: var(--primary);
   font-size: 0.8125rem;
 }
 
-.modal-content {
+.denetim-rehberi-page .modal-content {
   background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 
-/* Responsive — mobilde kart görünümü */
+.denetim-rehberi-page .table-container {
+  padding: 1rem 0;
+  overflow-x: auto;
+}
+
+.denetim-rehberi-page table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.denetim-rehberi-page th {
+  background: var(--surface-2);
+  color: var(--muted);
+  padding: 0.65rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 1px solid var(--line);
+}
+
+.denetim-rehberi-page td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.denetim-rehberi-page tr:hover td {
+  background: var(--surface-2);
+}
+
+/* Responsive — dar ekranda yatay kaydırma */
 @media (max-width: 960px) {
-  .dr-grid-head {
-    display: none;
+  .denetim-rehberi-page .dr-form-panel {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0;
   }
 
-  .question-row {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
+  .denetim-rehberi-page .dr-grid-head {
+    font-size: 0.625rem;
   }
 
-  .dr-ref-badge {
-    justify-content: flex-start;
-    width: fit-content;
+  .denetim-rehberi-page .dr-section-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
-  .question-row > div:nth-child(3)::before {
-    content: "Sonuç";
-    display: block;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-  }
-
-  .question-row > div:nth-child(4)::before {
-    content: "Risk ataması";
-    display: block;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-  }
-
-  .question-row > div:nth-child(5)::before {
-    content: "Referans";
-    display: block;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--muted);
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-  }
-
-  .risk-boxes {
-    justify-content: flex-start;
-  }
-
-  .dr-action-bar {
-    justify-content: stretch;
-  }
-
-  .dr-action-bar .btn {
-    flex: 1 1 auto;
+  .denetim-rehberi-page .dr-risk-hint {
+    white-space: normal;
   }
 }
