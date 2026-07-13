@@ -611,7 +611,7 @@
         <div class="sheet-card">
             <!-- FileReview Content Section -->
             <div id="fileReviewSection" style="display: block;">
-                <div style="padding: 2rem; background: #f8f9fa; margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); width: 100vw; max-width: 100vw; padding-left: calc(50vw - 50% + 2rem); padding-right: calc(50vw - 50% + 2rem);">
+                <div class="dr-workspace">
                     <!-- FileReview Header -->
                     <div class="file-review-header">
                         <div class="file-review-header-top">
@@ -619,9 +619,7 @@
                                 <img src="logo.svg" alt="Crowe Logo" class="file-review-logo" onerror="this.style.display='none'">
                             </div>
                             <div class="file-review-nav">
-                                <div style="background: #495057; color: white; padding: 8px 15px; border-radius: 5px; font-weight: 600;">
-                                    Referans Kodu
-                                </div>
+                                <div class="dr-meta-label">Referans Kodu</div>
                             </div>
                             <div class="file-review-company-info">
                                 <div class="company-box" id="file-review-company">… Şirketi</div>
@@ -630,34 +628,36 @@
                         </div>
                     </div>
 
-                    <div style="padding: 2rem; background: white; border-radius: 10px; margin-top: 1rem;">
+                    <div class="dr-form-panel">
                         <!-- Column Headers -->
-                        <div class="column-headers" style="display: grid; grid-template-columns: 80px 3fr 1fr 1.5fr 1fr; gap: 2px; margin-bottom: 1rem; font-weight: 600; padding: 0; background: #053455; color: #ffc107; border-radius: 5px;">
-                            <div class="column-header" style="background: #053455; color: #ffc107; padding: 12px; text-align: center; border-radius: 5px;">Referans Kodu</div>
-                            <div class="column-header" style="background: #053455; color: #ffc107; padding: 12px; text-align: center; border-radius: 5px;">Prosedür</div>
-                            <div class="column-header" style="background: #053455; color: #ffc107; padding: 12px; text-align: center; border-radius: 5px;">SONUÇ</div>
-                            <div class="column-header" style="background: #053455; color: #ffc107; padding: 12px; text-align: center; border-radius: 5px;">Sonuç "Ciddi Risk" İse Risk Ataması [REF:B80]</div>
-                            <div class="column-header" style="background: #053455; color: #ffc107; padding: 12px; text-align: center; border-radius: 5px;">Referanslar<!-- Warning Box -->
+                        <div class="dr-grid-head" aria-hidden="true">
+                            <div class="dr-col dr-col-ref">Referans</div>
+                            <div class="dr-col dr-col-proc">Prosedür</div>
+                            <div class="dr-col dr-col-result">Sonuç</div>
+                            <div class="dr-col dr-col-risk">Risk ataması</div>
+                            <div class="dr-col dr-col-refno">Referanslar</div>
+                        </div>
+                        <!-- Warning Box -->
                         <div class="warning-box">
                             <strong>DİKKAT!</strong> Risk atamaları gösterge niteliğindedir ve şirketten şirkete değişebilir. Risk atamalarını yaparken bu hususu unutmayınız. Ayrıca önceki denetçi ve açılış bakiyeleri risk unsurlarından bazılarına risk ataması yapılmamış olup bunun temel nedeni bu tanımlamalara karşılık Risk Atamaları'nın şirketten şirkete değişiklik göstereceğindendir. Son olarak aşağıdaki çalışma kağıdına ilişkin tüm etkenlere karşılık verilmesi beklenmez. Bu yüzden denetim esnasında tüm etkenlere karşılık risk tanımlaması yapmaya çalışmayınız. Bu çalışma kağıdının ana amacı ciddi risklere odaklanmaktır.
                         </div>
 
                         <!-- B10 Section Title -->
-                        <div style="margin: 2rem 0; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                        <div class="dr-section-head">
                             <span class="section-badge-large">B10</span>
-                            <div class="section-title-bar" style="flex: 1; min-width: 300px;">
+                            <div class="section-title-bar">
                                 Önceki Denetçi Dosya İncelemesi (File Review) ve Açılış Bakiyeleri Kontrolü
                             </div>
-                            <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 5px; color: #495057; font-weight: 600; display: flex; align-items: center; gap: 10px; white-space: nowrap;">
-                                <div class="risk-box" data-risk="serious" style="width: 20px; height: 20px; flex-shrink: 0;"></div>
-                                <span>&lt;&lt;&lt;&lt;&lt; "Ciddi Riskleri" kırmızı dolgulayınız.&gt;&gt;&gt;&gt;&gt;</span>
-                            <!-- Question 1 -->
+                            <div class="dr-risk-hint">
+                                <div class="risk-box" data-risk="serious"></div>
+                                <span>Ciddi riskleri kırmızı ile işaretleyin</span>
+                            </div>
+                        </div>
+                        <!-- Question 1 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>1)</strong> Kuruluşla irtibata geçin ve önceki denetçi ile iletişim kurmak ve önceki yıl çalışma kağıtlarını incelemek için müşteriden yetki edinin. Dosya incelememizin tarihini ve kime/kimlere başvurduğumuzu burada belirtin.
                                     </div>
@@ -681,6 +681,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q1-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Bağımsızlık ve Yetkinlik -->
                         <div class="question-header">
                             Bağımsızlık ve Yetkinlik
@@ -689,10 +691,8 @@
                         <!-- Question 2 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>2)</strong> Bağımsızlığı ortadan kaldıracak herhangi bir kısıtlama var mıydı? Önceki denetçinin yetkinliği ve bağımsızlığı konusundaki değerlendirmenizi buraya not ediniz.
                                     </div>
@@ -716,6 +716,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q2-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Sözleşme Koşulları -->
                         <div class="question-header">
                             Sözleşme Koşulları
@@ -724,10 +726,8 @@
                         <!-- Question 3 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>3)</strong> Denetimin kapsamı üzerinde herhangi bir kısıtlama var mıydı?
                                     </div>
@@ -751,6 +751,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q3-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: İşletme Hakkında Genel Anlayış -->
                         <div class="question-header">
                             İşletme Hakkında Genel Anlayış
@@ -759,10 +761,8 @@
                         <!-- Question 4 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>4)</strong> Aşağıdakilerden herhangi biri için bir kanıt gördünüz mü?
                                         <ul style="margin-top: 10px; margin-left: 20px; font-size: 0.9em;">
@@ -801,10 +801,8 @@
                             <!-- Question 5 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>5)</strong> Uygulanan finansal raporlama çerçevesini, önceki denetimden farklılık gösteren hususları ve bu farklılıkların nedenlerini belirtin. Önceki denetimde uygulanan finansal raporlama çerçevesi neydi?
                                     </div>
@@ -828,6 +826,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q5-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Önemlilik ve Seçilen Kriter -->
                         <div class="question-header">
                             Önemlilik ve Seçilen Kriter
@@ -836,10 +836,8 @@
                         <!-- Question 6 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>6)</strong> Önemlilik için seçilen kriter nedir? (Örn: Net Satışlar, Toplam Varlıklar, Dönem Karı vs.)
                                     </div>
@@ -866,10 +864,8 @@
                             <!-- Question 7 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>7)</strong> Önemlilik için seçilen tutar nedir? (Planlanan önemlilik, gerçekleşen önemlilik, performans önemliliği seviyeleri)
                                     </div>
@@ -893,6 +889,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q7-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Olağandışı İşlemler -->
                         <div class="question-header">
                             Olağandışı İşlemler
@@ -901,10 +899,8 @@
                         <!-- Question 8 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>8)</strong> Aşağıdakilerden herhangi bir işlemi tespit ettiniz mi?
                                         <ul style="margin-top: 10px; margin-left: 20px; font-size: 0.9em;">
@@ -936,10 +932,8 @@
                             <!-- Question 9 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>9)</strong> Suistimal veya hata olasılığı yüksek olan işlemler olabilir mi?
                                     </div>
@@ -966,10 +960,8 @@
                             <!-- Question 10 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>10)</strong> Yasadışı ödemelerin yapılmasına ilişkin endişeleri artıran nitelikte işlemler olabilir mi?
                                     </div>
@@ -996,10 +988,8 @@
                             <!-- Question 11 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>11)</strong> Muhasebe tahminleri ve muhasebe politikaları uygulamalarında olağandışı değişiklikler oldu mu? Evet ise, ayrıntı verin.
                                     </div>
@@ -1023,6 +1013,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q11-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Görüş Ayrılıkları -->
                         <div class="question-header">
                             Görüş Ayrılıkları
@@ -1031,10 +1023,8 @@
                         <!-- Question 12 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>12)</strong> Müşteri ile muhasebe veya denetim konularında ciddi anlaşmazlıklar yaşadınız mı? Eğer öyleyse lütfen kısa ayrıntıları verin.
                                     </div>
@@ -1058,6 +1048,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q12-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Süreklilik -->
                         <div class="question-header">
                             Süreklilik
@@ -1066,10 +1058,8 @@
                         <!-- Question 13 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>13)</strong> Yönetici tahminlerinin/planlarının işletme sürekliliği üzerindeki yeterliliğini değerlendirmek için ne gibi prosedürler uyguladınız?
                                     </div>
@@ -1096,10 +1086,8 @@
                             <!-- Question 14 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>14)</strong> Yönetim kurulu üyeleri veya eşdeğerleri, işletmenin sürekliliğini değerlendirirken ne kadar ileriye baktı? Bu değerlendirme en az 12 aylık bir süreye mi dayanıyordu?
                                     </div>
@@ -1126,10 +1114,8 @@
                             <!-- Question 15 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>15)</strong> Süreklilik ile ilgili herhangi bir kaygı tespit ettiniz mi? Eğer evet ise, lütfen detay veriniz.
                                     </div>
@@ -1156,10 +1142,8 @@
                             <!-- Question 16 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>16)</strong> Mali tablolarda süreklilik ile ilgili yapılan açıklamanın yeterliliğinden memnun musunuz?
                                     </div>
@@ -1183,6 +1167,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q16-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Denetimin Tamamlanması -->
                         <div class="question-header">
                             Denetimin Tamamlanması
@@ -1191,10 +1177,8 @@
                         <!-- Question 17 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>17)</strong> Şirketten bir yönetim teyit/açıklama mektubu aldınız mı?
                                     </div>
@@ -1221,10 +1205,8 @@
                             <!-- Question 18 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>18)</strong> Yönetim teyit/açıklama mektubuna dayanak gösterdiğiniz önemli bir husus var mıydı?
                                     </div>
@@ -1248,6 +1230,8 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q18-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: Denetim sonuçlarının özeti -->
                         <div class="question-header">
                             Denetim sonuçlarının özeti
@@ -1256,10 +1240,8 @@
                         <!-- Question 19 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>19)</strong> Denetim sonuçlarınızın yazılı bir özetini hazırladınız mı? Evet ise, lütfen bir kopyasını alabilir miyiz?
                                     </div>
@@ -1286,10 +1268,8 @@
                             <!-- Question 20 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>20)</strong> Denetim sırasında denetim planında herhangi bir değişiklik oldu mu? Evet ise, nedenlerini belirtir misiniz?
                                     </div>
@@ -1313,18 +1293,22 @@
                                 <div>
                                     <input type="text" class="reference-input" id="q20-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
                             <!-- Sub-section: B10.01 SONUÇ -->
                         <div class="question-header" style="background: #28a745; color: white; padding: 15px; border-radius: 5px; margin: 2rem 0 1rem 0;">
                             <strong>B10.01 SONUÇ</strong>
                         </div>
 
+                            </div>
+                        </div>
                         <!-- Conclusion 1 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10.01
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10.01</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>1)</strong> Açılış bakiyeleri, cari dönem finansal tablolarını önemli ölçüde etkileyen yanlış bilgiler içermemektedir.
                                     </div>
@@ -1348,13 +1332,13 @@
                                 <div>
                                     <input type="text" class="reference-input" id="c1-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Conclusion 2 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10.01
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10.01</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>2)</strong> Önceki dönem kapanış bakiyeleri, cari döneme doğru bir şekilde aktarılmış veya cari dönemde yeniden düzenlenmiştir.
                                     </div>
@@ -1378,13 +1362,13 @@
                                 <div>
                                     <input type="text" class="reference-input" id="c2-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Conclusion 3 -->
                         <div class="question-section">
                             <div class="question-row">
-                                <div style="display: flex; align-items: center; justify-content: center; padding: 10px; background: #ffc107; color: #495057; font-weight: 600; border-radius: 5px;">
-                                    B10.01
-                                </div>
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-ref-badge">B10.01</div>
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>3)</strong> Uygun muhasebe politikaları sürekli uygulanmakta ya da muhasebe politikasında yapılan değişiklikler doğru bir şekilde muhasebeleştirilmekte ve yeterince sunulmakta ve açıklanmaktadır.
                                     </div>
@@ -1408,20 +1392,23 @@
                                 <div>
                                     <input type="text" class="reference-input" id="c3-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Save Buttons -->
-                        <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #dee2e6; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                            <button type="button" class="btn btn-primary btn-lg" onclick="saveFileReviewData()">
-                                <i class="fas fa-save"></i> Kaydet
+                        <div class="dr-action-bar">
+                            <button type="button" class="btn btn-primary" onclick="saveFileReviewData()">
+                                <i class="ph ph-floppy-disk"></i> Kaydet
                             </button>
-                            <button type="button" class="btn btn-success btn-lg" onclick="exportToExcelWithPHP()" style="margin-right: 10px;">
-                                <i class="fas fa-file-excel"></i> Excel'e Aktar (Şablon Formatıyla)
+                            <button type="button" class="btn btn-success" onclick="exportToExcelWithPHP()">
+                                <i class="ph ph-file-xls"></i> Excel'e aktar
                             </button>
-                            <button type="button" class="btn btn-info btn-lg" onclick="exportToExcelAndOneDrive()">
-                                <i class="fas fa-cloud-upload-alt"></i> Excel'e Aktar ve OneDrive'a Yükle (Eski Yöntem)
+                            <button type="button" class="btn btn-info" onclick="exportToExcelAndOneDrive()">
+                                <i class="ph ph-cloud-arrow-up"></i> OneDrive'a yükle
                             </button>
                         </div>
                     </div>
-                <!-- Old table removed - content is now in fileReviewSection above -->
+                </div>
+                <!-- Old table removed -->
             <div class="table-container" style="display: none;">
                 <table class="table">
                     <thead>
@@ -1701,7 +1688,7 @@ Belirtiniz</td><td class=""></td><td class=""></td><td class=""></td></tr><tr><t
                                 </div>
                                 
                                 <!-- Prosedür -->
-                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="dr-proc-cell">
                                     <div class="question-text">
                                         <strong>1)</strong> Crowe HSY denetim ekibi denetlenen işletme için başka denetimler yürütmüş ise, bu denetimlerden elde edilen bilgilerin "önemli yanlışlık" riski içerip içermediğini değerlendirmesi gerekir. Bu nedenle denetlenen müşteri için başka denetimler yürütülmüş müdür? Başka denetimler yürütülmüş ise bu denetimlerden elde edilen bilgilerinden önemli yanlışlık riskine işaret edebilecek unsurulara ilişkin risk ataması yapınız.
                                     </div>
@@ -1747,6 +1734,8 @@ Belirtiniz</td><td class=""></td><td class=""></td><td class=""></td></tr><tr><t
                                 <div>
                                     <input type="text" class="reference-input" id="b20-reference" placeholder="Referans">
                                 </div>
+                            </div>
+                        </div>
                             <!-- Save Buttons -->
                         <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #dee2e6; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                             <button type="button" class="btn btn-primary btn-lg" onclick="saveB20Data()">
@@ -3117,13 +3106,12 @@ Belirtiniz</td><td class=""></td><td class=""></td><td class=""></td></tr><tr><t
                     // Check if button already exists
                     if (!tabContent.querySelector('.template-load-button-container')) {
                         const buttonContainer = document.createElement('div');
-                        buttonContainer.className = 'template-load-button-container';
-                        buttonContainer.style.cssText = 'text-align: center; margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px;';
+                        buttonContainer.className = 'atlas-toolbar dr-template-bar template-load-button-container';
                         
                         const button = document.createElement('button');
                         button.type = 'button';
-                        button.className = 'btn btn-info btn-lg';
-                        button.innerHTML = '<i class="fas fa-upload"></i> Template Yükle (Excel) - ' + tabNames[tab];
+                        button.className = 'btn btn-info mb-0';
+                        button.innerHTML = '<i class="ph ph-upload-simple"></i> Template yükle (Excel) — ' + tabNames[tab];
                         button.onclick = () => loadTemplateForTab(tab);
                         
                         buttonContainer.appendChild(button);
