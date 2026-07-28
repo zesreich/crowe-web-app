@@ -17,11 +17,9 @@ const apiBase =
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
-// ALLOW_FALLBACK_ADMINS=true ise production dahil fallback açılır.
-// Aksi halde yalnızca development'ta varsayılan olarak açıktır.
-const allowFallbackExplicit = process.env.ALLOW_FALLBACK_ADMINS === 'true';
+// ALLOW_FALLBACK_ADMINS=true ise production'da da fallback açılır (açıkça istenmişse).
 const allowFallback =
-  allowFallbackExplicit ||
+  process.env.ALLOW_FALLBACK_ADMINS === 'true' ||
   (appEnv !== 'production' && process.env.ALLOW_FALLBACK_ADMINS !== 'false');
 
 const fallbackPassword = allowFallback
@@ -36,7 +34,7 @@ const fallbackAdmins = allowFallback
       'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
       'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
       'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
-      'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' }
+      'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' },
     }
   : {};
 
@@ -61,4 +59,4 @@ if (CONFIG_APP_ENV === 'production' && (CONFIG_FALLBACK_DEFAULT_PASSWORD || Obje
 
 const outPath = path.join(__dirname, '..', 'html', 'config.js');
 fs.writeFileSync(outPath, content, 'utf8');
-console.log(`✓ config.js oluşturuldu (${appEnv}, fallback=${allowFallback}, API: ${apiBase})`);
+console.log(`✓ config.js oluşturuldu (${appEnv}, API: ${apiBase})`);
