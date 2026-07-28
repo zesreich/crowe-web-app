@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,7 +24,7 @@
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
         <div class="brand-text">
-          <strong>HSY Atlas</strong>
+          <strong>HSY Crowe</strong>
           <span>Denetim ekosistemi</span>
         </div>
       </a>
@@ -42,7 +42,7 @@
           <i class="ph ph-signature"></i><span>Sözleşmeler</span>
         </a>
         <a class="nav-btn" href="payments.html">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
+          <i class="ph ph-money"></i><span>Ödeme Listesi</span>
         </a>
         <a class="nav-btn" href="reports.html">
           <i class="ph ph-chart-line"></i><span>Raporlar</span>
@@ -75,7 +75,7 @@
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
         <span>Genel bakış</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -95,262 +95,377 @@
       </button>
     </header>
     <main class="main page-content" id="main-content" tabindex="-1">
-<div class="container-fluid px-4 pt-2 pb-1">
-                <div class="page-header-admin">
-                    <h1>Kontrol paneli</h1>
-                    <p class="page-header-meta mb-0"><span id="dashboardClock">—</span></p>
-                </div>
-            </div>
+      <div class="container-fluid dash-page">
+        <header class="dash-hero">
+          <div>
+            <p class="dash-kicker">HSY Crowe · Operasyon</p>
+            <h1>Kontrol paneli</h1>
+            <p class="page-header-meta mb-0" id="dashboardClock">—</p>
+          </div>
+          <div class="dash-hero-actions">
+            <a class="btn btn-primary" href="client-list.html"><i class="ph ph-plus"></i> Yeni müşteri</a>
+            <a class="btn btn-outline-dark" href="contracts.html"><i class="ph ph-signature"></i> Sözleşmeler</a>
+          </div>
+        </header>
 
-            <!-- Header Stats Section (Vue Notus Style) -->
-            <div class="header-stats">
-                <div class="container-fluid px-4">
-                    <div class="row">
-                        <!-- Gönderilen Teklif -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="offers.html" style="text-decoration: none; color: inherit;">
-                                <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="stat-subtitle">GÖNDERİLEN TEKLİF</div>
-                                            <div class="stat-title" id="sentOffersCount">0</div>
-                                            <div class="stat-description">
-                                                <span class="stat-percent text-success" id="sentOffersChange">
-                                                    <i class="fas fa-minus"></i> 0%
-                                                </span>
-                                                <span id="sentOffersPeriod">Geçen aydan beri</span>
-                                            </div>
-                                        </div>
-                                        <div class="stat-icon bg-danger">
-                                            <i class="fas fa-file-contract"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        
-                        <!-- Sözleşmeler -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="contracts.html" style="text-decoration: none; color: inherit;">
-                                <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="stat-subtitle">SÖZLEŞMELER</div>
-                                            <div class="stat-title" id="contractsCount">0</div>
-                                            <div class="stat-description">
-                                                <span class="stat-percent text-danger" id="contractsChange">
-                                                    <i class="fas fa-minus"></i> 0%
-                                                </span>
-                                                <span>Geçen haftadan beri</span>
-                                            </div>
-                                        </div>
-                                        <div class="stat-icon bg-warning">
-                                            <i class="fas fa-file-signature"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        
-                        <!-- Kullanıcı Sayısı -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="users.html" style="text-decoration: none; color: inherit;">
-                                <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="stat-subtitle">KULLANICI SAYISI</div>
-                                            <div class="stat-title" id="usersCount">0</div>
-                                            <div class="stat-description">
-                                                <span class="stat-percent text-warning" id="usersChange">
-                                                    <i class="fas fa-minus"></i> 0%
-                                                </span>
-                                                <span>Dünden beri</span>
-                                            </div>
-                                        </div>
-                                        <div class="stat-icon bg-info">
-                                            <i class="fas fa-users"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        
-                        <!-- Çevrimiçi Kullanıcılar -->
-                        <div class="col-lg-3 col-md-6 mb-4">
-                            <a href="online-users.html" style="text-decoration: none; color: inherit;">
-                                <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <div class="stat-subtitle">ÇEVRİMİÇİ KULLANICILAR</div>
-                                            <div class="stat-title" id="onlineUsersCount">0</div>
-                                            <div class="stat-description">
-                                                <span class="stat-percent text-success" id="onlineUsersStatus">
-                                                    <i class="fas fa-circle text-success"></i> <span>Pasif</span>
-                                                </span>
-                                                <span>Şu anda çevrimiçi</span>
-                                            </div>
-                                        </div>
-                                        <div class="stat-icon bg-success">
-                                            <i class="fas fa-user-check"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+        <section class="dash-kpi" aria-label="Özet göstergeler">
+          <a class="dash-kpi-card" href="offers.html">
+            <div class="dash-kpi-icon"><i class="ph ph-file-text"></i></div>
+            <div class="dash-kpi-body">
+              <span class="dash-kpi-label">Gönderilen teklif</span>
+              <strong class="dash-kpi-value" id="sentOffersCount">0</strong>
+              <span class="dash-kpi-meta">
+                <span class="stat-percent" id="sentOffersChange"><i class="ph ph-minus"></i> 0%</span>
+                <span id="sentOffersPeriod">Geçen aydan beri</span>
+              </span>
             </div>
+          </a>
+          <a class="dash-kpi-card" href="contracts.html">
+            <div class="dash-kpi-icon"><i class="ph ph-signature"></i></div>
+            <div class="dash-kpi-body">
+              <span class="dash-kpi-label">Sözleşmeler</span>
+              <strong class="dash-kpi-value" id="contractsCount">0</strong>
+              <span class="dash-kpi-meta">
+                <span class="stat-percent" id="contractsChange"><i class="ph ph-minus"></i> 0%</span>
+                <span>Geçen haftadan beri</span>
+              </span>
+            </div>
+          </a>
+          <a class="dash-kpi-card" href="users.html">
+            <div class="dash-kpi-icon"><i class="ph ph-users-three"></i></div>
+            <div class="dash-kpi-body">
+              <span class="dash-kpi-label">Kullanıcı sayısı</span>
+              <strong class="dash-kpi-value" id="usersCount">0</strong>
+              <span class="dash-kpi-meta">
+                <span class="stat-percent" id="usersChange"><i class="ph ph-minus"></i> 0%</span>
+                <span>Dünden beri</span>
+              </span>
+            </div>
+          </a>
+          <a class="dash-kpi-card" href="online-users.html">
+            <div class="dash-kpi-icon is-live"><i class="ph ph-pulse"></i></div>
+            <div class="dash-kpi-body">
+              <span class="dash-kpi-label">Çevrimiçi kullanıcılar</span>
+              <strong class="dash-kpi-value" id="onlineUsersCount">0</strong>
+              <span class="dash-kpi-meta">
+                <span class="stat-percent" id="onlineUsersStatus"><i class="ph ph-circle"></i> <span>Pasif</span></span>
+                <span>Şu anda çevrimiçi</span>
+              </span>
+            </div>
+          </a>
+        </section>
 
-            <!-- Main Content -->
-            <div class="container-fluid px-4" style="margin-top: 20px; position: relative; z-index: 10;">
-                <div class="row">
-                    <!-- Line Chart Card (Left Top) -->
-                    <div class="col-xl-8 col-lg-7 mb-4">
-                        <div class="card-chart card-dashboard-payments">
-                            <div class="card-dashboard-payments-head">
-                                <div class="card-dashboard-payments-icon" aria-hidden="true">
-                                    <i class="fas fa-money-bill-wave"></i>
-                                </div>
-                                <div class="card-dashboard-payments-titles">
-                                    <div class="card-chart-subtitle">Genel Bakış</div>
-                                    <div class="card-chart-title">Gelen Ödemeler</div>
-                                </div>
-                                <a href="payments.html" class="btn btn-sm btn-dashboard-payments-cta">Ödemelere git</a>
-                            </div>
-                            <div class="card-chart-body card-dashboard-payments-body">
-                                <div class="chart-container payment-chart-container">
-                                    <canvas id="payment-chart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Bar Chart Card (Right Top) -->
-                    <div class="col-xl-4 col-lg-5 mb-4">
-                        <div class="card-stats" style="cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'" onclick="window.location.href='reports.html'">
-                            <div class="card-chart-header" style="background: transparent; padding: 12px 12px 10px;">
-                                <div class="stat-subtitle">Genel Bakış</div>
-                                <div class="stat-title" style="display: flex; align-items: center; justify-content: space-between;">
-                                    <span>Tamamlanmış Raporlar</span>
-                                    <span id="totalCompletedReports" style="font-size: 2rem; font-weight: bold; color: #4ade80;">0</span>
-                                </div>
-                            </div>
-                            <div style="padding: 12px;">
-                                <div class="chart-container">
-                                    <canvas id="bar-chart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <!-- Active Users Card (Left Bottom) -->
-                    <div class="col-xl-8 col-lg-7 mb-4">
-                        <div class="card-table">
-                            <div class="card-table-header d-flex justify-content-between align-items-center">
-                                <div class="card-table-title">Aktif Kullanıcılar</div>
-                                <button class="btn btn-sm btn-primary" type="button" onclick="window.location.href='online-users.html'">
-                                    Tümünü Gör
-                                </button>
-                            </div>
-                            <div class="card-table-body">
-                                <table class="table-notus">
-                                    <thead>
-                                        <tr>
-                                            <th>Kullanıcı Adı</th>
-                                            <th>Aktif Dosya</th>
-                                            <th>Dosya Tipi</th>
-                                            <th>Süre</th>
-                                            <th>Durum</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="active-users-tbody">
-                                    </tbody>
-                                    <script>
-                                        // CRITICAL: Clear tbody immediately - runs inline before any other script
-                                        (function() {
-                                            try {
-                                                var tbody = document.getElementById('active-users-tbody');
-                                                if (tbody) {
-                                                    tbody.innerHTML = '';
-                                                    console.log('✅ INLINE: Tbody temizlendi');
-                                                }
-                                            } catch(e) {
-                                                console.error('INLINE clear error:', e);
-                                            }
-                                        })();
-                                        
-                                        // Also clear on page load events
-                                        if (document.readyState === 'loading') {
-                                            document.addEventListener('DOMContentLoaded', function() {
-                                                var tbody = document.getElementById('active-users-tbody');
-                                                if (tbody) tbody.innerHTML = '';
-                                            });
-                                        } else {
-                                            var tbody = document.getElementById('active-users-tbody');
-                                            if (tbody) tbody.innerHTML = '';
-                                        }
-                                        
-                                        // Clear multiple times to catch any late rendering
-                                        setTimeout(function() {
-                                            var tbody = document.getElementById('active-users-tbody');
-                                            if (tbody) tbody.innerHTML = '';
-                                        }, 10);
-                                        setTimeout(function() {
-                                            var tbody = document.getElementById('active-users-tbody');
-                                            if (tbody) tbody.innerHTML = '';
-                                        }, 100);
-                                        setTimeout(function() {
-                                            var tbody = document.getElementById('active-users-tbody');
-                                            if (tbody) tbody.innerHTML = '';
-                                        }, 500);
-                                    </script>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Auditor Session Card (Right Bottom) -->
-                    <div class="col-xl-4 col-lg-5 mb-4">
-                        <div class="card-table">
-                            <div class="card-table-header d-flex justify-content-between align-items-center">
-                                <div class="card-table-title d-flex align-items-center">
-                                    <i class="far fa-clock text-primary mr-2"></i> Denetçi Oturum Süreleri
-                                </div>
-                                <button class="btn btn-sm btn-outline-primary" type="button" id="refreshSessionsBtn">
-                                    Yenile
-                                </button>
-                            </div>
-                            <div class="card-table-body p-0">
-                                <div id="auditorSessionsEmpty" class="p-3 text-center text-muted" style="display: none;">
-                                    Henüz aktif denetçi oturumu bulunmuyor.
-                                </div>
-                                <table class="table-notus mb-0" id="auditorSessionsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>Denetçi</th>
-                                            <th>Oturum Süresi</th>
-                                            <th>Durum</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="auditorSessionsBody">
-                                        <!-- Dinamik olarak doldurulacak -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section class="dash-shortcuts" aria-label="Hızlı erişim">
+          <a href="offers.html"><i class="ph ph-file-text"></i> Teklifler</a>
+          <a href="contracts.html"><i class="ph ph-signature"></i> Sözleşmeler</a>
+          <a href="payments.html"><i class="ph ph-money"></i> Ödeme Listesi</a>
+          <a href="reports.html"><i class="ph ph-chart-line"></i> Raporlar</a>
+          <a href="auditor-dashboard.html"><i class="ph ph-compass"></i> Denetçi</a>
+        </section>
+
+        <div class="dash-grid">
+          <article class="dash-panel dash-panel--wide">
+            <div class="dash-panel-head">
+              <div>
+                <p class="dash-panel-kicker">Muhasebe</p>
+                <h2>Ödeme Listesi</h2>
+              </div>
+              <a href="payments.html" class="btn btn-sm btn-primary">Listeye git</a>
             </div>
+            <div class="dash-panel-body dash-chart-body">
+              <canvas id="payment-chart" aria-label="Ödeme grafiği"></canvas>
+            </div>
+          </article>
+
+          <article class="dash-panel" role="link" tabindex="0" onclick="window.location.href='reports.html'" onkeydown="if(event.key==='Enter')window.location.href='reports.html'">
+            <div class="dash-panel-head">
+              <div>
+                <p class="dash-panel-kicker">Raporlar</p>
+                <h2>Tamamlanmış</h2>
+              </div>
+              <strong class="dash-report-total" id="totalCompletedReports">0</strong>
+            </div>
+            <div class="dash-panel-body dash-chart-body dash-chart-body--short">
+              <canvas id="bar-chart" aria-label="Rapor grafiği"></canvas>
+            </div>
+          </article>
+
+          <article class="dash-panel dash-panel--wide">
+            <div class="dash-panel-head">
+              <div>
+                <p class="dash-panel-kicker">Canlı aktivite</p>
+                <h2>Aktif kullanıcılar</h2>
+              </div>
+              <a href="online-users.html" class="btn btn-sm btn-outline-dark">Tümünü gör</a>
+            </div>
+            <div class="dash-panel-body p-0">
+              <div class="atlas-table-wrap" style="border:0;border-radius:0;">
+                <table class="table atlas-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Kullanıcı</th>
+                      <th>Aktif dosya</th>
+                      <th>Tip</th>
+                      <th>Süre</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody id="active-users-tbody">
+                    <tr>
+                      <td colspan="5" class="text-center text-muted py-4">
+                        <i class="ph ph-users" style="font-size:1.5rem;opacity:.35;display:block;margin-bottom:.35rem;"></i>
+                        Aktif kullanıcı bulunamadı
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+
+          <article class="dash-panel">
+            <div class="dash-panel-head">
+              <div>
+                <p class="dash-panel-kicker">Denetçi</p>
+                <h2>Oturum süreleri</h2>
+              </div>
+              <button class="btn btn-sm btn-outline-dark" type="button" id="refreshSessionsBtn">
+                <i class="ph ph-arrows-clockwise"></i> Yenile
+              </button>
+            </div>
+            <div class="dash-panel-body p-0">
+              <div id="auditorSessionsEmpty" class="p-4 text-center text-muted" style="display:none;">
+                Henüz aktif denetçi oturumu yok.
+              </div>
+              <div class="atlas-table-wrap" style="border:0;border-radius:0;">
+                <table class="table atlas-table mb-0" id="auditorSessionsTable">
+                  <thead>
+                    <tr>
+                      <th>Denetçi</th>
+                      <th>Süre</th>
+                      <th>Durum</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditorSessionsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
     </main>
   </div>
->
+
+  <style>
+    .dash-page {
+      display: grid;
+      gap: 1.25rem;
+      padding-bottom: 1.5rem;
+    }
+    .dash-hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.25rem 0 0.15rem;
+    }
+    .dash-kicker {
+      margin: 0 0 0.2rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dash-hero h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 2vw, 1.85rem);
+      font-weight: 650;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      text-wrap: balance;
+    }
+    .dash-hero-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .dash-kpi {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .dash-kpi-card {
+      display: flex;
+      gap: 0.85rem;
+      align-items: flex-start;
+      padding: 1rem 1.05rem;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+    }
+    .dash-kpi-card:hover {
+      border-color: color-mix(in srgb, var(--primary) 55%, var(--line));
+      background: color-mix(in srgb, var(--primary) 8%, #fff);
+      transform: translateY(-1px);
+      text-decoration: none;
+      color: inherit;
+    }
+    .dash-kpi-icon {
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 0.65rem;
+      display: grid;
+      place-items: center;
+      background: #111;
+      color: var(--primary);
+      font-size: 1.15rem;
+      flex-shrink: 0;
+    }
+    .dash-kpi-icon.is-live {
+      background: color-mix(in srgb, var(--primary) 22%, #111);
+    }
+    .dash-kpi-label {
+      display: block;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .dash-kpi-value {
+      display: block;
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+    .dash-kpi-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.55rem;
+      margin-top: 0.4rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .dash-kpi-meta .stat-percent {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .dash-shortcuts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .dash-shortcuts a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+    .dash-shortcuts a:hover {
+      background: #111;
+      border-color: #111;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 0.85rem;
+    }
+    .dash-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      min-width: 0;
+    }
+    .dash-panel--wide {
+      grid-column: 1;
+    }
+    .dash-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.9rem 1.05rem;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-2, #f7f7f7) 70%, #fff);
+    }
+    .dash-panel-kicker {
+      margin: 0;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .dash-panel-head h2 {
+      margin: 0.1rem 0 0;
+      font-size: 1rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+    }
+    .dash-report-total {
+      font-size: 1.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: #111;
+      font-variant-numeric: tabular-nums;
+    }
+    .dash-panel-body {
+      padding: 0.85rem 1.05rem 1.05rem;
+    }
+    .dash-chart-body {
+      min-height: 220px;
+      position: relative;
+    }
+    .dash-chart-body canvas {
+      width: 100% !important;
+      max-height: 260px;
+    }
+    .dash-chart-body--short {
+      min-height: 180px;
+    }
+    .dash-chart-body--short canvas {
+      max-height: 200px;
+    }
+    @media (max-width: 1100px) {
+      .dash-kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dash-grid { grid-template-columns: 1fr; }
+      .dash-panel--wide { grid-column: auto; }
+    }
+    @media (max-width: 640px) {
+      .dash-kpi { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .dash-kpi-card { transition: none; }
+      .dash-kpi-card:hover { transform: none; }
+    }
+  </style>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script src="config.js"></script>
     <!-- Supabase Library - MUST LOAD FIRST -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -442,8 +557,6 @@
                 }, 50);
             }
         })();
-    </script>
-    <!-- Dark Mode -->
     </script>
     <!-- Prevent Active Link Reload -->
     <script src="prevent-active-link-reload.js"></script>
@@ -1038,9 +1151,9 @@
                         labels: monthNames,
                         datasets: [
                             {
-                                label: "Gelen Ödemeler (₺)",
-                                backgroundColor: "rgba(0, 194, 146, 0.12)",
-                                borderColor: "#00c292",
+                                label: "Ödeme Listesi (₺)",
+                                backgroundColor: "rgba(253, 185, 19, 0.18)",
+                                borderColor: "#fdb913",
                                 data: chartData,
                                 fill: true,
                                 tension: 0.4,
@@ -1160,8 +1273,8 @@
                         datasets: [
                             {
                                 label: "SPK Raporları",
-                                backgroundColor: "#ef4444",
-                                borderColor: "#ef4444",
+                                backgroundColor: "#111111",
+                                borderColor: "#111111",
                                 data: spkMonthly,
                                 fill: false,
                                 barThickness: 8
@@ -1169,8 +1282,8 @@
                             {
                                 label: "KGK Raporları",
                                 fill: false,
-                                backgroundColor: "#00c292",
-                                borderColor: "#00a085",
+                                backgroundColor: "#fdb913",
+                                borderColor: "#e0a40f",
                                 data: kgkMonthly,
                                 barThickness: 8
                             }

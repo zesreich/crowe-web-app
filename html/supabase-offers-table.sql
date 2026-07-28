@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS offers (
     status VARCHAR(50) NOT NULL DEFAULT 'Onay Bekliyor',
     ppt_files JSONB DEFAULT '[]'::jsonb, -- Array of file names
     pdf_files JSONB DEFAULT '[]'::jsonb, -- Array of file names
+    details JSONB DEFAULT '{}'::jsonb, -- Extended offer fields (period, amount, language, etc.)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
@@ -85,6 +86,9 @@ CREATE POLICY "Authenticated users can delete offers" ON offers
 -- =====================================================
 -- Verification Query
 -- =====================================================
+
+-- Mevcut tablolara details kolonu ekle (güncelleme)
+ALTER TABLE offers ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'::jsonb;
 
 -- Check if table was created successfully
 SELECT 

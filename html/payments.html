@@ -1,21 +1,85 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
-    </script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CROWE HSY - Gelen Ödemeler</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="atlas-shell.css" rel="stylesheet">
-    <link href="atlas-compat.css" rel="stylesheet">
-
+  <script>
+  (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CROWE HSY - Ödeme Listesi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="atlas-shell.css" rel="stylesheet">
+  <link href="atlas-compat.css" rel="stylesheet">
+  <style>
+    .payment-list-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .payment-stat {
+      background: #fff;
+      border: 1px solid var(--line, #e8e8e8);
+      border-radius: 0.65rem;
+      padding: 0.85rem 1rem;
+    }
+    .payment-stat label {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted, #666);
+      margin: 0 0 0.25rem;
+    }
+    .payment-stat strong {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .payment-list-table-wrap {
+      overflow: auto;
+      max-height: min(70vh, 720px);
+      border: 1px solid var(--line, #e8e8e8);
+      border-radius: 0.65rem;
+      background: #fff;
+    }
+    #receivablesTable {
+      margin: 0;
+      font-size: 0.8125rem;
+      white-space: nowrap;
+    }
+    #receivablesTable thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f7f7f7;
+      border-bottom: 1px solid var(--line, #e8e8e8);
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    #receivablesTable tbody tr:hover {
+      background: #fffbeb;
+    }
+    .num-cell {
+      font-family: "IBM Plex Mono", monospace;
+      text-align: right;
+    }
+    .payment-empty {
+      padding: 3rem 1.5rem;
+      text-align: center;
+      color: var(--muted, #666);
+    }
+    .payment-empty i {
+      display: block;
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+      color: #c4c4c4;
+    }
+  </style>
 </head>
 <body data-atlas-page="payments">
   <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;">İçeriğe atla</a>
@@ -24,41 +88,21 @@
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
         <div class="brand-text">
-          <strong>HSY Atlas</strong>
+          <strong>HSY Crowe</strong>
           <span>Denetim ekosistemi</span>
         </div>
       </a>
       <nav class="nav" aria-label="Modüller">
-        <a class="nav-btn" href="dashboard.html">
-          <i class="ph ph-squares-four"></i><span>Kontrol paneli</span>
-        </a>
-        <a class="nav-btn" href="client-list.html">
-          <i class="ph ph-buildings"></i><span>Müşteriler</span>
-        </a>
-        <a class="nav-btn" href="offers.html">
-          <i class="ph ph-file-text"></i><span>Teklifler</span>
-        </a>
-        <a class="nav-btn" href="contracts.html">
-          <i class="ph ph-signature"></i><span>Sözleşmeler</span>
-        </a>
-        <a class="nav-btn" href="payments.html" aria-current="page">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
-        </a>
-        <a class="nav-btn" href="reports.html">
-          <i class="ph ph-chart-line"></i><span>Raporlar</span>
-        </a>
-        <a class="nav-btn" href="users.html">
-          <i class="ph ph-users-three"></i><span>Kullanıcılar</span>
-        </a>
-        <a class="nav-btn" href="online-users.html">
-          <i class="ph ph-pulse"></i><span>Çevrimiçi</span>
-        </a>
-        <a class="nav-btn" href="ecosystem-mockup/">
-          <i class="ph ph-folder-simple"></i><span>Ekosistem</span>
-        </a>
-        <a class="nav-btn" href="auditor-dashboard.html">
-          <i class="ph ph-compass"></i><span>Denetçi</span>
-        </a>
+        <a class="nav-btn" href="dashboard.html"><i class="ph ph-squares-four"></i><span>Kontrol paneli</span></a>
+        <a class="nav-btn" href="client-list.html"><i class="ph ph-buildings"></i><span>Müşteriler</span></a>
+        <a class="nav-btn" href="offers.html"><i class="ph ph-file-text"></i><span>Teklifler</span></a>
+        <a class="nav-btn" href="contracts.html"><i class="ph ph-signature"></i><span>Sözleşmeler</span></a>
+        <a class="nav-btn" href="payments.html" aria-current="page"><i class="ph ph-money"></i><span>Ödeme Listesi</span></a>
+        <a class="nav-btn" href="reports.html"><i class="ph ph-chart-line"></i><span>Raporlar</span></a>
+        <a class="nav-btn" href="users.html"><i class="ph ph-users-three"></i><span>Kullanıcılar</span></a>
+        <a class="nav-btn" href="online-users.html"><i class="ph ph-pulse"></i><span>Çevrimiçi</span></a>
+        <a class="nav-btn" href="ecosystem-mockup/"><i class="ph ph-folder-simple"></i><span>Ekosistem</span></a>
+        <a class="nav-btn" href="auditor-dashboard.html"><i class="ph ph-compass"></i><span>Denetçi</span></a>
       </nav>
       <div class="rail-foot">
         <div class="persona">
@@ -75,11 +119,11 @@
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
-        <span>Operasyon</span>
+        <span>Muhasebe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
-        <strong>Gelen ödemeler</strong>
+        <strong>Ödeme Listesi</strong>
       </div>
       <label class="search" aria-label="Kısayol ara">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
@@ -91,822 +135,334 @@
       </button>
     </header>
     <main class="main page-content" id="main-content" tabindex="-1">
-<!-- Main Content -->
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-plus-circle mr-2"></i>
-                                    <span>Yeni Ödeme Ekle</span>
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <form id="paymentForm">
-                                    <!-- Şirket Seçimi -->
-                                    <div class="form-group">
-                                        <label for="company">
-                                            <i class="fas fa-building mr-2 text-primary"></i>
-                                            <span>Şirket Seçiniz</span>
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-control" id="company" required>
-                                            <option value="">-- Lütfen Seçiniz --</option>
-                                            <option value="ABC Construction Inc.">ABC Construction Inc.</option>
-                                            <option value="XYZ Manufacturing Ltd.">XYZ Manufacturing Ltd.</option>
-                                            <option value="Global Trade Corp.">Global Trade Corp.</option>
-                                            <option value="Tech Solutions A.Ş.">Tech Solutions A.Ş.</option>
-                                            <option value="Finance Partners Ltd.">Finance Partners Ltd.</option>
-                                        </select>
-                                    </div>
+      <div class="container-fluid">
+        <div class="page-header-admin">
+          <h1>Ödeme Listesi</h1>
+          <p class="page-header-meta">Muhasebe sisteminden alınan 120 Alacak listesini Excel ile yükleyin</p>
+        </div>
 
-                                    <!-- Rapor Türü -->
-                                    <div class="form-group">
-                                        <label for="reportType">
-                                            <i class="fas fa-file-alt mr-2 text-primary"></i>
-                                            <span>Rapor Türü</span>
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-control" id="reportType" required>
-                                            <option value="">-- Lütfen Seçiniz --</option>
-                                            <option value="audit">Denetim Hizmeti</option>
-                                            <option value="tax">Vergi Danışmanlığı</option>
-                                            <option value="financial">Mali Müşavirlik</option>
-                                            <option value="independent">Bağımsız Denetim</option>
-                                            <option value="analysis">Finansal Analiz</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Tutar -->
-                                    <div class="form-group">
-                                        <label for="amount">
-                                            <i class="fas fa-dollar-sign mr-2 text-primary"></i>
-                                            <span>Tutar</span>
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="number" class="form-control" id="amount" min="0" step="0.01" placeholder="0.00" required>
-                                    </div>
-
-                                    <!-- Döviz Cinsi -->
-                                    <div class="form-group">
-                                        <label for="currency">
-                                            <i class="fas fa-money-bill-wave mr-2 text-primary"></i>
-                                            <span>Döviz Cinsi</span>
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <select class="form-control" id="currency" required>
-                                            <option value="">-- Lütfen Seçiniz --</option>
-                                            <option value="TRY">TRY ₺</option>
-                                            <option value="USD">USD $</option>
-                                            <option value="EUR">EUR €</option>
-                                        </select>
-                                    </div>
-
-                                    <!-- Ödeme Tarihi -->
-                                    <div class="form-group">
-                                        <label for="paymentDate">
-                                            <i class="fas fa-calendar-alt mr-2 text-primary"></i>
-                                            <span>Ödeme Tarihi</span>
-                                            <span class="text-danger">*</span>
-                                        </label>
-                                        <input type="date" class="form-control" id="paymentDate" required>
-                                    </div>
-
-                                    <!-- Açıklama -->
-                                    <div class="form-group">
-                                        <label for="description">
-                                            <i class="fas fa-comment-alt mr-2 text-primary"></i>
-                                            <span>Açıklama</span>
-                                        </label>
-                                        <textarea class="form-control" id="description" rows="3" placeholder="Ödeme ile ilgili not ekleyebilirsiniz..."></textarea>
-                                    </div>
-
-                                    <div class="text-right">
-                                        <button type="button" class="btn btn-secondary mr-2" onclick="window.location.href='dashboard.html'">
-                                            <i class="fas fa-times mr-2"></i>
-                                            <span>İptal</span>
-                                        </button>
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-save mr-2"></i>
-                                            <span>Kaydet</span>
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Payments List -->
-                <div class="row mt-4">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-header bg-info text-white">
-                                <h5 class="mb-0">
-                                    <i class="fas fa-list mr-2"></i>
-                                    Ödeme Geçmişi
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover" id="paymentsTable">
-                                        <thead class="thead-light">
-                                            <tr>
-                                                <th width="5%">#</th>
-                                                <th width="15%">Şirket</th>
-                                                <th width="15%">Rapor Türü</th>
-                                                <th width="12%">Tutar</th>
-                                                <th width="10%">Döviz</th>
-                                                <th width="12%">Tarih</th>
-                                                <th width="20%">Açıklama</th>
-                                                <th width="11%">İşlemler</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="paymentsTableBody">
-                                            <tr>
-                                                <td colspan="8" class="text-center text-muted">
-                                                    Henüz ödeme kaydı bulunmamaktadır.
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <section class="atlas-module" aria-label="120 Alacak listesi">
+          <div class="atlas-toolbar">
+            <label class="atlas-search-field" for="receivableSearch">
+              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+              <input type="search" id="receivableSearch" placeholder="Cari, hesap veya açıklama ara…" autocomplete="off">
+            </label>
+            <div class="atlas-toolbar-actions">
+              <button type="button" class="btn btn-secondary" onclick="downloadReceivableTemplate()">
+                <i class="ph ph-download-simple"></i> Taslak indir
+              </button>
+              <label for="receivableExcel" class="btn btn-info mb-0" style="cursor:pointer;margin:0;">
+                <i class="ph ph-file-xls"></i> Excel yükle
+                <input type="file" id="receivableExcel" accept=".xlsx,.xls" style="display:none;">
+              </label>
+              <button type="button" class="btn btn-outline-dark" id="clearReceivablesBtn" onclick="clearReceivables()" disabled>
+                <i class="ph ph-trash"></i> Listeyi temizle
+              </button>
             </div>
+          </div>
+
+          <div class="payment-list-stats" id="receivableStats">
+            <div class="payment-stat"><label>Kayıt</label><strong id="statCount">0</strong></div>
+            <div class="payment-stat"><label>Toplam borç</label><strong id="statDebit">₺0,00</strong></div>
+            <div class="payment-stat"><label>Toplam alacak</label><strong id="statCredit">₺0,00</strong></div>
+            <div class="payment-stat"><label>Net bakiye</label><strong id="statBalance">₺0,00</strong></div>
+            <div class="payment-stat"><label>Son yükleme</label><strong id="statUpdated" style="font-size:0.9rem;">—</strong></div>
+          </div>
+
+          <div id="receivableEmpty" class="payment-empty">
+            <i class="ph ph-upload-simple"></i>
+            Henüz liste yüklenmedi.<br>
+            Muhasebeden aldığınız <strong>120 Alacak</strong> Excel dosyasını buraya yükleyin.
+          </div>
+
+          <div class="payment-list-table-wrap" id="receivableTableWrap" style="display:none;">
+            <table class="table atlas-table" id="receivablesTable">
+              <thead id="receivablesHead"></thead>
+              <tbody id="receivablesBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
-ain>
 
-    <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="confirmModalLabel">
-                        <i class="fas fa-check-circle mr-2"></i>
-                        <span>Ödeme Onayı</span>
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p class="lead">Lütfen ödeme bilgilerini kontrol ediniz:</p>
-                    <table class="table table-bordered">
-                        <tr>
-                            <th width="30%"><span>Şirket</span>:</th>
-                            <td id="confirmCompany"></td>
-                        </tr>
-                        <tr>
-                            <th><span>Rapor Türü</span>:</th>
-                            <td id="confirmReportType"></td>
-                        </tr>
-                        <tr>
-                            <th><span>Tutar</span>:</th>
-                            <td id="confirmAmount"></td>
-                        </tr>
-                        <tr>
-                            <th><span>Döviz Cinsi</span>:</th>
-                            <td id="confirmCurrency"></td>
-                        </tr>
-                        <tr>
-                            <th><span>Ödeme Tarihi</span>:</th>
-                            <td id="confirmPaymentDate"></td>
-                        </tr>
-                        <tr>
-                            <th><span>Açıklama</span>:</th>
-                            <td id="confirmDescription"></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fas fa-times mr-2"></i>
-                        <span>İptal</span>
-                    </button>
-                    <button type="button" class="btn btn-success" onclick="finalSave()">
-                        <i class="fas fa-check mr-2"></i>
-                        <span>Onayla ve Kaydet</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Payment Modal -->
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-warning text-white">
-                    <h5 class="modal-title" id="editModalLabel">
-                        <i class="fas fa-edit mr-2"></i>
-                        Ödeme Düzenle
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="editPaymentForm">
-                        <input type="hidden" id="editPaymentId">
-                        
-                        <div class="form-group">
-                            <label for="editCompany">
-                                <i class="fas fa-building mr-2 text-primary"></i>
-                                Şirket Seçiniz
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-control" id="editCompany" required>
-                                <option value="">-- Lütfen Seçiniz --</option>
-                                <option value="ABC Construction Inc.">ABC Construction Inc.</option>
-                                <option value="XYZ Manufacturing Ltd.">XYZ Manufacturing Ltd.</option>
-                                <option value="Global Trade Corp.">Global Trade Corp.</option>
-                                <option value="Tech Solutions A.Ş.">Tech Solutions A.Ş.</option>
-                                <option value="Finance Partners Ltd.">Finance Partners Ltd.</option>
-                            </select>
-                        </div>
+  <div class="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;"></div>
 
-                        <div class="form-group">
-                            <label for="editReportType">
-                                <i class="fas fa-file-alt mr-2 text-primary"></i>
-                                Rapor Türü
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-control" id="editReportType" required>
-                                <option value="">-- Lütfen Seçiniz --</option>
-                                <option value="audit">Denetim Hizmeti</option>
-                                <option value="tax">Vergi Danışmanlığı</option>
-                                <option value="financial">Mali Müşavirlik</option>
-                                <option value="independent">Bağımsız Denetim</option>
-                                <option value="analysis">Finansal Analiz</option>
-                            </select>
-                        </div>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="prevent-active-link-reload.js"></script>
+  <script src="atlas-shell.js"></script>
+  <script>
+    var STORAGE_KEY = 'receivables120';
+    var DEFAULT_HEADERS = [
+      'Cari Kod', 'Cari Unvan', 'Hesap Kodu', 'Hesap Adı',
+      'Belge No', 'Belge Tarihi', 'Vade', 'Borç', 'Alacak', 'Bakiye', 'Açıklama'
+    ];
 
-                        <div class="form-group">
-                            <label for="editAmount">
-                                <i class="fas fa-dollar-sign mr-2 text-primary"></i>
-                                Tutar
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="number" class="form-control" id="editAmount" min="0" step="0.01" required>
-                        </div>
+    var state = {
+      headers: [],
+      rows: [],
+      updatedAt: null
+    };
 
-                        <div class="form-group">
-                            <label for="editCurrency">
-                                <i class="fas fa-money-bill-wave mr-2 text-primary"></i>
-                                Döviz Cinsi
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-control" id="editCurrency" required>
-                                <option value="">-- Lütfen Seçiniz --</option>
-                                <option value="TRY">TRY ₺</option>
-                                <option value="USD">USD $</option>
-                                <option value="EUR">EUR €</option>
-                            </select>
-                        </div>
+    function showToast(message, type) {
+      type = type || 'success';
+      var toast = document.createElement('div');
+      toast.className = 'toast show';
+      toast.setAttribute('role', 'alert');
+      toast.innerHTML = '<div class="toast-header"><strong class="mr-auto">' +
+        (type === 'error' ? 'Hata' : 'Bilgi') +
+        '</strong><button type="button" class="ml-2 mb-1 close" data-dismiss="toast"><span>&times;</span></button></div>' +
+        '<div class="toast-body">' + message + '</div>';
+      document.querySelector('.toast-container').appendChild(toast);
+      $(toast).toast({ autohide: true, delay: type === 'error' ? 5000 : 3000 });
+      $(toast).toast('show');
+      toast.addEventListener('hidden.bs.toast', function () { toast.remove(); });
+    }
 
-                        <div class="form-group">
-                            <label for="editPaymentDate">
-                                <i class="fas fa-calendar-alt mr-2 text-primary"></i>
-                                Ödeme Tarihi
-                                <span class="text-danger">*</span>
-                            </label>
-                            <input type="date" class="form-control" id="editPaymentDate" required>
-                        </div>
+    function escapeHtml(value) {
+      return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
 
-                        <div class="form-group">
-                            <label for="editDescription">
-                                <i class="fas fa-comment-alt mr-2 text-primary"></i>
-                                Açıklama
-                            </label>
-                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fas fa-times mr-2"></i>
-                        İptal
-                    </button>
-                    <button type="button" class="btn btn-warning" onclick="saveEdit()">
-                        <i class="fas fa-save mr-2"></i>
-                        Güncelle
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    function parseNumber(value) {
+      if (value == null || value === '') return 0;
+      if (typeof value === 'number') return value;
+      var s = String(value).trim()
+        .replace(/\s/g, '')
+        .replace(/₺|TL|TRY/gi, '')
+        .replace(/\.(?=\d{3}(\D|$))/g, '')
+        .replace(',', '.');
+      var n = parseFloat(s);
+      return isNaN(n) ? 0 : n;
+    }
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script src="config.js"></script>
-    <!-- Supabase Config & JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    
-    <!-- Dark Mode -->
-    </script>
-    
-    <!-- Auth -->
-    <script src="auth.js"></script>
-    <!-- Prevent Active Link Reload -->
-    <script src="prevent-active-link-reload.js"></script>
-    <script>
-        (function notikaPageShell() {
-            var routes = [
-                { k: ['müşteri', 'musteri', 'client', 'firma'], href: 'client-list.html' },
-                { k: ['teklif', 'offer'], href: 'offers.html' },
-                { k: ['sözleşme', 'sozlesme', 'contract'], href: 'contracts.html' },
-                { k: ['ödeme', 'odeme', 'payment'], href: 'payments.html' },
-                { k: ['rapor', 'report'], href: 'reports.html' },
-                { k: ['kullanıcı', 'kullanici', 'user'], href: 'users.html' },
-                { k: ['çevrimiçi', 'cevrimici', 'online'], href: 'online-users.html' },
-                { k: ['denetçi', 'denetci', 'auditor'], href: 'auditor-dashboard.html' },
-                { k: ['şifre', 'sifre', 'password'], href: 'password-change.html' },
-                { k: ['panel', 'dashboard', 'kontrol'], href: 'dashboard.html' }
-            ];
-            function bindShortcutSearch(input) {
-                if (!input) return;
-                input.addEventListener('keydown', function(e) {
-                    if (e.key !== 'Enter') return;
-                    var q = (input.value || '').trim().toLowerCase();
-                    if (!q) return;
-                    for (var i = 0; i < routes.length; i++) {
-                        var r = routes[i];
-                        for (var j = 0; j < r.k.length; j++) {
-                            if (q.indexOf(r.k[j]) !== -1) {
-                                e.preventDefault();
-                                window.location.href = r.href;
-                                return;
-                            }
-                        }
-                    }
-                });
-            }
-            document.addEventListener('DOMContentLoaded', function() {
-                var badge = document.getElementById('adminEnvBadge');
-                if (badge && typeof window.APP_ENV === 'string') {
-                    badge.textContent = window.APP_ENV === 'production' ? 'Production' : 'Development';
-                    badge.classList.toggle('is-dev', window.APP_ENV !== 'production');
-                }
-                bindShortcutSearch(document.getElementById('adminGlobalSearch'));
-                bindShortcutSearch(document.getElementById('adminGlobalSearchMobile'));
-            });
-        })();
-    </script>
-    
-    <script>
-        // Check authentication on page load (DOMContentLoaded ile geciktir)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
+    function formatMoney(n) {
+      return '₺' + Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function isMoneyHeader(header) {
+      var h = String(header || '').toLocaleLowerCase('tr');
+      return /borç|borc|alacak|bakiye|tutar|meblağ|meblag|amount|balance|debit|credit/.test(h);
+    }
+
+    function findHeaderIndex(headers, patterns) {
+      for (var i = 0; i < headers.length; i++) {
+        var h = String(headers[i] || '').toLocaleLowerCase('tr');
+        for (var j = 0; j < patterns.length; j++) {
+          if (h.indexOf(patterns[j]) !== -1) return i;
         }
-            }, 100);
+      }
+      return -1;
+    }
+
+    function loadState() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        state.headers = parsed.headers || [];
+        state.rows = parsed.rows || [];
+        state.updatedAt = parsed.updatedAt || null;
+      } catch (e) {
+        state = { headers: [], rows: [], updatedAt: null };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function updateStats(visibleRows) {
+      var rows = visibleRows || state.rows;
+      var debitIdx = findHeaderIndex(state.headers, ['borç', 'borc', 'debit']);
+      var creditIdx = findHeaderIndex(state.headers, ['alacak', 'credit']);
+      var balanceIdx = findHeaderIndex(state.headers, ['bakiye', 'balance']);
+
+      var debit = 0, credit = 0, balance = 0;
+      rows.forEach(function (row) {
+        if (debitIdx >= 0) debit += parseNumber(row[debitIdx]);
+        if (creditIdx >= 0) credit += parseNumber(row[creditIdx]);
+        if (balanceIdx >= 0) balance += parseNumber(row[balanceIdx]);
+      });
+      if (balanceIdx < 0) balance = debit - credit;
+
+      document.getElementById('statCount').textContent = String(rows.length);
+      document.getElementById('statDebit').textContent = formatMoney(debit);
+      document.getElementById('statCredit').textContent = formatMoney(credit);
+      document.getElementById('statBalance').textContent = formatMoney(balance);
+      document.getElementById('statUpdated').textContent = state.updatedAt
+        ? new Date(state.updatedAt).toLocaleString('tr-TR')
+        : '—';
+      document.getElementById('clearReceivablesBtn').disabled = !state.rows.length;
+    }
+
+    function renderTable(filterText) {
+      var empty = document.getElementById('receivableEmpty');
+      var wrap = document.getElementById('receivableTableWrap');
+      var head = document.getElementById('receivablesHead');
+      var body = document.getElementById('receivablesBody');
+
+      if (!state.rows.length || !state.headers.length) {
+        empty.style.display = 'block';
+        wrap.style.display = 'none';
+        updateStats([]);
+        return;
+      }
+
+      empty.style.display = 'none';
+      wrap.style.display = 'block';
+
+      var q = String(filterText || '').trim().toLocaleLowerCase('tr');
+      var visible = state.rows.filter(function (row) {
+        if (!q) return true;
+        return row.some(function (cell) {
+          return String(cell == null ? '' : cell).toLocaleLowerCase('tr').indexOf(q) !== -1;
         });
-        
-        // Update user info in topbar (same as other pages)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av = document.getElementById('userAvatarInitial');
-                    if (av && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
-        });
-        
-        // Also update immediately if DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av2 = document.getElementById('userAvatarInitial');
-                    if (av2 && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av2.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
+      });
+
+      head.innerHTML = '<tr><th>#</th>' + state.headers.map(function (h) {
+        return '<th>' + escapeHtml(h) + '</th>';
+      }).join('') + '</tr>';
+
+      if (!visible.length) {
+        body.innerHTML = '<tr><td colspan="' + (state.headers.length + 1) + '" class="text-muted text-center">Aramaya uygun kayıt yok.</td></tr>';
+        updateStats([]);
+        return;
+      }
+
+      body.innerHTML = visible.map(function (row, idx) {
+        var cells = state.headers.map(function (h, col) {
+          var val = row[col] == null ? '' : row[col];
+          var cls = isMoneyHeader(h) ? ' class="num-cell"' : '';
+          var text = isMoneyHeader(h) && val !== '' ? formatMoney(parseNumber(val)).replace('₺', '') : String(val);
+          return '<td' + cls + '>' + escapeHtml(text) + '</td>';
+        }).join('');
+        return '<tr><td class="num-cell">' + (idx + 1) + '</td>' + cells + '</tr>';
+      }).join('');
+
+      updateStats(visible);
+    }
+
+    function downloadReceivableTemplate() {
+      if (typeof XLSX === 'undefined') {
+        showToast('Excel kütüphanesi yüklenemedi.', 'error');
+        return;
+      }
+      var example = [
+        '120.01.001', 'Örnek Müşteri A.Ş.', '120', 'Alıcılar',
+        'FTR-2024-001', '01.01.2024', '31.01.2024', 15000, 0, 15000, 'Denetim faturası'
+      ];
+      var ws = XLSX.utils.aoa_to_sheet([DEFAULT_HEADERS, example]);
+      ws['!cols'] = DEFAULT_HEADERS.map(function (h) { return { wch: Math.max(12, h.length + 2) }; });
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, '120 Alacak');
+      XLSX.writeFile(wb, '120-alacak-taslak.xlsx');
+      showToast('Taslak indirildi.');
+    }
+
+    function clearReceivables() {
+      if (!state.rows.length) return;
+      if (!confirm('Yüklü 120 Alacak listesi silinsin mi?')) return;
+      state = { headers: [], rows: [], updatedAt: null };
+      saveState();
+      document.getElementById('receivableSearch').value = '';
+      renderTable('');
+      showToast('Liste temizlendi.');
+    }
+
+    function normalizeSheetRows(aoa) {
+      if (!aoa || !aoa.length) return null;
+      var headerRowIdx = 0;
+      for (var i = 0; i < Math.min(aoa.length, 10); i++) {
+        var nonEmpty = (aoa[i] || []).filter(function (c) { return c != null && String(c).trim() !== ''; }).length;
+        if (nonEmpty >= 2) { headerRowIdx = i; break; }
+      }
+      var headers = (aoa[headerRowIdx] || []).map(function (h, idx) {
+        var t = String(h == null ? '' : h).trim();
+        return t || ('Sütun ' + (idx + 1));
+      });
+      while (headers.length && headers[headers.length - 1].indexOf('Sütun ') === 0) {
+        var lastUsed = false;
+        for (var r = headerRowIdx + 1; r < aoa.length; r++) {
+          if (aoa[r] && aoa[r][headers.length - 1] != null && String(aoa[r][headers.length - 1]).trim() !== '') {
+            lastUsed = true;
+            break;
+          }
         }
-        
-        // Get Supabase client helper function
-        // Get Supabase client helper function - uses global instance
-        function resolveSupabaseClient() {
-            if (window.__supabaseClientInstance) {
-                return window.__supabaseClientInstance;
-            }
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                return supabaseClient;
-            }
-            return null;
+        if (lastUsed) break;
+        headers.pop();
+      }
+      if (!headers.length) return null;
+
+      var rows = [];
+      for (var r = headerRowIdx + 1; r < aoa.length; r++) {
+        var raw = aoa[r] || [];
+        var empty = true;
+        var row = [];
+        for (var c = 0; c < headers.length; c++) {
+          var cell = raw[c];
+          if (cell != null && String(cell).trim() !== '') empty = false;
+          row.push(cell == null ? '' : cell);
         }
-        
-        // Supabase CRUD functions for payments
-        async function getPaymentsFromSupabase() {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                const payments = localStorage.getItem('payments');
-                return payments ? JSON.parse(payments) : [];
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('payments')
-                    .select('*')
-                    .order('payment_date', { ascending: false });
-                
-                if (error) {
-                    console.error('Supabase error:', error);
-                    const payments = localStorage.getItem('payments');
-                    return payments ? JSON.parse(payments) : [];
-                }
-                
-                // Convert Supabase format to local format
-                return (data || []).map(p => ({
-                    id: p.id,
-                    company: p.company,
-                    reportType: p.report_type,
-                    reportTypeValue: p.report_type_value,
-                    amount: parseFloat(p.amount),
-                    currency: p.currency,
-                    paymentDate: p.payment_date,
-                    description: p.description,
-                    createdAt: p.created_at
-                }));
-            } catch (error) {
-                console.error('Error fetching payments:', error);
-                const payments = localStorage.getItem('payments');
-                return payments ? JSON.parse(payments) : [];
-            }
+        if (!empty) rows.push(row);
+      }
+      return { headers: headers, rows: rows };
+    }
+
+    document.getElementById('receivableExcel').addEventListener('change', function (e) {
+      var file = e.target.files && e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var data = new Uint8Array(ev.target.result);
+          var workbook = XLSX.read(data, { type: 'array' });
+          var sheet = workbook.Sheets[workbook.SheetNames[0]];
+          var aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+          var parsed = normalizeSheetRows(aoa);
+          if (!parsed || !parsed.rows.length) {
+            showToast('Excel dosyasında okunabilir satır bulunamadı.', 'error');
+            return;
+          }
+          state.headers = parsed.headers;
+          state.rows = parsed.rows;
+          state.updatedAt = new Date().toISOString();
+          saveState();
+          document.getElementById('receivableSearch').value = '';
+          renderTable('');
+          showToast(parsed.rows.length + ' satır yüklendi.');
+        } catch (err) {
+          console.error(err);
+          showToast('Excel okunamadı. Dosya formatını kontrol edin.', 'error');
+        } finally {
+          e.target.value = '';
         }
-        
-        async function addPaymentToSupabase(payment) {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments.push(payment);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                return { success: true, data: payment };
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('payments')
-                    .insert([{
-                        company: payment.company,
-                        report_type: payment.reportType,
-                        report_type_value: payment.reportTypeValue,
-                        amount: payment.amount,
-                        currency: payment.currency,
-                        payment_date: payment.paymentDate,
-                        description: payment.description
-                    }])
-                    .select()
-                    .single();
-                
-                if (error) {
-                    console.error('Supabase insert error:', error);
-                    throw error;
-                }
-                
-                // Also save to localStorage as backup
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments.push({
-                    id: data.id,
-                    company: data.company,
-                    reportType: data.report_type,
-                    reportTypeValue: data.report_type_value,
-                    amount: parseFloat(data.amount),
-                    currency: data.currency,
-                    paymentDate: data.payment_date,
-                    description: data.description,
-                    createdAt: data.created_at
-                });
-                localStorage.setItem('payments', JSON.stringify(payments));
-                
-                return { success: true, data: data };
-            } catch (error) {
-                console.error('Error adding payment:', error);
-                // Fallback to localStorage
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments.push(payment);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                return { success: true, data: payment };
-            }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    document.getElementById('receivableSearch').addEventListener('input', function (e) {
+      renderTable(e.target.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+          window.location.href = 'login.html';
         }
-        
-        async function updatePaymentInSupabase(id, payment) {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                const index = payments.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    payments[index] = payment;
-                    localStorage.setItem('payments', JSON.stringify(payments));
-                }
-                return { success: true };
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('payments')
-                    .update({
-                        company: payment.company,
-                        report_type: payment.reportType,
-                        report_type_value: payment.reportTypeValue,
-                        amount: payment.amount,
-                        currency: payment.currency,
-                        payment_date: payment.paymentDate,
-                        description: payment.description
-                    })
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                // Also update localStorage
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                const index = payments.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    payments[index] = payment;
-                    localStorage.setItem('payments', JSON.stringify(payments));
-                }
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error updating payment:', error);
-                // Fallback to localStorage
-                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                const index = payments.findIndex(p => p.id === id);
-                if (index !== -1) {
-                    payments[index] = payment;
-                    localStorage.setItem('payments', JSON.stringify(payments));
-                }
-                return { success: true };
-            }
-        }
-        
-        async function deletePaymentFromSupabase(id) {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                let payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments = payments.filter(payment => payment.id !== id);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                return { success: true };
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('payments')
-                    .delete()
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                // Also update localStorage
-                let payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments = payments.filter(payment => payment.id !== id);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error deleting payment:', error);
-                // Fallback to localStorage
-                let payments = JSON.parse(localStorage.getItem('payments') || '[]');
-                payments = payments.filter(payment => payment.id !== id);
-                localStorage.setItem('payments', JSON.stringify(payments));
-                return { success: true };
-            }
-        }
-        
-        // Set today's date as default
-        document.getElementById('paymentDate').valueAsDate = new Date();
-        
-        // Form submission
-        document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const company = document.getElementById('company').value;
-            const reportTypeSelect = document.getElementById('reportType');
-            const reportType = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
-            const reportTypeValue = reportTypeSelect.value;
-            const amount = document.getElementById('amount').value;
-            const currency = document.getElementById('currency').value;
-            const paymentDate = document.getElementById('paymentDate').value;
-            const description = document.getElementById('description').value || '-';
-            
-            // Get currency symbol
-            let currencySymbol = '';
-            if (currency === 'TRY') currencySymbol = '₺';
-            else if (currency === 'USD') currencySymbol = '$';
-            else if (currency === 'EUR') currencySymbol = '€';
-            
-            // Fill confirmation modal
-            document.getElementById('confirmCompany').textContent = company;
-            document.getElementById('confirmReportType').textContent = reportType;
-            document.getElementById('confirmAmount').textContent = Number(amount).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-            document.getElementById('confirmCurrency').textContent = currency + ' ' + currencySymbol;
-            document.getElementById('confirmPaymentDate').textContent = new Date(paymentDate).toLocaleDateString('tr-TR');
-            document.getElementById('confirmDescription').textContent = description;
-            
-            // Show modal
-            $('#confirmModal').modal('show');
-        });
-        
-        function finalSave() {
-            // Get form values
-            const company = document.getElementById('company').value;
-            const reportTypeSelect = document.getElementById('reportType');
-            const reportType = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
-            const reportTypeValue = reportTypeSelect.value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const currency = document.getElementById('currency').value;
-            const paymentDate = document.getElementById('paymentDate').value;
-            const description = document.getElementById('description').value;
-            
-            // Create payment object
-            const payment = {
-                id: Date.now(),
-                company: company,
-                reportType: reportType,
-                reportTypeValue: reportTypeValue,
-                amount: amount,
-                currency: currency,
-                paymentDate: paymentDate,
-                description: description,
-                createdAt: new Date().toISOString()
-            };
-            
-            // Add payment to Supabase (with fallback to localStorage)
-            try {
-                const result = await addPaymentToSupabase(payment);
-                if (result.success) {
-                    // Close modal
-                    $('#confirmModal').modal('hide');
-                    
-                    // Show success message
-                    alert('Ödeme başarıyla kaydedildi!');
-                    
-                    // Reload payments list
-                    await loadPayments();
-                    
-                    // Reset form
-                    document.getElementById('paymentForm').reset();
-                    document.getElementById('paymentDate').valueAsDate = new Date();
-                }
-            } catch (error) {
-                console.error('Error saving payment:', error);
-                alert('Ödeme kaydedilirken bir hata oluştu. Lütfen tekrar deneyin.');
-            }
-        }
-        
-        // Load and display payments
-        async function loadPayments() {
-            const payments = await getPaymentsFromSupabase();
-            const tbody = document.getElementById('paymentsTableBody');
-            
-            if (payments.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Henüz ödeme kaydı bulunmamaktadır.</td></tr>';
-                return;
-            }
-            
-            // Sort by date (newest first)
-            payments.sort((a, b) => new Date(b.paymentDate) - new Date(a.paymentDate));
-            
-            tbody.innerHTML = '';
-            payments.forEach((payment, index) => {
-                let currencySymbol = '';
-                if (payment.currency === 'TRY') currencySymbol = '₺';
-                else if (payment.currency === 'USD') currencySymbol = '$';
-                else if (payment.currency === 'EUR') currencySymbol = '€';
-                
-                const row = `
-                    <tr>
-                        <td class="text-center">${index + 1}</td>
-                        <td>${payment.company}</td>
-                        <td>${payment.reportType}</td>
-                        <td class="text-right">${Number(payment.amount).toLocaleString('tr-TR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                        <td class="text-center">${payment.currency} ${currencySymbol}</td>
-                        <td class="text-center">${new Date(payment.paymentDate).toLocaleDateString('tr-TR')}</td>
-                        <td>${payment.description || '-'}</td>
-                        <td class="text-center">
-                            <button class="btn btn-sm btn-warning mr-1" onclick="editPayment(${payment.id})" title="Düzenle">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-danger" onclick="deletePayment(${payment.id})" title="Sil">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
-            });
-        }
-        
-        // Delete payment
-        async function deletePayment(id) {
-            if (!confirm('Bu ödemeyi silmek istediğinizden emin misiniz?')) {
-                return;
-            }
-            
-            try {
-                await deletePaymentFromSupabase(id);
-                await loadPayments();
-                alert('Ödeme başarıyla silindi!');
-            } catch (error) {
-                console.error('Error deleting payment:', error);
-                alert('Ödeme silinirken bir hata oluştu. Lütfen tekrar deneyin.');
-            }
-        }
-        
-        // Edit payment
-        async function editPayment(id) {
-            const payments = await getPaymentsFromSupabase();
-            const payment = payments.find(p => p.id === id);
-            
-            if (!payment) {
-                alert('Ödeme bulunamadı!');
-                return;
-            }
-            
-            // Fill edit form
-            document.getElementById('editPaymentId').value = payment.id;
-            document.getElementById('editCompany').value = payment.company;
-            document.getElementById('editReportType').value = payment.reportTypeValue || payment.reportType;
-            document.getElementById('editAmount').value = payment.amount;
-            document.getElementById('editCurrency').value = payment.currency;
-            document.getElementById('editPaymentDate').value = payment.paymentDate;
-            document.getElementById('editDescription').value = payment.description || '';
-            
-            // Show modal
-            $('#editModal').modal('show');
-        }
-        
-        // Save edited payment
-        async function saveEdit() {
-            const id = document.getElementById('editPaymentId').value; // UUID string
-            const company = document.getElementById('editCompany').value;
-            const reportTypeSelect = document.getElementById('editReportType');
-            const reportType = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
-            const reportTypeValue = reportTypeSelect.value;
-            const amount = parseFloat(document.getElementById('editAmount').value);
-            const currency = document.getElementById('editCurrency').value;
-            const paymentDate = document.getElementById('editPaymentDate').value;
-            const description = document.getElementById('editDescription').value;
-            
-            const payment = {
-                id: id,
-                company: company,
-                reportType: reportType,
-                reportTypeValue: reportTypeValue,
-                amount: amount,
-                currency: currency,
-                paymentDate: paymentDate,
-                description: description
-            };
-            
-            try {
-                await updatePaymentInSupabase(id, payment);
-                $('#editModal').modal('hide');
-                await loadPayments();
-                alert('Ödeme başarıyla güncellendi!');
-            } catch (error) {
-                console.error('Error updating payment:', error);
-                alert('Ödeme güncellenirken bir hata oluştu. Lütfen tekrar deneyin.');
-            }
-        }
-        
-        // Load payments on page load
-        $(document).ready(function() {
-            loadPayments();
-        });
-    </script>
-<script src="atlas-shell.js"></script>
-</body>
-</html>
+      }, 100);
+      loadState();
+      renderTable('');
+    });
+  </script>
 </body>
 </html>

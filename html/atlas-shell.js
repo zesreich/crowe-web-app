@@ -1,60 +1,29 @@
-/* HSY Atlas shell — theme, nav, user, shortcuts (all admin pages) */
+/* HSY Crowe shell — theme, nav, user, shortcuts (all admin pages) */
 (function () {
   "use strict";
 
   var STORAGE = "hsy-atlas-theme";
   var LEGACY = "darkmode";
 
-  function readDark() {
-    var legacy = localStorage.getItem(LEGACY);
-    var atlas = localStorage.getItem(STORAGE);
-    if (legacy === "active") return true;
-    if (legacy === "light") return false;
-    if (atlas === "dark") return true;
-    if (atlas === "light") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
-  }
-
-  function applyTheme(dark) {
-    document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
-    document.documentElement.classList.toggle("darkmode", dark);
-    document.body.classList.toggle("darkmode", dark);
-    localStorage.setItem(STORAGE, dark ? "dark" : "light");
-    localStorage.setItem(LEGACY, dark ? "active" : "light");
-    var icon = document.getElementById("themeIcon");
-    if (icon) {
-      icon.className = dark ? "ph ph-sun" : "ph ph-moon";
-    }
-    var legacyBtn = document.getElementById("theme-switch");
-    if (legacyBtn) {
-      var svgs = legacyBtn.querySelectorAll("svg");
-      if (svgs.length >= 2) {
-        svgs[0].style.display = dark ? "none" : "block";
-        svgs[1].style.display = dark ? "block" : "none";
-      }
-      legacyBtn.setAttribute("aria-label", dark ? "Açık temaya geç" : "Koyu temaya geç");
-    }
+  function applyTheme() {
+    document.documentElement.setAttribute("data-theme", "light");
+    document.documentElement.classList.remove("darkmode");
+    document.body.classList.remove("darkmode");
+    localStorage.setItem(STORAGE, "light");
+    localStorage.setItem(LEGACY, "light");
+    document.documentElement.removeAttribute("data-brand");
+    try {
+      localStorage.removeItem("hsy-atlas-brand");
+    } catch (e) {}
   }
 
   try {
-    applyTheme(readDark());
+    applyTheme();
   } catch (e) {}
 
   function bindTheme() {
-    var btn = document.getElementById("themeToggle");
-    if (btn && !btn.dataset.bound) {
-      btn.dataset.bound = "1";
-      btn.addEventListener("click", function () {
-        applyTheme(!readDark());
-      });
-    }
-    var legacy = document.getElementById("theme-switch");
-    if (legacy && !legacy.dataset.bound) {
-      legacy.dataset.bound = "1";
-      legacy.addEventListener("click", function () {
-        applyTheme(!readDark());
-      });
-    }
+    var picker = document.getElementById("brandThemePicker");
+    if (picker) picker.remove();
   }
 
   function initials(name) {
@@ -184,5 +153,5 @@
     init();
   }
 
-  window.AtlasShell = { applyTheme: applyTheme, readDark: readDark };
+  window.AtlasShell = { applyTheme: applyTheme };
 })();

@@ -1,4 +1,4 @@
-/* HSY Atlas — interactive ecosystem mockup (no backend) */
+/* HSY Crowe — interactive ecosystem mockup (no backend) */
 
 const storedTheme = localStorage.getItem("hsy-atlas-theme");
 const state = {
@@ -190,7 +190,7 @@ function setView(view) {
     groups: "Grup & firma",
     intake: "Müşteri yükleme",
   };
-  $("#crumb").innerHTML = `<span>Atlas</span><i class="ph ph-caret-right" aria-hidden="true"></i><strong>${titles[view]}</strong>`;
+  $("#crumb").innerHTML = `<span>Crowe</span><i class="ph ph-caret-right" aria-hidden="true"></i><strong>${titles[view]}</strong>`;
 }
 
 function statusBadge(status) {

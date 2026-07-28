@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,7 +26,7 @@
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
         <div class="brand-text">
-          <strong>HSY Atlas</strong>
+          <strong>HSY Crowe</strong>
           <span>Denetim ekosistemi</span>
         </div>
       </a>
@@ -44,7 +44,7 @@
           <i class="ph ph-signature"></i><span>Sözleşmeler</span>
         </a>
         <a class="nav-btn" href="payments.html">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
+          <i class="ph ph-money"></i><span>Ödeme Listesi</span>
         </a>
         <a class="nav-btn" href="reports.html">
           <i class="ph ph-chart-line"></i><span>Raporlar</span>
@@ -77,7 +77,7 @@
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
         <span>Operasyon</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -95,38 +95,61 @@
     <main class="main page-content" id="main-content" tabindex="-1">
 <!-- Page Content -->
                 <div class="container-fluid">
+                    <section class="atlas-module mb-3" aria-label="Word şablonları">
+                        <div class="atlas-toolbar" style="border-bottom:1px solid var(--line);padding-bottom:0.75rem;margin-bottom:0.75rem;">
+                            <div>
+                                <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.25rem;"><i class="ph ph-file-doc"></i> Word sözleşme şablonları</h2>
+                                <p style="font-size:0.8125rem;color:var(--muted);margin:0;">Kurumsal .docx şablonunuzu yükleyin; sözleşme kaydında otomatik doldurulur.</p>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="togglePlaceholdersBtn" onclick="togglePlaceholdersHelp()">
+                                <i class="ph ph-eye-slash"></i> Yer tutucuları gizle
+                            </button>
+                        </div>
+                        <div class="atlas-field-grid" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;" id="contractTemplateCards"></div>
+                        <div class="alert alert-info" id="placeholdersHelp" style="font-size:0.8125rem;margin:1rem 0 0;">
+                            <i class="ph ph-info"></i>
+                            Yer tutucular:
+                            <code>{{SIRKET}}</code>, <code>{{SOZLESME_NO}}</code>, <code>{{SOZLESME_TIPI}}</code>,
+                            <code>{{DONEM}}</code>, <code>{{BITIS}}</code>,
+                            <code>{{DURUM}}</code>, <code>{{FINANSAL_RAPORLAMA}}</code>, <code>{{DUZENLEYICI}}</code>,
+                            <code>{{DENETCI1}}</code>, <code>{{DENETCI2}}</code>, <code>{{DENETCI3}}</code>,
+                            <code>{{YEDEK_DENETCI1}}</code>, <code>{{YEDEK_DENETCI2}}</code>, <code>{{YEDEK_DENETCI3}}</code>,
+                            <code>{{TARIH}}</code>. Tek parça metin olarak yazın.
+                        </div>
+                    </section>
                     <div class="card">
                         <div class="card-body">
-                            <!-- Tabs -->
-                            <ul class="nav nav-tabs mb-4" id="contractTabs" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" id="tab-denetim" data-toggle="tab" href="#denetim" role="tab">
-                                        <i class="ph ph-file-text mr-1"></i>
-                                        Bağımsız Denetim
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="tab-bddk-ek4" data-toggle="tab" href="#bddk-ek4" role="tab">
-                                        <i class="ph ph-signature mr-1"></i>
-                                        BDDK EK-4
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="tab-bddk-10265" data-toggle="tab" href="#bddk-10265" role="tab">
-                                        <i class="ph ph-scroll mr-1"></i>
-                                        BDDK 10265
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" id="tab-degerleme" data-toggle="tab" href="#degerleme" role="tab">
-                                        <i class="ph ph-chart-line-up mr-1"></i>
-                                        Değerleme Sözleşmeleri
-                                    </a>
-                                </li>
-                            </ul>
+                            <!-- Contract type tabs (horizontal) -->
+                            <div class="contract-tab-system">
+                                <ul class="contract-type-tabs" id="contractTabs" role="tablist" aria-label="Sözleşme türü">
+                                    <li role="presentation">
+                                        <a class="contract-type-tab active" id="tab-denetim" data-toggle="tab" href="#denetim" role="tab" aria-selected="true" aria-controls="denetim">
+                                            <i class="ph ph-file-text" aria-hidden="true"></i>
+                                            <span>Bağımsız Denetim</span>
+                                        </a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a class="contract-type-tab" id="tab-bddk-ek4" data-toggle="tab" href="#bddk-ek4" role="tab" aria-selected="false" aria-controls="bddk-ek4">
+                                            <i class="ph ph-signature" aria-hidden="true"></i>
+                                            <span>BDDK EK-4</span>
+                                        </a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a class="contract-type-tab" id="tab-bddk-10265" data-toggle="tab" href="#bddk-10265" role="tab" aria-selected="false" aria-controls="bddk-10265">
+                                            <i class="ph ph-scroll" aria-hidden="true"></i>
+                                            <span>BDDK 10265</span>
+                                        </a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a class="contract-type-tab" id="tab-degerleme" data-toggle="tab" href="#degerleme" role="tab" aria-selected="false" aria-controls="degerleme">
+                                            <i class="ph ph-chart-line-up" aria-hidden="true"></i>
+                                            <span>Değerleme</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             
                             <!-- Tab Content -->
-                            <div class="tab-content" id="contractTabsContent">
+                            <div class="tab-content contract-tab-panels" id="contractTabsContent">
                                 <!-- Bağımsız Denetim -->
                                 <div class="tab-pane fade show active" id="denetim" role="tabpanel">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -145,27 +168,10 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="contract-spreadsheet-container p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="mb-0">
-                                                <i class="ph ph-table text-primary mr-2"></i>
-                                                Excel Çalışma Kağıdı
-                                            </h6>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary" type="button" id="refreshDenetimSheetBtn">
-                                                    <i class="fas fa-sync mr-1"></i> Yenile
-                                                        </button>
-                                                <button class="btn btn-outline-secondary" type="button" id="clearDenetimSheetBtn">
-                                                    <i class="fas fa-eraser mr-1"></i> Temizle
-                                                        </button>
-                                            </div>
-                                        </div>
-                                        <div id="denetimSpreadsheet" class="rounded contract-spreadsheet"></div>
-                                        <div class="alert alert-info mt-3 mb-0">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            Hücreleri doğrudan düzenleyebilir, yeni satırlar ekleyebilir veya Excel dosyasından içe aktarabilirsiniz. Yapılan değişiklikler otomatik olarak kayıt altına alınır.
-                                        </div>
+                                    <div class="contract-year-bar">
+                                        <div class="contract-year-tabs" id="denetimYearTabs" role="tablist" aria-label="Bağımsız denetim yıl seçimi"></div>
                                     </div>
+                                    <div class="contract-list-panel" id="denetimContractList" aria-live="polite"></div>
                                 </div>
                                 
                                 <!-- BDDK EK-4 -->
@@ -186,27 +192,10 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="contract-spreadsheet-container p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="mb-0">
-                                                <i class="ph ph-table text-primary mr-2"></i>
-                                                Excel Çalışma Kağıdı
-                                            </h6>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary" type="button" id="refreshBddkEk4SheetBtn">
-                                                    <i class="fas fa-sync mr-1"></i> Yenile
-                                                        </button>
-                                                <button class="btn btn-outline-secondary" type="button" id="clearBddkEk4SheetBtn">
-                                                    <i class="fas fa-eraser mr-1"></i> Temizle
-                                                        </button>
-                                            </div>
-                                        </div>
-                                        <div id="bddkEk4Spreadsheet" class="rounded contract-spreadsheet"></div>
-                                        <div class="alert alert-info mt-3 mb-0">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            Hücreleri Excel benzeri şekilde düzenleyebilir, satır ekleyip silebilirsiniz. Değişiklikler otomatik olarak kaydedilir.
-                                        </div>
+                                    <div class="contract-year-bar">
+                                        <div class="contract-year-tabs" id="bddkEk4YearTabs" role="tablist" aria-label="BDDK EK-4 yıl seçimi"></div>
                                     </div>
+                                    <div class="contract-list-panel" id="bddkEk4ContractList" aria-live="polite"></div>
                                 </div>
                                 
                                 <!-- BDDK 10265 -->
@@ -227,27 +216,10 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <div class="contract-spreadsheet-container p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                            <h6 class="mb-0">
-                                                <i class="fas fa-table text-success mr-2"></i>
-                                                Excel Çalışma Kağıdı
-                                            </h6>
-                                            <div class="btn-group btn-group-sm" role="group">
-                                                <button class="btn btn-outline-primary" type="button" id="refreshBddk10265SheetBtn">
-                                                    <i class="fas fa-sync mr-1"></i> Yenile
-                                                        </button>
-                                                <button class="btn btn-outline-secondary" type="button" id="clearBddk10265SheetBtn">
-                                                    <i class="fas fa-eraser mr-1"></i> Temizle
-                                                        </button>
-                                            </div>
-                                        </div>
-                                        <div id="bddk10265Spreadsheet" class="rounded contract-spreadsheet"></div>
-                                        <div class="alert alert-info mt-3 mb-0">
-                                            <i class="fas fa-info-circle mr-2"></i>
-                                            Hücreleri Excel benzeri şekilde düzenleyebilir, satır ekleyip silebilirsiniz. Değişiklikler otomatik olarak kaydedilir.
-                                        </div>
+                                    <div class="contract-year-bar">
+                                        <div class="contract-year-tabs" id="bddk10265YearTabs" role="tablist" aria-label="BDDK 10265 yıl seçimi"></div>
                                     </div>
+                                    <div class="contract-list-panel" id="bddk10265ContractList" aria-live="polite"></div>
                                 </div>
                                 
                                 <!-- Değerleme Sözleşmeleri -->
@@ -256,6 +228,7 @@
                                         <!-- İçerik JavaScript ile yüklenecek -->
                                     </div>
                                 </div>
+                            </div>
                             </div>
                         </div>
                     </div>
@@ -282,14 +255,59 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Şirket Adı <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="companyName" required>
+                                    <label>Müşteri <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="contractClientSelect" required onchange="onContractClientSelected()">
+                                        <option value="">Müşteri seçin…</option>
+                                    </select>
+                                    <small class="text-muted">Önce <a href="client-list.html">Müşteriler</a> sayfasından eklenmiş kayıtlar listelenir.</small>
+                                    <input type="hidden" id="companyName">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Sözleşme Adı <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="contractName" required>
+                                    <label>Sözleşme No <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="contractNo" required placeholder="Örn: SZ-2024-015">
+                                    <small class="text-muted">Word şablonunda <code>{{SOZLESME_NO}}</code> olarak doldurulur.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Durum <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="contractStatus" required>
+                                        <option value="Taslak">Taslak</option>
+                                        <option value="Onay Bekliyor">Onay Bekliyor</option>
+                                        <option value="İmzalandı">İmzalandı</option>
+                                        <option value="Tamamlandı">Tamamlandı</option>
+                                        <option value="İptal">İptal</option>
+                                    </select>
+                                    <small class="text-muted"><code>{{DURUM}}</code></small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Finansal raporlama çerçevesi</label>
+                                    <select class="form-control" id="contractFrc">
+                                        <option value="">Seçiniz</option>
+                                        <option value="TFRS">TFRS</option>
+                                        <option value="BOBİ FRS">BOBİ FRS</option>
+                                        <option value="MSUGT">MSUGT</option>
+                                        <option value="IFRS">IFRS</option>
+                                    </select>
+                                    <small class="text-muted"><code>{{FINANSAL_RAPORLAMA}}</code></small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Düzenleyici <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="contractRegulator" required>
+                                        <option value="">Seçin...</option>
+                                        <option value="SPK">SPK</option>
+                                        <option value="KGK">KGK</option>
+                                        <option value="BDDK">BDDK</option>
+                                    </select>
+                                    <small class="text-muted">SPK / KGK / BDDK işi · <code>{{DUZENLEYICI}}</code></small>
                                 </div>
                             </div>
                         </div>
@@ -312,46 +330,43 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Başlangıç Tarihi <span class="text-danger">*</span></label>
+                                    <label>Dönem <span class="text-danger">*</span></label>
                                     <input
                                         type="text"
                                         class="form-control"
-                                        id="startDate"
+                                        id="periodField"
                                         required
-                                        inputmode="numeric"
-                                        maxlength="10"
-                                        pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
-                                        placeholder="gg/aa/yyyy"
-                                        title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
+                                        placeholder="Örn: 2024 veya Q2 2024"
+                                        title="Şablondaki {{DONEM}} alanına yazılır">
+                                    <small class="text-muted">Word şablonunda <code>{{DONEM}}</code> olarak doldurulur.</small>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Bitiş Tarihi <span class="text-danger">*</span></label>
+                                    <label>Bitiş / Tarih aralığı <span class="text-danger">*</span></label>
                                     <input
                                         type="text"
                                         class="form-control"
                                         id="endDate"
                                         required
-                                        inputmode="numeric"
-                                        maxlength="10"
-                                        pattern="^(0?[1-9]|[12][0-9]|3[01])/(0?[1-9]|1[0-2])/\\d{1,4}$"
-                                        placeholder="gg/aa/yyyy"
-                                        title="Tarih formatı gg/aa/yyyy olmalıdır. Örn: 25/04/2024">
+                                        inputmode="text"
+                                        placeholder="gg/aa/yyyy veya gg/aa/yyyy - gg/aa/yyyy"
+                                        title="Tek tarih veya aralık. Örn: 01/01/2024 - 31/12/2024">
+                                    <small class="text-muted">Word şablonunda <code>{{BITIS}}</code> · tek tarih veya <code>gg/aa/yyyy - gg/aa/yyyy</code> aralığı.</small>
                                 </div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Ekip/Uzman <span class="text-danger">*</span></label>
+                                    <label>Ekip <span class="text-danger">*</span></label>
                                     <select class="form-control" id="team" required>
                                         <option value="">Seçin...</option>
                                         <option value="B1_EDA">B1_EDA</option>
                                         <option value="B2_MAS">B2_MAS</option>
                                         <option value="B3_HAKAN">B3_HAKAN</option>
-                                        <option value="Mert Cengiz">Mert Cengiz</option>
-                                        <option value="Özkan Cengiz">Özkan Cengiz</option>
+                                        <option value="B4_ARTIDEGER">B4_ARTIDEGER</option>
+                                        <option value="B5_ANKARA">B5_ANKARA</option>
                                     </select>
                                 </div>
                             </div>
@@ -363,6 +378,68 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Denetçi 1 <span class="text-danger">*</span></label>
+                                    <select class="form-control auditor-sorumlu-select" id="auditor1" required>
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Sorumlu Denetçi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Denetçi 2</label>
+                                    <select class="form-control auditor-denetci-select" id="auditor2">
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Denetçi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Denetçi 3</label>
+                                    <select class="form-control auditor-denetci-select" id="auditor3">
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Denetçi</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Yedek Denetçi 1</label>
+                                    <select class="form-control auditor-denetci-select" id="backupAuditor1">
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Denetçi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Yedek Denetçi 2</label>
+                                    <select class="form-control auditor-denetci-select" id="backupAuditor2">
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Denetçi</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label>Yedek Denetçi 3</label>
+                                    <select class="form-control auditor-denetci-select" id="backupAuditor3">
+                                        <option value="">Seçin...</option>
+                                    </select>
+                                    <small class="text-muted">Yalnızca Denetçi</small>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="text-muted" style="font-size:0.75rem;margin-top:-0.25rem;">
+                            <strong>Denetçi 1:</strong> Sorumlu Denetçi ·
+                            <strong>Denetçi 2–3 / Yedek Denetçi 1–3:</strong> Denetçi unvanlı kişiler
+                        </p>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -370,9 +447,13 @@
                         <i class="fas fa-times mr-2"></i>
                         İptal
                     </button>
-                    <button type="button" class="btn btn-success" onclick="saveContract()">
+                    <button type="button" class="btn btn-success" onclick="saveContract(false)">
                         <i class="fas fa-save mr-2"></i>
                         Kaydet
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveAndWordBtn" onclick="saveContract(true)">
+                        <i class="ph ph-files"></i>
+                        Kaydet, Word ve PDF oluştur
                     </button>
                 </div>
             </div>
@@ -471,6 +552,10 @@
     <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
     <script src="https://jsuites.net/v4/jsuites.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="contract-template-store.js"></script>
+    <script src="contract-doc.js"></script>
     
     <script>
         // Check authentication on page load (DOMContentLoaded ile geciktir)
@@ -547,6 +632,71 @@
             const month = match[2].padStart(2, '0');
             const year = match[3];
             return `${day}/${month}/${year}`;
+        }
+
+        function normalizeDisplayDateOrRange(value) {
+            if (!value) return null;
+            const raw = value.trim().replace(/[–—]/g, '-');
+            const rangeMatch = raw.match(/^(.+?)\s+-\s+(.+)$/);
+            if (rangeMatch) {
+                const start = normalizeDisplayDate(rangeMatch[1]);
+                const end = normalizeDisplayDate(rangeMatch[2]);
+                if (start && end) return start + ' - ' + end;
+                return null;
+            }
+            return normalizeDisplayDate(raw);
+        }
+
+        var clientsData = [];
+
+        async function loadContractClients() {
+            const supabase = resolveSupabaseClient();
+            if (supabase) {
+                const { data, error } = await supabase.from('clients').select('id, unvan, vergi_no, is_blacklisted, blacklist_reason').order('unvan');
+                if (!error && data) {
+                    clientsData = data;
+                    return;
+                }
+            }
+            try {
+                clientsData = JSON.parse(localStorage.getItem('clients') || '[]');
+            } catch (e) {
+                clientsData = [];
+            }
+        }
+
+        function populateContractClientSelect() {
+            const sel = document.getElementById('contractClientSelect');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">Müşteri seçin…</option>';
+            clientsData.forEach(function (c, idx) {
+                const opt = document.createElement('option');
+                opt.value = String(idx);
+                const blacklisted = !!(c.is_blacklisted || c.isBlacklisted);
+                const label = (c.unvan || c.clientName || 'İsimsiz') + (c.vergi_no ? ' (' + c.vergi_no + ')' : '') + (blacklisted ? ' [BLACKLIST]' : '');
+                opt.textContent = label;
+                if (blacklisted) opt.style.color = '#b42318';
+                sel.appendChild(opt);
+            });
+            if (current) sel.value = current;
+        }
+
+        function onContractClientSelected() {
+            const sel = document.getElementById('contractClientSelect');
+            const companyName = document.getElementById('companyName');
+            if (!sel || !companyName) return;
+            if (sel.value === '') {
+                companyName.value = '';
+                return;
+            }
+            const c = clientsData[Number(sel.value)];
+            if (!c) return;
+            companyName.value = c.unvan || c.clientName || '';
+            if (c.is_blacklisted || c.isBlacklisted) {
+                const reason = c.blacklist_reason || c.blacklistReason || 'Neden belirtilmemiş';
+                alert('Dikkat: Bu müşteri blacklist\'te.\n\nNeden: ' + reason);
+            }
         }
         
         // Supabase CRUD functions for contracts
@@ -679,95 +829,27 @@
                 degerlemeContent.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="mb-0">
-                            <i class="fas fa-file-alt text-warning mr-2"></i>
+                            <i class="ph ph-chart-line-up text-primary mr-2"></i>
                             Değerleme Sözleşmeleri
                         </h5>
                         <div>
                             <label for="excelDegerleme" class="btn btn-info mr-2 mb-0" style="cursor: pointer;">
-                                <i class="fa fa-file-excel"></i> Excel'den İçe Aktar
+                                <i class="ph ph-file-xls"></i> Excel'den İçe Aktar
                                 <input type="file" id="excelDegerleme" accept=".xlsx,.xls" style="display: none;" onchange="importExcel(this, 'Değerleme')">
                             </label>
                             <button class="btn btn-success" data-toggle="modal" data-target="#addContractModal" onclick="setContractType('Değerleme')">
-                                <i class="fas fa-plus mr-2"></i>
+                                <i class="ph ph-plus mr-2"></i>
                                 Yeni Sözleşme
                             </button>
                         </div>
                     </div>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="5%">#</th>
-                                    <th width="25%">Şirket Adı</th>
-                                    <th width="20%">Sözleşme Adı</th>
-                                    <th width="15%">Başlangıç</th>
-                                    <th width="15%">Bitiş</th>
-                                    <th width="10%">Uzman</th>
-                                    <th width="10%">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>MNO Gayrimenkul</td>
-                                    <td>Değerleme Raporu</td>
-                                    <td>10.01.2024</td>
-                                    <td>10.03.2024</td>
-                                    <td>Mert Cengiz</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('MNO Gayrimenkul - Değerleme')">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(1, 'Değerleme')">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(1, 'Değerleme')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>PQR Holding</td>
-                                    <td>Şirket Değerleme</td>
-                                    <td>05.02.2024</td>
-                                    <td>05.05.2024</td>
-                                    <td>Özkan Cengiz</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('PQR Holding - Değerleme')">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(2, 'Değerleme')">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(2, 'Değerleme')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>STU Yatırım</td>
-                                    <td>Portföy Değerleme</td>
-                                    <td>20.03.2024</td>
-                                    <td>20.06.2024</td>
-                                    <td>Mert Cengiz</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('STU Yatırım - Değerleme')">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning btn-action" onclick="editContract(3, 'Değerleme')">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(3, 'Değerleme')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="contract-year-bar">
+                        <div class="contract-year-tabs" id="degerlemeYearTabs" role="tablist" aria-label="Değerleme yıl seçimi"></div>
                     </div>
+                    <div class="contract-list-panel" id="degerlemeContractList" aria-live="polite"></div>
                 `;
+                renderYearTabs('Değerleme');
+                renderContractList('Değerleme');
             }
         }
         
@@ -840,64 +922,165 @@
                 toast.remove();
             });
         }
+
+        const CONTRACT_AUDITORS = [
+            { name: 'ÖZGÜR ÇİLENGİROĞLU', title: 'Sorumlu Denetçi' },
+            { name: 'ÖZKAN CENGİZ', title: 'Sorumlu Denetçi' },
+            { name: 'REMZİ KORAY YURTERİ', title: 'Sorumlu Denetçi' },
+            { name: 'EDA MERİÇ SEFER', title: 'Sorumlu Denetçi' },
+            { name: 'HAKAN KILIÇ', title: 'Sorumlu Denetçi' },
+            { name: 'BERAT BERKAY GÜREL', title: 'Sorumlu Denetçi' },
+            { name: 'HÜSEYİN YALÇIN', title: 'Denetçi' },
+            { name: 'HÜSEYİN ÖZER ERMUMCU', title: 'Denetçi' },
+            { name: 'MUAMMER UZUN', title: 'Denetçi' },
+            { name: 'MEHMET ÇUBAN', title: 'Denetçi' },
+            { name: 'MURAT ÜRKMEZ', title: 'Denetçi' },
+            { name: 'MUSTAFA YILMAZ', title: 'Denetçi' },
+            { name: 'GÖKHAN YILMAZ', title: 'Denetçi' },
+            { name: 'SERDAR KARAAĞIN', title: 'Denetçi' },
+            { name: 'YUNUS EMRE DURMUŞ', title: 'Denetçi' },
+            { name: 'DİLAN ULUSU', title: 'Denetçi' }
+        ];
+
+        const TEAM_OPTIONS = ['B1_EDA', 'B2_MAS', 'B3_HAKAN', 'B4_ARTIDEGER', 'B5_ANKARA'];
+
+        function populateAuditorSelectsByTitle(selector, title) {
+            const people = CONTRACT_AUDITORS.filter(function (p) {
+                return p.title === title;
+            });
+            const options = '<option value="">Seçin...</option>' + people.map(function (p) {
+                return '<option value="' + p.name + '" data-role="' + p.title + '">' + p.name + ' - ' + p.title + '</option>';
+            }).join('');
+            document.querySelectorAll(selector).forEach(function (select) {
+                const current = select.value;
+                select.innerHTML = options;
+                if (current) select.value = current;
+            });
+        }
+
+        function populateTeamSelect() {
+            const select = document.getElementById('team');
+            if (!select) return;
+            const current = select.value;
+            select.innerHTML = '<option value="">Seçin...</option>' + TEAM_OPTIONS.map(function (team) {
+                return '<option value="' + team + '">' + team + '</option>';
+            }).join('');
+            if (current) select.value = current;
+        }
+
+        function initAuditorFields() {
+            populateTeamSelect();
+            populateAuditorSelectsByTitle('.auditor-sorumlu-select', 'Sorumlu Denetçi');
+            populateAuditorSelectsByTitle('.auditor-denetci-select', 'Denetçi');
+        }
         
         // Save contract
-        window.saveContract = async function() {
+        window.saveContract = async function(generateWord) {
             try {
                 console.log('saveContract called');
                 
+                const contractClientSelect = document.getElementById('contractClientSelect');
                 const companyName = document.getElementById('companyName');
-                const contractName = document.getElementById('contractName');
+                const contractNo = document.getElementById('contractNo');
                 const contractCategory = document.getElementById('contractCategory');
-                const startDate = document.getElementById('startDate');
+                const contractStatus = document.getElementById('contractStatus');
+                const contractFrc = document.getElementById('contractFrc');
+                const contractRegulator = document.getElementById('contractRegulator');
+                const periodField = document.getElementById('periodField');
                 const endDate = document.getElementById('endDate');
                 const team = document.getElementById('team');
+                const auditor1 = document.getElementById('auditor1');
+                const auditor2 = document.getElementById('auditor2');
+                const auditor3 = document.getElementById('auditor3');
+                const backupAuditor1 = document.getElementById('backupAuditor1');
+                const backupAuditor2 = document.getElementById('backupAuditor2');
+                const backupAuditor3 = document.getElementById('backupAuditor3');
                 
-                if (!companyName || !contractName || !contractCategory || !startDate || !endDate || !team) {
+                if (!contractClientSelect || !companyName || !contractNo || !contractCategory || !contractStatus || !contractRegulator || !periodField || !endDate || !team || !auditor1) {
                     showToast('Form alanları bulunamadı. Sayfayı yenileyin.', 'error');
                 return;
             }
+
+                onContractClientSelected();
             
                 const companyNameValue = companyName.value.trim();
-                const contractNameValue = contractName.value.trim();
+                const contractNoValue = contractNo.value.trim();
                 const contractCategoryValue = contractCategory.value;
-                const startDateValue = startDate.value;
+                const contractStatusValue = contractStatus.value;
+                const contractFrcValue = contractFrc ? contractFrc.value : '';
+                const contractRegulatorValue = contractRegulator.value;
+                const periodValue = periodField.value.trim();
                 const endDateValue = endDate.value;
                 const teamValue = team.value;
+                const auditor1Value = auditor1.value;
+                const auditor2Value = auditor2 ? auditor2.value : '';
+                const auditor3Value = auditor3 ? auditor3.value : '';
+                const backupAuditor1Value = backupAuditor1 ? backupAuditor1.value : '';
+                const backupAuditor2Value = backupAuditor2 ? backupAuditor2.value : '';
+                const backupAuditor3Value = backupAuditor3 ? backupAuditor3.value : '';
                 
                 // Get contract type from hidden input or currentContractType
                 const contractTypeInput = document.getElementById('contractType');
                 const contractType = contractTypeInput ? contractTypeInput.value : (typeof currentContractType !== 'undefined' ? currentContractType : '');
                 
                 console.log('Contract type:', contractType);
-                console.log('Form values:', { companyNameValue, contractNameValue, contractCategoryValue, startDateValue, endDateValue, teamValue });
+                console.log('Form values:', {
+                    companyNameValue, contractNoValue, contractCategoryValue,
+                    contractStatusValue, contractFrcValue, contractRegulatorValue,
+                    periodValue, endDateValue, teamValue, auditor1Value
+                });
                 
-                if (!companyNameValue || !contractNameValue || !contractCategoryValue || !startDateValue || !endDateValue || !teamValue) {
-                    showToast('Lütfen tüm zorunlu alanları doldurun!', 'error');
+                if (!companyNameValue || contractClientSelect.value === '' || !contractNoValue || !contractCategoryValue || !contractStatusValue || !contractRegulatorValue || !periodValue || !endDateValue || !teamValue || !auditor1Value) {
+                    showToast('Lütfen müşteri seçin ve zorunlu alanları doldurun!', 'error');
                     return;
                 }
 
-                const normalizedStartDate = normalizeDisplayDate(startDateValue);
-                if (!normalizedStartDate) {
-                    showToast('Başlangıç tarihi gg/aa/yyyy formatında olmalıdır.', 'error');
-                    startDate.focus();
-                    return;
-                }
-
-                const normalizedEndDate = normalizeDisplayDate(endDateValue);
+                const normalizedEndDate = normalizeDisplayDateOrRange(endDateValue);
                 if (!normalizedEndDate) {
-                    showToast('Bitiş tarihi gg/aa/yyyy formatında olmalıdır.', 'error');
+                    showToast('Bitiş tarihi gg/aa/yyyy veya gg/aa/yyyy - gg/aa/yyyy formatında olmalıdır.', 'error');
                     endDate.focus();
                     return;
                 }
 
-                startDate.value = normalizedStartDate;
                 endDate.value = normalizedEndDate;
                 
                 if (!contractType) {
                     showToast('Sözleşme tipi seçilmedi. Lütfen sayfayı yenileyin ve tekrar deneyin.', 'error');
                     return;
                 }
+
+                const contractPayload = {
+                    company: companyNameValue,
+                    contract_no: contractNoValue,
+                    contractNo: contractNoValue,
+                    contract_name: contractNoValue,
+                    contract: contractNoValue,
+                    contract_category: contractCategoryValue,
+                    contract_type: contractType,
+                    status: contractStatusValue,
+                    financial_reporting: contractFrcValue,
+                    financialReporting: contractFrcValue,
+                    frc: contractFrcValue,
+                    regulator: contractRegulatorValue,
+                    period: periodValue,
+                    end_date: normalizedEndDate,
+                    end: normalizedEndDate,
+                    team: teamValue,
+                    auditor1: auditor1Value,
+                    auditor2: auditor2Value,
+                    auditor3: auditor3Value,
+                    backup_auditor1: backupAuditor1Value,
+                    backup_auditor2: backupAuditor2Value,
+                    backup_auditor3: backupAuditor3Value,
+                    backupAuditor1: backupAuditor1Value,
+                    backupAuditor2: backupAuditor2Value,
+                    backupAuditor3: backupAuditor3Value,
+                    hours: '',
+                    contract_received: '',
+                    contractReceived: '',
+                    kgk_reported: '',
+                    kgkReported: ''
+                };
                 
                 // Check if contractType is a spreadsheet type
                 const isSpreadsheetType = spreadsheetConfigs && spreadsheetConfigs[contractType];
@@ -908,57 +1091,89 @@
                 }
                 
                 if (isSpreadsheetType) {
-                    // For spreadsheet types, add to contractData
                     contractData[contractType].push({
-                        company: companyNameValue,
-                        contract: contractNameValue,
-                        period: `${normalizedStartDate} - ${normalizedEndDate}`,
-                        auditor1: '',
-                        auditor2: '',
-                        auditor3: '',
-                        team: teamValue,
+                        company: contractPayload.company,
+                        contract: contractPayload.contract_no,
+                        contract_no: contractPayload.contract_no,
+                        period: contractPayload.period,
+                        status: contractPayload.status,
+                        financial_reporting: contractPayload.financial_reporting,
+                        regulator: contractPayload.regulator,
+                        auditor1: contractPayload.auditor1,
+                        auditor2: contractPayload.auditor2,
+                        auditor3: contractPayload.auditor3,
+                        backup_auditor1: contractPayload.backup_auditor1,
+                        backup_auditor2: contractPayload.backup_auditor2,
+                        backup_auditor3: contractPayload.backup_auditor3,
+                        team: contractPayload.team,
                         hours: '',
                         contractReceived: '',
-                        kgkReported: ''
+                        kgkReported: '',
+                        end: contractPayload.end_date
                     });
                     
                     console.log('Added to spreadsheet type, contractData:', contractData[contractType]);
                     
                     // Save to Supabase
                     await saveContractsToSupabase(contractType, contractData[contractType]);
-                    
-                    // Refresh spreadsheet if it exists
-                    if (spreadsheetInstances && spreadsheetInstances[contractType]) {
-                        renderContractSpreadsheet(contractType);
-                    }
+                    refreshContractViews(contractType);
                 } else {
-                    // For non-spreadsheet types (like Değerleme), add to contractData
+                    const periodYear = extractYearFromPeriod(contractPayload.period) || new Date().getFullYear();
                     contractData[contractType].push({
-                        company: companyNameValue,
-                        contract: contractNameValue,
-                        start: normalizedStartDate,
+                        company: contractPayload.company,
+                        contract: contractPayload.contract_no,
+                        contract_no: contractPayload.contract_no,
+                        period: contractPayload.period || String(periodYear),
+                        status: contractPayload.status,
+                        financial_reporting: contractPayload.financial_reporting,
+                        regulator: contractPayload.regulator,
                         end: normalizedEndDate,
-                        team: teamValue
+                        team: contractPayload.team,
+                        auditor1: contractPayload.auditor1,
+                        auditor2: contractPayload.auditor2,
+                        auditor3: contractPayload.auditor3,
+                        backup_auditor1: contractPayload.backup_auditor1,
+                        backup_auditor2: contractPayload.backup_auditor2,
+                        backup_auditor3: contractPayload.backup_auditor3
                     });
                     
                     console.log('Added to non-spreadsheet type, contractData:', contractData[contractType]);
                     
-                    // Save to Supabase
                     await saveContractsToSupabase(contractType, contractData[contractType]);
                     
-                    // For Değerleme type, refresh the table manually
                     if (contractType === 'Değerleme') {
-                        // Reload the page or refresh the table
-                        setTimeout(() => {
-                            location.reload();
-                        }, 1000);
+                        refreshContractViews('Değerleme');
                     }
                 }
                 
-                showToast(`Sözleşme başarıyla eklendi!<br><small>Şirket: ${companyNameValue}<br>Sözleşme: ${contractNameValue}</small>`, 'success');
+                showToast(`Sözleşme başarıyla eklendi!<br><small>Şirket: ${companyNameValue}<br>Sözleşme No: ${contractNoValue}</small>`, 'success');
+
+                if (generateWord && typeof ContractDoc !== 'undefined') {
+                    try {
+                        const wordBtn = document.getElementById('saveAndWordBtn');
+                        if (wordBtn) wordBtn.disabled = true;
+                        const result = await ContractDoc.generateContractDocument(contractPayload, contractType);
+                        let pdfMsg = '';
+                        if (typeof ContractDoc.generateContractPdf === 'function') {
+                            const pdfResult = await ContractDoc.generateContractPdf(contractPayload, contractType);
+                            pdfMsg = ' · PDF: ' + pdfResult.filename;
+                        }
+                        if (result.usedTemplate) {
+                            showToast('Word + PDF oluşturuldu: ' + result.filename + pdfMsg, 'success');
+                        } else {
+                            showToast('Word + PDF oluşturuldu (varsayılan şablon): ' + result.filename + pdfMsg, 'success');
+                        }
+                    } catch (wordErr) {
+                        showToast('Word/PDF oluşturulamadı: ' + wordErr.message, 'error');
+                    } finally {
+                        const wordBtn = document.getElementById('saveAndWordBtn');
+                        if (wordBtn) wordBtn.disabled = false;
+                    }
+                }
             
             $('#addContractModal').modal('hide');
             document.getElementById('addContractForm').reset();
+            initAuditorFields();
             } catch (error) {
                 console.error('Error saving contract:', error);
                 showToast('Sözleşme kaydedilirken bir hata oluştu: ' + error.message, 'error');
@@ -1045,55 +1260,21 @@
 
                     if (isSpreadsheetTarget) {
                         contractData[contractType] = importedContracts;
-                        renderContractSpreadsheet(contractType);
+                        refreshContractViews(contractType);
                         alert(`${importedContracts.length} sözleşme başarıyla ${contractType} çalışma kağıdına aktarıldı!`);
                         input.value = '';
                         return;
                     }
 
-                    // Hedef sekme tablo tabanlı ise mevcut akışı sürdür
-                    let tbody;
                     if (contractType === 'Değerleme') {
-                        tbody = document.querySelector('#degerleme tbody');
-                    }
-                    
-                    if (!tbody) {
-                        alert('Tablo bulunamadı!');
+                        contractData[contractType] = importedContracts;
+                        refreshContractViews('Değerleme');
+                        alert(`${importedContracts.length} sözleşme başarıyla Değerleme listesine aktarıldı!`);
+                        input.value = '';
                         return;
                     }
-                    
-                    let currentRowCount = tbody.querySelectorAll('tr').length;
-                    let importedCount = 0;
-                    
-                    importedContracts.forEach(contract => {
-                        currentRowCount++;
-                        importedCount++;
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${currentRowCount}</td>
-                            <td>${contract.company}</td>
-                            <td>${contract.contract}</td>
-                            <td>${contract.start || ''}</td>
-                            <td>${contract.end || ''}</td>
-                            <td>${contract.team || ''}</td>
-                            <td>
-                                <button class="btn btn-sm btn-info btn-action" onclick="viewPDF('${contract.company} - ${contract.contract}')">
-                                    <i class="fas fa-file-pdf"></i>
-                                </button>
-                                <button class="btn btn-sm btn-warning btn-action" onclick="editContract(${currentRowCount}, '${contractType}')">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger btn-action" onclick="deleteContract(${currentRowCount}, '${contractType}')">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
-                    
-                    alert(`${importedCount} sözleşme başarıyla ${contractType} sekmesine içe aktarıldı!`);
-                    
-                    // Input'u temizle
+
+                    alert('Bu sözleşme türü için içe aktarma hedefi bulunamadı.');
                     input.value = '';
                     
                 } catch (error) {
@@ -1105,26 +1286,163 @@
             reader.readAsArrayBuffer(file);
         }
         
-        const spreadsheetConfigs = {
-            'Bağımsız Denetim': {
-                containerId: 'denetimSpreadsheet',
-                refreshBtnId: 'refreshDenetimSheetBtn',
-                clearBtnId: 'clearDenetimSheetBtn',
-                tabId: 'tab-denetim'
-            },
-            'BDDK EK-4': {
-                containerId: 'bddkEk4Spreadsheet',
-                refreshBtnId: 'refreshBddkEk4SheetBtn',
-                clearBtnId: 'clearBddkEk4SheetBtn',
-                tabId: 'tab-bddk-ek4'
-            },
-            'BDDK 10265': {
-                containerId: 'bddk10265Spreadsheet',
-                refreshBtnId: 'refreshBddk10265SheetBtn',
-                clearBtnId: 'clearBddk10265SheetBtn',
-                tabId: 'tab-bddk-10265'
-            }
+        const CONTRACT_YEAR_START = 2020;
+        const selectedYearByType = {};
+
+        const contractTypeMeta = {
+            'Bağımsız Denetim': { yearTabsId: 'denetimYearTabs', listId: 'denetimContractList' },
+            'BDDK EK-4': { yearTabsId: 'bddkEk4YearTabs', listId: 'bddkEk4ContractList' },
+            'BDDK 10265': { yearTabsId: 'bddk10265YearTabs', listId: 'bddk10265ContractList' },
+            'Değerleme': { yearTabsId: 'degerlemeYearTabs', listId: 'degerlemeContractList' }
         };
+
+        function getAvailableYears() {
+            const now = new Date().getFullYear();
+            const end = Math.max(now + 2, 2026);
+            const years = [];
+            for (let y = CONTRACT_YEAR_START; y <= end; y++) {
+                years.push(y);
+            }
+            return years;
+        }
+
+        function extractYearFromPeriod(period) {
+            if (!period) return null;
+            const match = String(period).match(/\b(20\d{2})\b/);
+            return match ? parseInt(match[1], 10) : null;
+        }
+
+        function getSelectedYear(type) {
+            if (!selectedYearByType[type]) {
+                selectedYearByType[type] = new Date().getFullYear();
+            }
+            return selectedYearByType[type];
+        }
+
+        function filterContractsByYear(contracts, year) {
+            return (contracts || []).filter(function (c) {
+                return extractYearFromPeriod(c.period) === year;
+            });
+        }
+
+        function findGlobalContractIndex(type, contract) {
+            if (!contract) return -1;
+            return (contractData[type] || []).findIndex(function (c) {
+                return c.company === contract.company &&
+                    c.period === contract.period &&
+                    (c.contract || '') === (contract.contract || '');
+            });
+        }
+
+        function countContractsForYear(type, year) {
+            return filterContractsByYear(contractData[type] || [], year).length;
+        }
+
+        function renderYearTabs(type) {
+            const meta = contractTypeMeta[type];
+            if (!meta) return;
+            const container = document.getElementById(meta.yearTabsId);
+            if (!container) return;
+
+            const years = getAvailableYears();
+            const selected = getSelectedYear(type);
+            container.innerHTML = years.map(function (year) {
+                const count = countContractsForYear(type, year);
+                const isActive = year === selected;
+                return '<button type="button" class="contract-year-tab' + (isActive ? ' active' : '') + '" role="tab" aria-selected="' + (isActive ? 'true' : 'false') + '" data-year="' + year + '" data-type="' + escapeForJs(type) + '">' +
+                    year +
+                    (count ? '<span class="year-count">' + count + '</span>' : '') +
+                    '</button>';
+            }).join('');
+
+            container.querySelectorAll('.contract-year-tab').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const year = parseInt(btn.getAttribute('data-year'), 10);
+                    const contractType = btn.getAttribute('data-type');
+                    selectedYearByType[contractType] = year;
+                    renderYearTabs(contractType);
+                    renderContractList(contractType);
+                    if (spreadsheetConfigs[contractType]) {
+                        renderContractSpreadsheet(contractType);
+                    }
+                });
+            });
+        }
+
+        function renderContractList(type) {
+            const meta = contractTypeMeta[type];
+            if (!meta) return;
+            const container = document.getElementById(meta.listId);
+            if (!container) return;
+
+            const year = getSelectedYear(type);
+            const filtered = filterContractsByYear(contractData[type] || [], year);
+            const typeLabel = type;
+
+            if (!filtered.length) {
+                container.innerHTML = '<div class="contract-list-head"><h6>' + year + ' — ' + typeLabel + '</h6><span>0 kayıt</span></div>' +
+                    '<div class="contract-list-empty"><i class="ph ph-folder-open" aria-hidden="true"></i>Bu yıl için sözleşme bulunmuyor.</div>';
+                return;
+            }
+
+            const rows = filtered.map(function (contract, idx) {
+                const globalIndex = findGlobalContractIndex(type, contract);
+                const safeType = escapeForJs(type);
+                const contractName = contract.contract_no || contract.contract || contract.period || '—';
+                const received = contract.contractReceived || contract.contract_received || '—';
+                return '<tr>' +
+                    '<td>' + (idx + 1) + '</td>' +
+                    '<td>' + (contract.company || '—') + '</td>' +
+                    '<td>' + contractName + '</td>' +
+                    '<td>' + (contract.period || '—') + '</td>' +
+                    '<td>' + (contract.auditor1 || '—') + '</td>' +
+                    '<td>' + (contract.auditor2 || '—') + '</td>' +
+                    '<td>' + (contract.auditor3 || '—') + '</td>' +
+                    '<td>' + (contract.team || '—') + '</td>' +
+                    '<td>' + (contract.hours ? contract.hours + ' sa' : '—') + '</td>' +
+                    '<td>' + received + '</td>' +
+                    '<td>' + (contract.status || '—') + '</td>' +
+                    '<td>' + (contract.regulator || '—') + '</td>' +
+                    '<td><div class="table-actions">' +
+                    '<button type="button" class="btn btn-sm btn-info table-action-btn" title="PDF" onclick="handleContractAction(\'view\',\'' + safeType + '\',' + globalIndex + ')"><i class="ph ph-file-pdf"></i></button>' +
+                    '<button type="button" class="btn btn-sm btn-warning table-action-btn" title="Düzenle" onclick="handleContractAction(\'edit\',\'' + safeType + '\',' + globalIndex + ')"><i class="ph ph-pencil-simple"></i></button>' +
+                    '<button type="button" class="btn btn-sm btn-danger table-action-btn" title="Sil" onclick="handleContractAction(\'delete\',\'' + safeType + '\',' + globalIndex + ')"><i class="ph ph-trash"></i></button>' +
+                    '</div></td></tr>';
+            }).join('');
+
+            container.innerHTML = '<div class="contract-list-head"><h6>' + year + ' — ' + typeLabel + ' listesi</h6><span>' + filtered.length + ' kayıt</span></div>' +
+                '<div class="contract-list-table-wrap"><table class="contract-list-table"><thead><tr>' +
+                '<th>#</th><th>Şirket</th><th>Sözleşme No</th><th>Dönem</th><th>Denetçi 1</th><th>Denetçi 2</th><th>Denetçi 3</th><th>Ekip</th><th>Saat</th><th>Sözleşme geldi mi?</th><th>Durum</th><th>Düzenleyici</th><th>İşlemler</th>' +
+                '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+        }
+
+        function refreshContractViews(type) {
+            renderYearTabs(type);
+            renderContractList(type);
+        }
+
+        function togglePlaceholdersHelp() {
+            var help = document.getElementById('placeholdersHelp');
+            var btn = document.getElementById('togglePlaceholdersBtn');
+            if (!help || !btn) return;
+            var hidden = help.style.display === 'none';
+            help.style.display = hidden ? '' : 'none';
+            localStorage.setItem('hideContractPlaceholders', hidden ? '0' : '1');
+            btn.innerHTML = hidden
+                ? '<i class="ph ph-eye-slash"></i> Yer tutucuları gizle'
+                : '<i class="ph ph-eye"></i> Yer tutucuları göster';
+        }
+
+        (function initPlaceholderVisibility() {
+            if (localStorage.getItem('hideContractPlaceholders') === '1') {
+                var help = document.getElementById('placeholdersHelp');
+                var btn = document.getElementById('togglePlaceholdersBtn');
+                if (help) help.style.display = 'none';
+                if (btn) btn.innerHTML = '<i class="ph ph-eye"></i> Yer tutucuları göster';
+            }
+        })();
+
+        const spreadsheetConfigs = {};
 
         const contractData = {
             'Bağımsız Denetim': [
@@ -1151,6 +1469,54 @@
                     hours: '95',
                     contractReceived: 'Evet',
                     kgkReported: 'Evet'
+                },
+                {
+                    company: 'GHI Tekstil A.Ş.',
+                    contract: '2023 Denetim Sözleşmesi',
+                    period: '2023',
+                    auditor1: 'B1_EDA',
+                    auditor2: 'B2_MAS',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-1',
+                    hours: '110',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
+                },
+                {
+                    company: 'JKL Enerji A.Ş.',
+                    contract: '2022 Denetim Sözleşmesi',
+                    period: '2022',
+                    auditor1: 'B3_HAKAN',
+                    auditor2: 'B1_EDA',
+                    auditor3: 'B2_MAS',
+                    team: 'B-3',
+                    hours: '88',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
+                },
+                {
+                    company: 'MNO Lojistik Ltd.',
+                    contract: '2021 Denetim Sözleşmesi',
+                    period: '2021',
+                    auditor1: 'B2_MAS',
+                    auditor2: 'B3_HAKAN',
+                    auditor3: 'B1_EDA',
+                    team: 'B-2',
+                    hours: '75',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Hayır'
+                },
+                {
+                    company: 'PQR Holding',
+                    contract: '2020 Denetim Sözleşmesi',
+                    period: '2020',
+                    auditor1: 'B1_EDA',
+                    auditor2: 'B2_MAS',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-1',
+                    hours: '100',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
                 }
             ],
             'BDDK EK-4': [
@@ -1165,6 +1531,30 @@
                     hours: '60',
                     contractReceived: 'Evet',
                     kgkReported: 'Beklemede'
+                },
+                {
+                    company: 'LMN Finans',
+                    contract: 'EK-4 Raporu 2023',
+                    period: '2023',
+                    auditor1: 'B1_EDA',
+                    auditor2: 'B2_MAS',
+                    auditor3: 'B3_HAKAN',
+                    team: 'B-1',
+                    hours: '55',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
+                },
+                {
+                    company: 'OPQ Yatırım',
+                    contract: 'EK-4 Raporu 2022',
+                    period: '2022',
+                    auditor1: 'B2_MAS',
+                    auditor2: 'B3_HAKAN',
+                    auditor3: 'B1_EDA',
+                    team: 'B-2',
+                    hours: '48',
+                    contractReceived: 'Hayır',
+                    kgkReported: 'Hayır'
                 }
             ],
             'BDDK 10265': [
@@ -1179,6 +1569,56 @@
                     hours: '80',
                     contractReceived: 'Hayır',
                     kgkReported: 'Hayır'
+                },
+                {
+                    company: 'RST Leasing',
+                    contract: '10265 İncelemesi 2023',
+                    period: '2023',
+                    auditor1: 'B3_HAKAN',
+                    auditor2: 'B1_EDA',
+                    auditor3: 'B2_MAS',
+                    team: 'B-3',
+                    hours: '72',
+                    contractReceived: 'Evet',
+                    kgkReported: 'Evet'
+                },
+                {
+                    company: 'UVW Faktoring',
+                    contract: '10265 İncelemesi 2025',
+                    period: '2025',
+                    auditor1: 'B2_MAS',
+                    auditor2: 'B3_HAKAN',
+                    auditor3: 'B1_EDA',
+                    team: 'B-2',
+                    hours: '65',
+                    contractReceived: 'Beklemede',
+                    kgkReported: 'Hayır'
+                }
+            ],
+            'Değerleme': [
+                {
+                    company: 'MNO Gayrimenkul',
+                    contract: 'Değerleme Raporu',
+                    period: '2024',
+                    auditor1: 'Mert Cengiz',
+                    team: 'Mert Cengiz',
+                    hours: '40'
+                },
+                {
+                    company: 'PQR Holding',
+                    contract: 'Şirket Değerleme',
+                    period: '2024',
+                    auditor1: 'Özkan Cengiz',
+                    team: 'Özkan Cengiz',
+                    hours: '55'
+                },
+                {
+                    company: 'STU Yatırım',
+                    contract: 'Portföy Değerleme',
+                    period: '2023',
+                    auditor1: 'Mert Cengiz',
+                    team: 'Mert Cengiz',
+                    hours: '35'
                 }
             ]
         };
@@ -1190,29 +1630,35 @@
         }
 
         function createActionButtons(type, index) {
-            const contracts = contractData[type] || [];
-            const contract = contracts[index];
+            const year = getSelectedYear(type);
+            const filtered = filterContractsByYear(contractData[type] || [], year);
+            const contract = filtered[index];
             if (!contract) {
+                return '';
+            }
+            const globalIndex = findGlobalContractIndex(type, contract);
+            if (globalIndex < 0) {
                 return '';
             }
             const safeType = escapeForJs(type);
             return `
                 <div class="table-actions">
-                    <button type="button" class="btn btn-sm btn-info table-action-btn" title="PDF" onclick="handleContractAction('view','${safeType}',${index})">
-                        <i class="fas fa-file-pdf"></i>
+                    <button type="button" class="btn btn-sm btn-info table-action-btn" title="PDF" onclick="handleContractAction('view','${safeType}',${globalIndex})">
+                        <i class="ph ph-file-pdf"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-warning table-action-btn" title="Düzenle" onclick="handleContractAction('edit','${safeType}',${index})">
-                        <i class="fas fa-edit"></i>
+                    <button type="button" class="btn btn-sm btn-warning table-action-btn" title="Düzenle" onclick="handleContractAction('edit','${safeType}',${globalIndex})">
+                        <i class="ph ph-pencil-simple"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-danger table-action-btn" title="Sil" onclick="handleContractAction('delete','${safeType}',${index})">
-                        <i class="fas fa-trash"></i>
+                    <button type="button" class="btn btn-sm btn-danger table-action-btn" title="Sil" onclick="handleContractAction('delete','${safeType}',${globalIndex})">
+                        <i class="ph ph-trash"></i>
                     </button>
                 </div>
             `.trim();
         }
 
         function getSpreadsheetRows(type) {
-            const contracts = contractData[type] || [];
+            const year = getSelectedYear(type);
+            const contracts = filterContractsByYear(contractData[type] || [], year);
             const rows = [];
             const minRows = Math.max(contracts.length, 10);
             for (let i = 0; i < minRows; i++) {
@@ -1273,6 +1719,24 @@
             await saveContractsToSupabase(type, cleaned);
         }
 
+        const spreadsheetMetaIds = {
+            'Bağımsız Denetim': 'denetimSheetMeta',
+            'BDDK EK-4': 'bddkEk4SheetMeta',
+            'BDDK 10265': 'bddk10265SheetMeta'
+        };
+
+        function updateSheetMeta(type) {
+            const metaEl = document.getElementById(spreadsheetMetaIds[type]);
+            if (!metaEl) return;
+            const year = getSelectedYear(type);
+            const count = filterContractsByYear(contractData[type] || [], year).filter(function (c) {
+                return c && (c.company || c.period);
+            }).length;
+            metaEl.textContent = count
+                ? year + ' · ' + count + ' kayıt · tabloyu yatay kaydırarak tüm sütunları görebilirsiniz'
+                : year + ' · henüz kayıt yok · tabloyu yatay kaydırarak tüm sütunları görebilirsiniz';
+        }
+
         function renderContractSpreadsheet(type) {
             const config = spreadsheetConfigs[type];
             if (!config) {
@@ -1291,20 +1755,20 @@
             spreadsheetInstances[type] = jspreadsheet(container, {
                 data: data,
                 columns: [
-                    { type: 'text', title: 'Şirket Adı', width: 240, readOnly: true },
-                    { type: 'text', title: 'Dönem', width: 140, readOnly: true },
-                    { type: 'text', title: 'Denetçi -1', width: 180, readOnly: true },
-                    { type: 'text', title: 'Denetçi -2', width: 180, readOnly: true },
-                    { type: 'text', title: 'Denetçi -3', width: 180, readOnly: true },
-                    { type: 'text', title: 'Ekip', width: 140, readOnly: true },
-                    { type: 'text', title: 'Saat', width: 100, readOnly: true },
-                    { type: 'text', title: 'Sözleşme geldi mi?', width: 180, readOnly: true },
-                    { type: 'text', title: 'KGK bildirimi yapıldı mı?', width: 200, readOnly: true },
-                    { type: 'html', title: 'İşlemler', width: 200, readOnly: true }
+                    { type: 'text', title: 'Şirket Adı', width: 200, readOnly: true },
+                    { type: 'text', title: 'Dönem', width: 110, readOnly: true },
+                    { type: 'text', title: 'Denetçi -1', width: 150, readOnly: true },
+                    { type: 'text', title: 'Denetçi -2', width: 150, readOnly: true },
+                    { type: 'text', title: 'Denetçi -3', width: 150, readOnly: true },
+                    { type: 'text', title: 'Ekip', width: 110, readOnly: true },
+                    { type: 'text', title: 'Saat', width: 80, readOnly: true },
+                    { type: 'text', title: 'Sözleşme geldi mi?', width: 150, readOnly: true },
+                    { type: 'text', title: 'KGK bildirimi yapıldı mı?', width: 170, readOnly: true },
+                    { type: 'html', title: 'İşlemler', width: 130, readOnly: true }
                 ],
                 minDimensions: [10, Math.max(data.length, 10)],
-                tableOverflow: true,
-                tableHeight: '320px',
+                tableOverflow: false,
+                tableHeight: 'auto',
                 tableWidth: '100%',
                 editable: false,
                 allowInsertRow: false,
@@ -1320,6 +1784,7 @@
                     }
                 }
             });
+            updateSheetMeta(type);
         }
 
         async function refreshContractSpreadsheet(type) {
@@ -1338,7 +1803,7 @@
             }
             contractData[type] = [];
             await saveContractsToSupabase(type, []);
-            renderContractSpreadsheet(type);
+            refreshContractViews(type);
         }
 
         async function handleContractAction(action, type, index) {
@@ -1348,24 +1813,25 @@
                 alert('Bu satırda veri bulunmuyor.');
                 return;
             }
-            const contractName = contract.contract || contract.period || contract.company;
+            const contractName = contract.contract_no || contract.contract || contract.period || contract.company;
             if (action === 'view') {
                 viewPDF(`${contract.company} - ${contractName}`);
             } else if (action === 'edit') {
-                alert(`Sözleşme düzenleme özelliği\n\nŞirket: ${contract.company}\nSözleşme: ${contractName}\nTür: ${type}`);
+                alert(`Sözleşme düzenleme özelliği\n\nŞirket: ${contract.company}\nSözleşme No: ${contractName}\nTür: ${type}`);
             } else if (action === 'delete') {
                 if (confirm(`"${contract.company}" sözleşmesini silmek istediğinize emin misiniz?`)) {
                     contracts.splice(index, 1);
                     contractData[type] = contracts;
                     await saveContractsToSupabase(type, contracts);
-                    renderContractSpreadsheet(type);
+                    refreshContractViews(type);
                 }
             }
         }
 
         async function initContractSheet(type) {
-            // Load contracts from Supabase first
             await loadContractsFromSupabase(type);
+            renderYearTabs(type);
+            renderContractList(type);
             renderContractSpreadsheet(type);
             const config = spreadsheetConfigs[type];
             if (!config) {
@@ -1393,11 +1859,21 @@
             for (const type of Object.keys(spreadsheetConfigs)) {
                 await initContractSheet(type);
             }
+            renderYearTabs('Değerleme');
+            renderContractList('Değerleme');
             $('#contractTabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 const targetId = e.target ? e.target.id : '';
+                $('#contractTabs .contract-type-tab').attr('aria-selected', 'false');
+                if (e.target) {
+                    e.target.setAttribute('aria-selected', 'true');
+                }
                 const matchedEntry = Object.entries(spreadsheetConfigs).find(([key, cfg]) => cfg.tabId === targetId);
                 if (matchedEntry) {
                     refreshContractSpreadsheet(matchedEntry[0]);
+                }
+                if (targetId === 'tab-degerleme') {
+                    renderYearTabs('Değerleme');
+                    renderContractList('Değerleme');
                 }
             });
         }
@@ -1408,9 +1884,115 @@
             initAllContractSheets();
         }
 
+        var CONTRACT_TEMPLATE_TYPES = ['Bağımsız Denetim', 'BDDK EK-4', 'BDDK 10265', 'Değerleme'];
+
+        function formatTemplateDate(iso) {
+            if (!iso) return '';
+            try {
+                return new Date(iso).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+            } catch (e) { return iso; }
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function renderContractTemplateCards() {
+            if (typeof ContractTemplateStore === 'undefined') return;
+            var container = document.getElementById('contractTemplateCards');
+            if (!container) return;
+            var all = ContractTemplateStore.getAllTemplateInfo();
+            container.innerHTML = CONTRACT_TEMPLATE_TYPES.map(function (type) {
+                var info = all[type] || { uploaded: false };
+                var slug = ContractTemplateStore.normalizeType(type);
+                var status = info.uploaded
+                    ? '<strong>' + info.fileName + '</strong><br>' + formatFileSize(info.fileSize) + ' · ' + formatTemplateDate(info.uploadedAt)
+                    : 'Henüz şablon yüklenmedi';
+                return '<div class="template-card">' +
+                    '<h3 class="template-card-title">' + type + '</h3>' +
+                    '<p class="template-card-status" id="tplStatus-' + slug + '">' + status + '</p>' +
+                    '<input type="file" id="tplUpload-' + slug + '" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" hidden>' +
+                    '<div class="template-card-actions">' +
+                    '<button class="btn btn-sm btn-primary" type="button" onclick="document.getElementById(\'tplUpload-' + slug + '\').click()"><i class="ph ph-upload-simple"></i> Yükle</button>' +
+                    '<button class="btn btn-sm btn-outline-primary" type="button" id="tplDownload-' + slug + '" onclick="downloadContractTemplate(\'' + type.replace(/'/g, "\\'") + '\')" ' + (info.uploaded ? '' : 'disabled') + '><i class="ph ph-download-simple"></i> İndir</button>' +
+                    '<button class="btn btn-sm btn-outline-dark" type="button" id="tplRemove-' + slug + '" onclick="removeContractTemplate(\'' + type.replace(/'/g, "\\'") + '\')" ' + (info.uploaded ? '' : 'disabled') + '><i class="ph ph-trash"></i> Kaldır</button>' +
+                    '</div></div>';
+            }).join('');
+
+            CONTRACT_TEMPLATE_TYPES.forEach(function (type) {
+                var slug = ContractTemplateStore.normalizeType(type);
+                var input = document.getElementById('tplUpload-' + slug);
+                if (input) {
+                    input.addEventListener('change', function (e) {
+                        if (e.target.files && e.target.files[0]) handleContractTemplateUpload(type, e.target.files[0]);
+                        e.target.value = '';
+                    });
+                }
+            });
+        }
+
+        async function handleContractTemplateUpload(type, file) {
+            try {
+                await ContractTemplateStore.uploadTemplate(type, file);
+                renderContractTemplateCards();
+                showToast(type + ' Word şablonu kaydedildi.', 'success');
+            } catch (err) {
+                showToast('Şablon yüklenemedi: ' + err.message, 'error');
+            }
+        }
+
+        async function downloadContractTemplate(type) {
+            try {
+                var result = await ContractTemplateStore.downloadTemplateCopy(type);
+                var url = URL.createObjectURL(result.blob);
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = result.fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+            } catch (err) {
+                showToast('Şablon indirilemedi: ' + err.message, 'error');
+            }
+        }
+
+        async function removeContractTemplate(type) {
+            if (!confirm(type + ' şablonu kaldırılsın mı?')) return;
+            try {
+                await ContractTemplateStore.removeTemplate(type);
+                renderContractTemplateCards();
+            } catch (err) {
+                showToast('Şablon kaldırılamadı: ' + err.message, 'error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async function () {
+            initAuditorFields();
+            try {
+                await loadContractClients();
+                populateContractClientSelect();
+            } catch (e) {
+                console.warn('Müşteri listesi yüklenemedi:', e);
+            }
+            $('#addContractModal').on('show.bs.modal', async function () {
+                try {
+                    await loadContractClients();
+                    populateContractClientSelect();
+                } catch (e) {
+                    console.warn('Müşteri listesi yenilenemedi:', e);
+                }
+            });
+            if (typeof ContractTemplateStore !== 'undefined') {
+                try { await ContractTemplateStore.syncFromSupabase(); } catch (e) { console.warn(e); }
+                renderContractTemplateCards();
+            }
+        });
+
     </script>
-<script src="atlas-shell.js"></script>
-</body>
-</html>
+    <script src="atlas-shell.js"></script>
 </body>
 </html>

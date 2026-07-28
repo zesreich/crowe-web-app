@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -568,7 +568,7 @@
       <a class="brand" href="auditor-dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass"></i></div>
         <div class="brand-text">
-          <strong>HSY Denetim</strong>
+          <strong>HSY Crowe</strong>
           <span>OneDrive dosyaları</span>
         </div>
       </a>

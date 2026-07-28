@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +15,11 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="atlas-shell.css" rel="stylesheet">
     <link href="atlas-compat.css" rel="stylesheet">
-
+    <style>
+        .is-blacklisted-row td {
+            background: color-mix(in srgb, #dc3545 6%, transparent);
+        }
+    </style>
 </head>
 <body data-atlas-page="clients">
   <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;">İçeriğe atla</a>
@@ -24,7 +28,7 @@
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
         <div class="brand-text">
-          <strong>HSY Atlas</strong>
+          <strong>HSY Crowe</strong>
           <span>Denetim ekosistemi</span>
         </div>
       </a>
@@ -42,7 +46,7 @@
           <i class="ph ph-signature"></i><span>Sözleşmeler</span>
         </a>
         <a class="nav-btn" href="payments.html">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
+          <i class="ph ph-money"></i><span>Ödeme Listesi</span>
         </a>
         <a class="nav-btn" href="reports.html">
           <i class="ph ph-chart-line"></i><span>Raporlar</span>
@@ -75,7 +79,7 @@
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
         <span>Operasyon</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -95,7 +99,7 @@
             <div class="container-fluid">
                 <div class="page-header-admin">
                     <h1>Müşteriler</h1>
-                    <p class="page-header-meta">Vergi no, unvan ve ekip atamaları</p>
+                    <p class="page-header-meta">Vergi no, unvan, ekip, blacklist ve rol atamaları</p>
                 </div>
 
                 <section class="atlas-module" aria-label="Müşteri listesi">
@@ -105,6 +109,9 @@
                             <input type="search" id="search" placeholder="Vergi no veya unvan ara…" autocomplete="off">
                         </label>
                         <div class="atlas-toolbar-actions">
+                            <button type="button" class="btn btn-secondary" onclick="downloadClientExcelTemplate()">
+                                <i class="ph ph-download-simple"></i> Excel taslağı indir
+                            </button>
                             <label for="excelFile" class="btn btn-info mb-0" style="cursor:pointer;margin:0;">
                                 <i class="ph ph-file-xls"></i> Excel içe aktar
                                 <input type="file" id="excelFile" accept=".xlsx,.xls" style="display:none;">
@@ -124,10 +131,15 @@
                                     <th class="text-center" style="width:44px;">
                                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" aria-label="Tümünü seç">
                                     </th>
-                                    <th>Vergi no</th>
                                     <th>Unvan</th>
-                                    <th>Vergi dairesi</th>
+                                    <th>Partner</th>
                                     <th>Ekip</th>
+                                    <th>Ekip lideri</th>
+                                    <th>Vergi dairesi</th>
+                                    <th>Vergi no</th>
+                                    <th>İletişim</th>
+                                    <th>E-posta</th>
+                                    <th>Blacklist</th>
                                     <th class="text-center" style="width:140px;">İşlemler</th>
                                 </tr>
                             </thead>
@@ -182,6 +194,39 @@
                                     <option value="B3_HAKAN">B3_HAKAN</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label for="editPartner"><i class="ph ph-handshake"></i> Partner</label>
+                                <select class="form-control" id="editPartner" onchange="onPartnerChange('edit')">
+                                    <option value="">Partner seçin…</option>
+                                    <option value="Eda Meriç Sefer">Eda Meriç Sefer</option>
+                                    <option value="Hakan Kılıç">Hakan Kılıç</option>
+                                    <option value="Mehmet Ali Sarıad">Mehmet Ali Sarıad</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editEkipLideri"><i class="ph ph-crown"></i> Ekip lideri</label>
+                                <select class="form-control" id="editEkipLideri">
+                                    <option value="">Önce partner seçin…</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="editIletisim"><i class="ph ph-user"></i> Müşteri iletişim</label>
+                                <input type="text" class="form-control" id="editIletisim" placeholder="İlgili kişi adı / telefon">
+                            </div>
+                            <div class="form-group">
+                                <label for="editEmail"><i class="ph ph-envelope"></i> E-posta</label>
+                                <input type="email" class="form-control" id="editEmail" placeholder="ornek@sirket.com">
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="editBlacklist">
+                                    <label class="custom-control-label" for="editBlacklist">Blacklist — sorunlu / riskli müşteri</label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <label for="editBlacklistReason">Blacklist nedeni</label>
+                                <textarea class="form-control" id="editBlacklistReason" rows="2" placeholder="Örn: Ödeme gecikmesi, uyumsuzluk…"></textarea>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -232,6 +277,39 @@
                                     <option value="B2_MAS">B2_MAS</option>
                                     <option value="B3_HAKAN">B3_HAKAN</option>
                                 </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newPartner"><i class="ph ph-handshake"></i> Partner</label>
+                                <select class="form-control" id="newPartner" onchange="onPartnerChange('new')">
+                                    <option value="">Partner seçin…</option>
+                                    <option value="Eda Meriç Sefer">Eda Meriç Sefer</option>
+                                    <option value="Hakan Kılıç">Hakan Kılıç</option>
+                                    <option value="Mehmet Ali Sarıad">Mehmet Ali Sarıad</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newEkipLideri"><i class="ph ph-crown"></i> Ekip lideri</label>
+                                <select class="form-control" id="newEkipLideri">
+                                    <option value="">Önce partner seçin…</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="newIletisim"><i class="ph ph-user"></i> Müşteri iletişim</label>
+                                <input type="text" class="form-control" id="newIletisim" placeholder="İlgili kişi adı / telefon">
+                            </div>
+                            <div class="form-group">
+                                <label for="newEmail"><i class="ph ph-envelope"></i> E-posta</label>
+                                <input type="email" class="form-control" id="newEmail" placeholder="ornek@sirket.com">
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="newBlacklist">
+                                    <label class="custom-control-label" for="newBlacklist">Blacklist — sorunlu / riskli müşteri</label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="grid-column:1/-1;">
+                                <label for="newBlacklistReason">Blacklist nedeni</label>
+                                <textarea class="form-control" id="newBlacklistReason" rows="2" placeholder="Örn: Ödeme gecikmesi, uyumsuzluk…"></textarea>
                             </div>
                         </div>
                     </form>
@@ -407,6 +485,80 @@
             });
         }
         
+        function normalizeClientFromDb(client) {
+            const details = client.details || {};
+            return {
+                id: client.id,
+                vergiNo: client.vergi_no || client.vergiNo || '',
+                unvan: client.unvan || '',
+                vergiDairesi: client.vergi_dairesi || client.vergiDairesi || '',
+                ekip: client.ekip || '',
+                isBlacklisted: !!(client.is_blacklisted || client.isBlacklisted),
+                blacklistReason: client.blacklist_reason || client.blacklistReason || '',
+                partner: client.partner || '',
+                ekipLideri: client.ekip_lideri || client.ekipLideri || '',
+                iletisim: client.iletisim || client.contact || details.iletisim || '',
+                email: client.email || client.client_email || details.email || '',
+                details: details
+            };
+        }
+
+        function buildClientPayload(client) {
+            const details = Object.assign({}, client.details || {}, {
+                iletisim: client.iletisim || '',
+                email: client.email || ''
+            });
+            return {
+                vergi_no: client.vergiNo,
+                unvan: client.unvan,
+                vergi_dairesi: client.vergiDairesi,
+                ekip: client.ekip,
+                is_blacklisted: !!client.isBlacklisted,
+                blacklist_reason: client.blacklistReason || null,
+                partner: client.partner || null,
+                ekip_lideri: client.ekipLideri || null,
+                details: details
+            };
+        }
+
+        var PARTNER_LEADERS = {
+            'Eda Meriç Sefer': ['Dilek Çınar', 'Berki Özkan'],
+            'Hakan Kılıç': ['Şilan Korkmaz', 'Gözde Kızıleniş'],
+            'Mehmet Ali Sarıad': ['İbrahim Kuvvet', 'Dilan Ulusu', 'Yunus Emre Durmuş']
+        };
+
+        function onPartnerChange(prefix, selectedLeader) {
+            var partnerEl = document.getElementById(prefix + 'Partner');
+            var leaderEl = document.getElementById(prefix + 'EkipLideri');
+            if (!partnerEl || !leaderEl) return;
+            var partner = partnerEl.value;
+            var leaders = PARTNER_LEADERS[partner] || [];
+            var keep = selectedLeader || leaderEl.value;
+            leaderEl.innerHTML = '';
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = partner ? 'Ekip lideri seçin…' : 'Önce partner seçin…';
+            leaderEl.appendChild(placeholder);
+            leaders.forEach(function (name) {
+                var opt = document.createElement('option');
+                opt.value = name;
+                opt.textContent = name;
+                leaderEl.appendChild(opt);
+            });
+            if (keep && leaders.indexOf(keep) !== -1) {
+                leaderEl.value = keep;
+            }
+        }
+
+        function blacklistBadge(client) {
+            if (!client.isBlacklisted && !client.is_blacklisted) {
+                return '<span class="status-badge">Hayır</span>';
+            }
+            var reason = client.blacklistReason || client.blacklist_reason || '';
+            var title = reason ? ' title="' + escapeHtml(reason) + '"' : '';
+            return '<span class="status-badge is-suspended"' + title + '>Blacklist</span>';
+        }
+
         function resolveSupabaseClient() {
             if (window.__supabaseClientInstance) {
                 return window.__supabaseClientInstance;
@@ -472,12 +624,7 @@
             try {
                 const { data, error } = await supabase
                     .from('clients')
-                    .insert([{
-                        vergi_no: client.vergiNo,
-                        unvan: client.unvan,
-                        vergi_dairesi: client.vergiDairesi,
-                        ekip: client.ekip
-                    }])
+                    .insert([buildClientPayload(client)])
                     .select()
                     .single();
                 
@@ -500,7 +647,22 @@
                 const clients = JSON.parse(localStorage.getItem('clients') || '[]');
                 const index = clients.findIndex(c => (c.id || c.vergi_no || `local_${clients.indexOf(c)}`) === clientId);
                 if (index !== -1) {
-                    clients[index] = { ...clients[index], ...client };
+                    clients[index] = Object.assign({}, clients[index], {
+                        vergiNo: client.vergiNo,
+                        vergi_no: client.vergiNo,
+                        unvan: client.unvan,
+                        vergiDairesi: client.vergiDairesi,
+                        vergi_dairesi: client.vergiDairesi,
+                        ekip: client.ekip,
+                        isBlacklisted: client.isBlacklisted,
+                        is_blacklisted: client.isBlacklisted,
+                        blacklistReason: client.blacklistReason,
+                        blacklist_reason: client.blacklistReason,
+                        uygulamaci: client.uygulamaci,
+                        partner: client.partner,
+                        ekipLideri: client.ekipLideri,
+                        ekip_lideri: client.ekipLideri
+                    });
                     localStorage.setItem('clients', JSON.stringify(clients));
                 }
                 return { success: true };
@@ -521,12 +683,7 @@
                 }
 
                 const { error } = await applyClientIdFilter(
-                    supabase.from('clients').update({
-                        vergi_no: client.vergiNo,
-                        unvan: client.unvan,
-                        vergi_dairesi: client.vergiDairesi,
-                        ekip: client.ekip
-                    }),
+                    supabase.from('clients').update(buildClientPayload(client)),
                     clientId
                 );
                 
@@ -601,19 +758,19 @@
             tbody.innerHTML = '';
             
             clients.forEach((client, index) => {
-                const displayId = index + 1; // Sadece görüntüleme için
-                const clientId = client.id || client.vergi_no || `local_${index}`; // Supabase UUID veya fallback
+                const normalized = normalizeClientFromDb(client);
+                const displayId = index + 1;
+                const clientId = client.id || client.vergi_no || client.vergiNo || `local_${index}`;
                 const tr = document.createElement('tr');
-                tr.className = 'listeEleman';
+                tr.className = 'listeEleman' + (normalized.isBlacklisted ? ' is-blacklisted-row' : '');
                 tr.setAttribute('data-client-id', clientId);
                 tr.setAttribute('data-index', index);
                 tr.style.cursor = 'pointer';
                 
-                // Handle both Supabase format (vergi_no) and localStorage format (vergiNo)
-                const vergiNo = client.vergi_no || client.vergiNo || '';
-                const unvan = client.unvan || '';
-                const vergiDairesi = client.vergi_dairesi || client.vergiDairesi || '';
-                const ekip = client.ekip || '';
+                const vergiNo = normalized.vergiNo;
+                const unvan = normalized.unvan;
+                const vergiDairesi = normalized.vergiDairesi;
+                const ekip = normalized.ekip;
                 
                 // Güvenli HTML oluşturma (XSS koruması)
                 const checkboxTd = document.createElement('td');
@@ -649,6 +806,26 @@
                     badge.textContent = ekip;
                     ekipTd.appendChild(badge);
                 }
+
+                const blacklistTd = document.createElement('td');
+                blacklistTd.className = 'align-middle';
+                blacklistTd.innerHTML = blacklistBadge(normalized);
+
+                const contactTd = document.createElement('td');
+                contactTd.className = 'align-middle';
+                contactTd.textContent = normalized.iletisim || '—';
+
+                const emailTd = document.createElement('td');
+                emailTd.className = 'align-middle';
+                emailTd.textContent = normalized.email || '—';
+
+                const partnerTd = document.createElement('td');
+                partnerTd.className = 'align-middle';
+                partnerTd.textContent = normalized.partner || '—';
+
+                const leadTd = document.createElement('td');
+                leadTd.className = 'align-middle';
+                leadTd.textContent = normalized.ekipLideri || '—';
                 
                 const actionsTd = document.createElement('td');
                 actionsTd.className = 'text-center align-middle';
@@ -665,7 +842,7 @@
                 editBtn.innerHTML = '<i class="ph ph-pencil-simple"></i>';
                 editBtn.onclick = (e) => {
                     e.stopPropagation();
-                    editClient(clientId, vergiNo, unvan, vergiDairesi, ekip, e);
+                    editClient(normalized, e);
                 };
                 
                 const deleteBtn = document.createElement('button');
@@ -684,16 +861,20 @@
                 actionsTd.appendChild(actionsWrap);
                 
                 tr.appendChild(checkboxTd);
-                tr.appendChild(vergiNoTd);
                 tr.appendChild(unvanTd);
-                tr.appendChild(vergiDairesiTd);
+                tr.appendChild(partnerTd);
                 tr.appendChild(ekipTd);
+                tr.appendChild(leadTd);
+                tr.appendChild(vergiDairesiTd);
+                tr.appendChild(vergiNoTd);
+                tr.appendChild(contactTd);
+                tr.appendChild(emailTd);
+                tr.appendChild(blacklistTd);
                 tr.appendChild(actionsTd);
                 
-                // Row click handler (checkbox ve button'lar hariç)
                 tr.onclick = function(e) {
                     if (e.target.type !== 'checkbox' && !e.target.closest('button')) {
-                        window.location.href = 'client-detail.html?id=' + displayId;
+                        window.location.href = 'client-detail.html?id=' + encodeURIComponent(clientId);
                     }
                 };
                 
@@ -863,6 +1044,43 @@
             });
         });
         
+        // Excel sütun sırası: Unvan | Partner | Ekip | Ekip Lideri | Vergi Dairesi | Vergi No | İletişim | E-posta | Blacklist
+        var CLIENT_EXCEL_HEADERS = [
+            'Unvan', 'Partner', 'Ekip', 'Ekip Lideri', 'Vergi Dairesi',
+            'Vergi No', 'İletişim', 'E-posta', 'Blacklist'
+        ];
+
+        function downloadClientExcelTemplate() {
+            if (typeof XLSX === 'undefined') {
+                showToast('Excel kütüphanesi yüklenemedi.', 'error');
+                return;
+            }
+            var example = [
+                'Örnek A.Ş.',
+                'Eda Meriç Sefer',
+                'B1_EDA',
+                'Dilek Çınar',
+                'Kadıköy',
+                '1234567890',
+                'Ali Yılmaz / 0532 000 00 00',
+                'ali@ornek.com',
+                'Hayır'
+            ];
+            var ws = XLSX.utils.aoa_to_sheet([CLIENT_EXCEL_HEADERS, example]);
+            ws['!cols'] = CLIENT_EXCEL_HEADERS.map(function (h) {
+                return { wch: Math.max(14, h.length + 4) };
+            });
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Musteriler');
+            XLSX.writeFile(wb, 'musteri-taslak.xlsx');
+            showToast('Excel taslağı indirildi.', 'success');
+        }
+
+        function parseBlacklistFlag(value) {
+            var v = String(value || '').trim().toLowerCase();
+            return v === 'evet' || v === 'yes' || v === 'true' || v === '1' || v === 'blacklist';
+        }
+
         // Excel Import
         document.getElementById('excelFile').addEventListener('change', async function(e) {
             const file = e.target.files[0];
@@ -894,27 +1112,36 @@
                     );
                     
                     // İlk satır başlık olduğu için 1'den başla
+                    // Sıra: Unvan, Partner, Ekip, Ekip Lideri, Vergi Dairesi, Vergi No, İletişim, E-posta, Blacklist
                     for (let i = 1; i < jsonData.length; i++) {
                         const row = jsonData[i];
                         
                         // Boş satırları atla
-                        if (!row[0] && !row[1]) continue;
+                        if (!row || (!row[0] && !row[5])) continue;
                         
-                        const vergiNo = (row[0] || '').toString().trim();
+                        const vergiNo = (row[5] || '').toString().trim();
                         const vergiNoLower = vergiNo.toLowerCase();
                         
                         // Duplicate kontrolü - aynı vergi no'lu müşteri varsa atla
-                        if (existingVergiNos.has(vergiNoLower)) {
+                        if (vergiNo && existingVergiNos.has(vergiNoLower)) {
                             skippedClients.push(vergiNo);
                             continue;
                         }
                         
                         const client = {
+                            unvan: (row[0] || '').toString().trim(),
+                            partner: (row[1] || '').toString().trim(),
+                            ekip: (row[2] || '').toString().trim(),
+                            ekipLideri: (row[3] || '').toString().trim(),
+                            vergiDairesi: (row[4] || '').toString().trim(),
                             vergiNo: vergiNo,
-                            unvan: (row[1] || '').toString().trim(),
-                            vergiDairesi: (row[2] || '').toString().trim(),
-                            ekip: (row[3] || '').toString().trim()
+                            iletisim: (row[6] || '').toString().trim(),
+                            email: (row[7] || '').toString().trim(),
+                            isBlacklisted: parseBlacklistFlag(row[8]),
+                            blacklistReason: parseBlacklistFlag(row[8]) ? 'Excel içe aktarım' : ''
                         };
+
+                        if (!client.unvan || !client.vergiNo) continue;
                         
                         // Yeni client'ı existing listesine ekle (duplicate kontrolü için)
                         existingVergiNos.add(vergiNoLower);
@@ -926,12 +1153,7 @@
                     if (supabase) {
                         try {
                             // Batch insert to Supabase
-                            const clientsToInsert = newClients.map(client => ({
-                                vergi_no: client.vergiNo,
-                                unvan: client.unvan,
-                                vergi_dairesi: client.vergiDairesi,
-                                ekip: client.ekip
-                            }));
+                            const clientsToInsert = newClients.map(client => buildClientPayload(client));
                             
                             const { data, error } = await supabase
                                 .from('clients')
@@ -986,17 +1208,19 @@
         });
         
         // Edit client
-        function editClient(clientId, vergiNo, unvan, vergiDairesi, ekip, event) {
-            if (event) {
-                event.stopPropagation();
-            }
-            
-            document.getElementById('editClientId').value = clientId;
-            document.getElementById('editVergiNo').value = vergiNo;
-            document.getElementById('editUnvan').value = unvan;
-            document.getElementById('editVergiDairesi').value = vergiDairesi;
-            document.getElementById('editEkip').value = ekip;
-            
+        function editClient(client, event) {
+            if (event) event.stopPropagation();
+            document.getElementById('editClientId').value = client.id || '';
+            document.getElementById('editVergiNo').value = client.vergiNo || '';
+            document.getElementById('editUnvan').value = client.unvan || '';
+            document.getElementById('editVergiDairesi').value = client.vergiDairesi || '';
+            document.getElementById('editEkip').value = client.ekip || '';
+            document.getElementById('editPartner').value = client.partner || '';
+            onPartnerChange('edit', client.ekipLideri || '');
+            document.getElementById('editIletisim').value = client.iletisim || '';
+            document.getElementById('editEmail').value = client.email || '';
+            document.getElementById('editBlacklist').checked = !!client.isBlacklisted;
+            document.getElementById('editBlacklistReason').value = client.blacklistReason || '';
             $('#editClientModal').modal('show');
         }
         
@@ -1013,12 +1237,17 @@
                 return;
             }
             
-            // Client objesi oluştur
             const client = {
                 vergiNo: vergiNo,
                 unvan: unvan,
                 vergiDairesi: vergiDairesi,
-                ekip: ekip
+                ekip: ekip,
+                isBlacklisted: document.getElementById('editBlacklist').checked,
+                blacklistReason: document.getElementById('editBlacklistReason').value.trim(),
+                partner: document.getElementById('editPartner').value.trim(),
+                ekipLideri: document.getElementById('editEkipLideri').value.trim(),
+                iletisim: document.getElementById('editIletisim').value.trim(),
+                email: document.getElementById('editEmail').value.trim()
             };
             
             try {
@@ -1072,12 +1301,17 @@
                 return;
             }
             
-            // Client objesi oluştur
             const client = {
                 vergiNo: vergiNo,
                 unvan: unvan,
                 vergiDairesi: vergiDairesi,
-                ekip: ekip
+                ekip: ekip,
+                isBlacklisted: document.getElementById('newBlacklist').checked,
+                blacklistReason: document.getElementById('newBlacklistReason').value.trim(),
+                partner: document.getElementById('newPartner').value.trim(),
+                ekipLideri: document.getElementById('newEkipLideri').value.trim(),
+                iletisim: document.getElementById('newIletisim').value.trim(),
+                email: document.getElementById('newEmail').value.trim()
             };
             
             try {

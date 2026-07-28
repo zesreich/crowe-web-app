@@ -2,11 +2,11 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CROWE HSY - Offers</title>
+    <title>CROWE HSY - Teklifler</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,7 +15,6 @@
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link href="atlas-shell.css" rel="stylesheet">
     <link href="atlas-compat.css" rel="stylesheet">
-
 </head>
 <body data-atlas-page="offers">
   <a class="skip-link" href="#main-content" style="position:absolute;left:-9999px;">İçeriğe atla</a>
@@ -24,41 +23,21 @@
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
         <div class="brand-text">
-          <strong>HSY Atlas</strong>
+          <strong>HSY Crowe</strong>
           <span>Denetim ekosistemi</span>
         </div>
       </a>
       <nav class="nav" aria-label="Modüller">
-        <a class="nav-btn" href="dashboard.html">
-          <i class="ph ph-squares-four"></i><span>Kontrol paneli</span>
-        </a>
-        <a class="nav-btn" href="client-list.html">
-          <i class="ph ph-buildings"></i><span>Müşteriler</span>
-        </a>
-        <a class="nav-btn" href="offers.html" aria-current="page">
-          <i class="ph ph-file-text"></i><span>Teklifler</span>
-        </a>
-        <a class="nav-btn" href="contracts.html">
-          <i class="ph ph-signature"></i><span>Sözleşmeler</span>
-        </a>
-        <a class="nav-btn" href="payments.html">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
-        </a>
-        <a class="nav-btn" href="reports.html">
-          <i class="ph ph-chart-line"></i><span>Raporlar</span>
-        </a>
-        <a class="nav-btn" href="users.html">
-          <i class="ph ph-users-three"></i><span>Kullanıcılar</span>
-        </a>
-        <a class="nav-btn" href="online-users.html">
-          <i class="ph ph-pulse"></i><span>Çevrimiçi</span>
-        </a>
-        <a class="nav-btn" href="ecosystem-mockup/">
-          <i class="ph ph-folder-simple"></i><span>Ekosistem</span>
-        </a>
-        <a class="nav-btn" href="auditor-dashboard.html">
-          <i class="ph ph-compass"></i><span>Denetçi</span>
-        </a>
+        <a class="nav-btn" href="dashboard.html"><i class="ph ph-squares-four"></i><span>Kontrol paneli</span></a>
+        <a class="nav-btn" href="client-list.html"><i class="ph ph-buildings"></i><span>Müşteriler</span></a>
+        <a class="nav-btn" href="offers.html" aria-current="page"><i class="ph ph-file-text"></i><span>Teklifler</span></a>
+        <a class="nav-btn" href="contracts.html"><i class="ph ph-signature"></i><span>Sözleşmeler</span></a>
+        <a class="nav-btn" href="payments.html"><i class="ph ph-money"></i><span>Ödeme Listesi</span></a>
+        <a class="nav-btn" href="reports.html"><i class="ph ph-chart-line"></i><span>Raporlar</span></a>
+        <a class="nav-btn" href="users.html"><i class="ph ph-users-three"></i><span>Kullanıcılar</span></a>
+        <a class="nav-btn" href="online-users.html"><i class="ph ph-pulse"></i><span>Çevrimiçi</span></a>
+        <a class="nav-btn" href="ecosystem-mockup/"><i class="ph ph-folder-simple"></i><span>Ekosistem</span></a>
+        <a class="nav-btn" href="auditor-dashboard.html"><i class="ph ph-compass"></i><span>Denetçi</span></a>
       </nav>
       <div class="rail-foot">
         <div class="persona">
@@ -75,7 +54,7 @@
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
         <span>Operasyon</span>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
@@ -91,298 +70,690 @@
       </button>
     </header>
     <main class="main page-content" id="main-content" tabindex="-1">
-<!-- Main Content -->
-            <div class="container-fluid">
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-white">Toplam Teklif Sayısı: <span id="totalOffers">350,897</span></h6>
-                        <div>
-                            <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Teklif ara..." style="display: inline-block; width: 200px;">
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="offersTable" width="100%" cellspacing="0">
-                                <thead>
-                                    <tr>
-                                        <th>Teklif No</th>
-                                        <th>Müşteri Adı</th>
-                                        <th>Teklif Tipi</th>
-                                        <th>Gönderim Tarihi</th>
-                                        <th>Durum</th>
-                                        <th>PowerPoint Dosyaları</th>
-                                        <th>PDF Dosyaları</th>
-                                        <th>İşlemler</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="offersTableBody">
-                                    <!-- Data will be populated by JavaScript -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+      <div class="container-fluid">
+        <div class="page-header-admin">
+          <h1><i class="ph ph-file-text"></i> Teklifler</h1>
+          <p class="page-header-meta">Şablon yükleme, teklif hazırlama ve PowerPoint otomatik doldurma</p>
+        </div>
+
+        <section class="atlas-module" aria-label="PowerPoint şablonu" style="margin-bottom:1rem;">
+          <div class="atlas-toolbar" style="border-bottom:1px solid var(--line);padding-bottom:0.75rem;margin-bottom:0.75rem;">
+            <div>
+              <h2 style="font-size:1rem;font-weight:600;margin:0 0 0.25rem;"><i class="ph ph-presentation"></i> PowerPoint şablonu</h2>
+              <p style="font-size:0.8125rem;color:var(--muted);margin:0;">Kurumsal şablonunuzu bir kez yükleyin; tüm tekliflerde otomatik kullanılır.</p>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="togglePlaceholdersBtn" onclick="togglePlaceholdersHelp()">
+              <i class="ph ph-eye-slash"></i> Yer tutucuları gizle
+            </button>
+          </div>
+          <div class="atlas-field-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;">
+            <div class="template-card">
+              <h3 class="template-card-title">Türkçe şablon</h3>
+              <p class="template-card-status" id="templateStatusTr">Durum kontrol ediliyor…</p>
+              <input type="file" id="templateUploadTr" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden>
+              <div class="template-card-actions">
+                <button class="btn btn-sm btn-primary" type="button" onclick="document.getElementById('templateUploadTr').click()">
+                  <i class="ph ph-upload-simple"></i> Şablon yükle
+                </button>
+                <button class="btn btn-sm btn-outline-primary" type="button" id="templateDownloadTr" onclick="downloadUploadedTemplate('tr')" disabled>
+                  <i class="ph ph-download-simple"></i> İndir
+                </button>
+                <button class="btn btn-sm btn-outline-dark" type="button" id="templateRemoveTr" onclick="removeUploadedTemplate('tr')" disabled>
+                  <i class="ph ph-trash"></i> Kaldır
+                </button>
+              </div>
+            </div>
+            <div class="template-card">
+              <h3 class="template-card-title">İngilizce şablon <span style="font-weight:400;color:var(--muted);">(isteğe bağlı)</span></h3>
+              <p class="template-card-status" id="templateStatusEn">Durum kontrol ediliyor…</p>
+              <input type="file" id="templateUploadEn" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" hidden>
+              <div class="template-card-actions">
+                <button class="btn btn-sm btn-primary" type="button" onclick="document.getElementById('templateUploadEn').click()">
+                  <i class="ph ph-upload-simple"></i> Şablon yükle
+                </button>
+                <button class="btn btn-sm btn-outline-primary" type="button" id="templateDownloadEn" onclick="downloadUploadedTemplate('en')" disabled>
+                  <i class="ph ph-download-simple"></i> İndir
+                </button>
+                <button class="btn btn-sm btn-outline-dark" type="button" id="templateRemoveEn" onclick="removeUploadedTemplate('en')" disabled>
+                  <i class="ph ph-trash"></i> Kaldır
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="alert alert-info" id="placeholdersHelp" style="font-size:0.8125rem;margin:1rem 0 0;">
+            <i class="ph ph-info"></i>
+            Şablonda şu yer tutucuları kullanın:
+            <code>{{MUSTERI}}</code>, <code>{{TEKLIF_NO}}</code>, <code>{{TEKLIF_TARIHI}}</code>,
+            <code>{{DONEM}}</code>, <code>{{TUTAR}}</code>, <code>{{PARA_BIRIMI}}</code>,
+            <code>{{FRC}}</code>, <code>{{DENETIM_NEDENI}}</code>, <code>{{OZEL_SARTLAR}}</code>,
+            <code>{{TEKLIF_TIPI}}</code>. Yer tutucular tek parça metin olmalıdır.
+          </div>
+        </section>
+
+        <section class="atlas-module" aria-label="Teklif listesi">
+          <div class="atlas-toolbar">
+            <label class="atlas-search-field" for="searchInput">
+              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
+              <input type="search" id="searchInput" placeholder="Teklif no veya müşteri ara…" autocomplete="off">
+            </label>
+            <div class="atlas-toolbar-actions">
+              <button class="btn btn-success" type="button" data-toggle="modal" data-target="#offerModal" onclick="openOfferModal()">
+                <i class="ph ph-plus"></i> Yeni teklif
+              </button>
+            </div>
+          </div>
+          <div class="atlas-table-wrap">
+            <table class="table table-bordered atlas-table" id="offersTable">
+              <thead>
+                <tr>
+                  <th>Teklif No</th>
+                  <th>Müşteri</th>
+                  <th>Teklif tipi</th>
+                  <th>Tarih</th>
+                  <th>Tutar</th>
+                  <th>Durum</th>
+                  <th>Dosyalar</th>
+                  <th>İşlemler</th>
+                </tr>
+              </thead>
+              <tbody id="offersTableBody"></tbody>
+            </table>
+          </div>
+          <div class="p-3 text-muted" style="font-size:0.8125rem;border-top:1px solid var(--line);">
+            Toplam: <strong id="totalOffers">0</strong> teklif
+          </div>
+        </section>
+      </div>
     </main>
   </div>
-main>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="config.js"></script>
-    <!-- Supabase Config & JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <!-- Authentication System -->
-    <script src="auth.js"></script>
-    </script>
-    <!-- Prevent Active Link Reload -->
-    <script src="prevent-active-link-reload.js"></script>
-    <script>
-        (function notikaPageShell() {
-            var routes = [
-                { k: ['müşteri', 'musteri', 'client', 'firma'], href: 'client-list.html' },
-                { k: ['teklif', 'offer'], href: 'offers.html' },
-                { k: ['sözleşme', 'sozlesme', 'contract'], href: 'contracts.html' },
-                { k: ['ödeme', 'odeme', 'payment'], href: 'payments.html' },
-                { k: ['rapor', 'report'], href: 'reports.html' },
-                { k: ['kullanıcı', 'kullanici', 'user'], href: 'users.html' },
-                { k: ['çevrimiçi', 'cevrimici', 'online'], href: 'online-users.html' },
-                { k: ['denetçi', 'denetci', 'auditor'], href: 'auditor-dashboard.html' },
-                { k: ['şifre', 'sifre', 'password'], href: 'password-change.html' },
-                { k: ['panel', 'dashboard', 'kontrol'], href: 'dashboard.html' }
-            ];
-            function bindShortcutSearch(input) {
-                if (!input) return;
-                input.addEventListener('keydown', function(e) {
-                    if (e.key !== 'Enter') return;
-                    var q = (input.value || '').trim().toLowerCase();
-                    if (!q) return;
-                    for (var i = 0; i < routes.length; i++) {
-                        var r = routes[i];
-                        for (var j = 0; j < r.k.length; j++) {
-                            if (q.indexOf(r.k[j]) !== -1) {
-                                e.preventDefault();
-                                window.location.href = r.href;
-                                return;
-                            }
-                        }
-                    }
-                });
-            }
-            document.addEventListener('DOMContentLoaded', function() {
-                var badge = document.getElementById('adminEnvBadge');
-                if (badge && typeof window.APP_ENV === 'string') {
-                    badge.textContent = window.APP_ENV === 'production' ? 'Production' : 'Development';
-                    badge.classList.toggle('is-dev', window.APP_ENV !== 'production');
-                }
-                bindShortcutSearch(document.getElementById('adminGlobalSearch'));
-                bindShortcutSearch(document.getElementById('adminGlobalSearchMobile'));
-            });
-        })();
-    </script>
-    <script>
-        // Check authentication on page load (DOMContentLoaded ile geciktir)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
+  <!-- Teklif formu -->
+  <div class="modal fade atlas-modal" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="atlas-modal-head">
+            <div>
+              <h5 class="modal-title" id="offerModalLabel">Yeni teklif</h5>
+              <p id="offerModalSubtitle">Bilgileri girin; kayıt sonrası PowerPoint otomatik doldurulur.</p>
+            </div>
+          </div>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Kapat"><span aria-hidden="true">&times;</span></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="offerId">
+          <div class="atlas-field-grid">
+            <div class="form-group">
+              <label for="offerClientSelect">Müşteri</label>
+              <select class="form-control" id="offerClientSelect" onchange="onClientSelected()">
+                <option value="">Müşteri seçin…</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerClientName">Müşteri unvanı</label>
+              <input type="text" class="form-control" id="offerClientName" placeholder="Unvan">
+            </div>
+            <div class="form-group">
+              <label for="offerClientEmail">Müşteri e-posta</label>
+              <input type="email" class="form-control" id="offerClientEmail" placeholder="ornek@sirket.com">
+            </div>
+            <div class="form-group">
+              <label for="offerNo">Teklif no</label>
+              <input type="text" class="form-control" id="offerNo" placeholder="Otomatik üretilir" readonly>
+            </div>
+            <div class="form-group">
+              <label for="offerType">Teklif tipi</label>
+              <select class="form-control" id="offerType">
+                <option value="Denetim Hizmetleri">Denetim Hizmetleri</option>
+                <option value="Mali Müşavirlik">Mali Müşavirlik</option>
+                <option value="Danışmanlık">Danışmanlık</option>
+                <option value="Diğer">Diğer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerSendDate">Teklif tarihi</label>
+              <input type="date" class="form-control" id="offerSendDate">
+            </div>
+            <div class="form-group">
+              <label for="offerPeriodStart">Dönem başlangıç</label>
+              <input type="date" class="form-control" id="offerPeriodStart">
+            </div>
+            <div class="form-group">
+              <label for="offerPeriodEnd">Dönem bitiş</label>
+              <input type="date" class="form-control" id="offerPeriodEnd">
+            </div>
+            <div class="form-group">
+              <label for="offerAmount">Tutar (KDV hariç)</label>
+              <input type="number" class="form-control" id="offerAmount" min="0" step="0.01" placeholder="0,00">
+            </div>
+            <div class="form-group">
+              <label for="offerCurrency">Para birimi</label>
+              <select class="form-control" id="offerCurrency">
+                <option value="TRY">TRY</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerLanguage">Teklif dili</label>
+              <select class="form-control" id="offerLanguage">
+                <option value="tr">Türkçe</option>
+                <option value="en">İngilizce</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerStatus">Durum</label>
+              <select class="form-control" id="offerStatus">
+                <option value="Taslak">Taslak</option>
+                <option value="Onay Bekliyor">Onay Bekliyor</option>
+                <option value="Kabul Edildi">Kabul Edildi</option>
+                <option value="Reddedildi">Reddedildi</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerFrc">Finansal raporlama çerçevesi</label>
+              <select class="form-control" id="offerFrc">
+                <option value="">Seçiniz</option>
+                <option value="TFRS">TFRS</option>
+                <option value="BOBİ FRS">BOBİ FRS</option>
+                <option value="MSUGT">MSUGT</option>
+                <option value="IFRS">IFRS</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offerAuditReason">Denetime tabi olma nedeni</label>
+              <input type="text" class="form-control" id="offerAuditReason" placeholder="Örn: Kanuni zorunluluk">
+            </div>
+          </div>
+          <div class="form-group mt-2">
+            <label for="offerSpecialTerms">Özel şartlar</label>
+            <textarea class="form-control" id="offerSpecialTerms" rows="3" placeholder="Özel şartlar ve notlar…"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="offerNotes">Açıklama</label>
+            <textarea class="form-control" id="offerNotes" rows="2"></textarea>
+          </div>
+          <p style="font-size:0.8125rem;color:var(--muted);margin:0.75rem 0 0;">
+            Kayıt sonrası yukarıda yüklü şablon otomatik doldurulur. Şablon yoksa varsayılan sunum üretilir.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">İptal</button>
+          <button type="button" class="btn btn-primary" id="saveOfferBtn" onclick="saveOffer(false)">
+            <i class="ph ph-floppy-disk"></i> Kaydet
+          </button>
+          <button type="button" class="btn btn-success" id="saveAndPptBtn" onclick="saveOffer(true)">
+            <i class="ph ph-files"></i> Kaydet, PowerPoint ve PDF oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="prevent-active-link-reload.js"></script>
+  <script src="offer-template-store.js"></script>
+  <script src="offer-ppt.js"></script>
+  <script src="atlas-shell.js"></script>
+  <script>
+    let offersData = [];
+    let clientsData = [];
+
+    function formatTemplateDate(iso) {
+      if (!iso) return '';
+      try {
+        return new Date(iso).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+      } catch (e) {
+        return iso;
+      }
+    }
+
+    function formatFileSize(bytes) {
+      if (!bytes) return '';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderTemplateStatus() {
+      if (typeof OfferTemplateStore === 'undefined') return;
+      var all = OfferTemplateStore.getAllTemplateInfo();
+      ['tr', 'en'].forEach(function (lang) {
+        var info = all[lang];
+        var statusEl = document.getElementById('templateStatus' + (lang === 'tr' ? 'Tr' : 'En'));
+        var downloadBtn = document.getElementById('templateDownload' + (lang === 'tr' ? 'Tr' : 'En'));
+        var removeBtn = document.getElementById('templateRemove' + (lang === 'tr' ? 'Tr' : 'En'));
+        if (!statusEl) return;
+
+        if (info.uploaded) {
+          var sourceLabel = info.source === 'supabase' ? 'sunucu' : 'yerel';
+          statusEl.innerHTML = '<strong style="color:var(--text);">' + info.fileName + '</strong><br>' +
+            formatFileSize(info.fileSize) + ' · ' + formatTemplateDate(info.uploadedAt) + ' · ' + sourceLabel;
+          if (downloadBtn) downloadBtn.disabled = false;
+          if (removeBtn) removeBtn.disabled = false;
+        } else {
+          statusEl.textContent = lang === 'tr'
+            ? 'Henüz şablon yüklenmedi. Türkçe teklifler için şablon zorunludur.'
+            : 'İngilizce teklifler için isteğe bağlı şablon.';
+          if (downloadBtn) downloadBtn.disabled = true;
+          if (removeBtn) removeBtn.disabled = true;
         }
-            }, 100);
+      });
+    }
+
+    async function handleTemplateUpload(lang, file) {
+      if (!file || typeof OfferTemplateStore === 'undefined') return;
+      try {
+        await OfferTemplateStore.uploadTemplate(lang, file);
+        renderTemplateStatus();
+        alert((lang === 'en' ? 'İngilizce' : 'Türkçe') + ' şablon kaydedildi. Bundan sonra tüm tekliflerde kullanılacak.');
+      } catch (err) {
+        alert('Şablon yüklenemedi: ' + err.message);
+      }
+    }
+
+    async function downloadUploadedTemplate(lang) {
+      try {
+        var result = await OfferTemplateStore.downloadTemplateCopy(lang);
+        var url = URL.createObjectURL(result.blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = result.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      } catch (err) {
+        alert('Şablon indirilemedi: ' + err.message);
+      }
+    }
+
+    async function removeUploadedTemplate(lang) {
+      var label = lang === 'en' ? 'İngilizce' : 'Türkçe';
+      if (!confirm(label + ' şablonu kaldırılsın mı?')) return;
+      try {
+        await OfferTemplateStore.removeTemplate(lang);
+        renderTemplateStatus();
+      } catch (err) {
+        alert('Şablon kaldırılamadı: ' + err.message);
+      }
+    }
+
+    function resolveSupabaseClient() {
+      if (window.__supabaseClientInstance) return window.__supabaseClientInstance;
+      if (typeof supabaseClient !== 'undefined' && supabaseClient) return supabaseClient;
+      return null;
+    }
+
+    function mapOfferFromDb(row) {
+      return {
+        id: row.id,
+        offerNo: row.offer_no,
+        clientName: row.client_name,
+        offerType: row.offer_type,
+        sendDate: row.send_date,
+        status: row.status,
+        pptFiles: row.ppt_files || [],
+        pdfFiles: row.pdf_files || [],
+        details: row.details || {}
+      };
+    }
+
+    function generateOfferNo() {
+      const year = new Date().getFullYear();
+      const seq = String(offersData.length + 1).padStart(3, '0');
+      return 'TKL-' + year + '-' + seq;
+    }
+
+    async function loadClients() {
+      const supabase = resolveSupabaseClient();
+      if (supabase) {
+        const { data, error } = await supabase.from('clients').select('id, unvan, vergi_no, is_blacklisted, blacklist_reason').order('unvan');
+        if (!error && data) {
+          clientsData = data;
+          return;
+        }
+      }
+      try {
+        clientsData = JSON.parse(localStorage.getItem('clients') || '[]');
+      } catch (e) {
+        clientsData = [];
+      }
+    }
+
+    function populateClientSelect() {
+      const sel = document.getElementById('offerClientSelect');
+      sel.innerHTML = '<option value="">Müşteri seçin…</option>';
+      clientsData.forEach(function (c, idx) {
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        const blacklisted = !!(c.is_blacklisted || c.isBlacklisted);
+        const label = (c.unvan || c.clientName || 'İsimsiz') + (c.vergi_no ? ' (' + c.vergi_no + ')' : '') + (blacklisted ? ' [BLACKLIST]' : '');
+        opt.textContent = label;
+        if (blacklisted) opt.style.color = '#b42318';
+        sel.appendChild(opt);
+      });
+    }
+
+    function onClientSelected() {
+      const idx = document.getElementById('offerClientSelect').value;
+      if (idx === '') return;
+      const c = clientsData[Number(idx)];
+      if (!c) return;
+      document.getElementById('offerClientName').value = c.unvan || c.clientName || '';
+      if (c.is_blacklisted || c.isBlacklisted) {
+        const reason = c.blacklist_reason || c.blacklistReason || 'Neden belirtilmemiş';
+        alert('Dikkat: Bu müşteri blacklist\'te.\n\nNeden: ' + reason);
+      }
+    }
+
+    async function getOffersFromSupabase() {
+      const supabase = resolveSupabaseClient();
+      if (!supabase) return offersData;
+      const { data, error } = await supabase.from('offers').select('*').order('send_date', { ascending: false });
+      if (error) {
+        console.error('Supabase offers error:', error);
+        return offersData;
+      }
+      return (data || []).map(mapOfferFromDb);
+    }
+
+    function statusBadge(status) {
+      const map = {
+        'Kabul Edildi': 'is-active',
+        'Reddedildi': 'is-suspended',
+        'Onay Bekliyor': 'is-auditor',
+        'Taslak': ''
+      };
+      const cls = map[status] || '';
+      return '<span class="status-badge ' + cls + '">' + status + '</span>';
+    }
+
+    function populateTable(offers) {
+      const tbody = document.getElementById('offersTableBody');
+      tbody.innerHTML = '';
+      offers.forEach(function (offer) {
+        const d = offer.details || {};
+        const amount = d.amount ? Number(d.amount).toLocaleString('tr-TR') + ' ' + (d.currency || 'TRY') : '—';
+        const pptCount = (offer.pptFiles || []).length;
+        const row = document.createElement('tr');
+        row.innerHTML =
+          '<td class="mono-cell">' + offer.offerNo + '</td>' +
+          '<td>' + offer.clientName + '</td>' +
+          '<td>' + offer.offerType + '</td>' +
+          '<td>' + (offer.sendDate || '—') + '</td>' +
+          '<td>' + amount + '</td>' +
+          '<td>' + statusBadge(offer.status) + '</td>' +
+          '<td>' + (pptCount ? pptCount + ' PPT' : '—') + '</td>' +
+          '<td><div class="atlas-row-actions">' +
+            '<button class="btn btn-sm btn-success" title="PowerPoint oluştur" onclick="generatePptForOffer(\'' + offer.id + '\')"><i class="ph ph-presentation"></i></button>' +
+            '<button class="btn btn-sm btn-primary" title="Düzenle" onclick="editOffer(\'' + offer.id + '\')"><i class="ph ph-pencil-simple"></i></button>' +
+            '<button class="btn btn-sm btn-danger" title="Sil" onclick="deleteOffer(\'' + offer.id + '\')"><i class="ph ph-trash"></i></button>' +
+          '</div></td>';
+        tbody.appendChild(row);
+      });
+      document.getElementById('totalOffers').textContent = offers.length;
+    }
+
+    function collectFormData() {
+      const clientIdx = document.getElementById('offerClientSelect').value;
+      const client = clientIdx !== '' ? clientsData[Number(clientIdx)] : null;
+      return {
+        offer_no: document.getElementById('offerNo').value || generateOfferNo(),
+        client_name: document.getElementById('offerClientName').value.trim(),
+        offer_type: document.getElementById('offerType').value,
+        send_date: document.getElementById('offerSendDate').value || new Date().toISOString().slice(0, 10),
+        status: document.getElementById('offerStatus').value,
+        details: {
+          client_id: client ? (client.id || client.vergi_no) : null,
+          client_email: document.getElementById('offerClientEmail').value.trim(),
+          period_start: document.getElementById('offerPeriodStart').value,
+          period_end: document.getElementById('offerPeriodEnd').value,
+          amount: document.getElementById('offerAmount').value,
+          currency: document.getElementById('offerCurrency').value,
+          language: document.getElementById('offerLanguage').value,
+          frc: document.getElementById('offerFrc').value,
+          audit_reason: document.getElementById('offerAuditReason').value.trim(),
+          special_terms: document.getElementById('offerSpecialTerms').value.trim(),
+          notes: document.getElementById('offerNotes').value.trim()
+        },
+        ppt_files: [],
+        pdf_files: []
+      };
+    }
+
+    function openOfferModal() {
+      document.getElementById('offerId').value = '';
+      document.getElementById('offerModalLabel').textContent = 'Yeni teklif';
+      document.getElementById('offerNo').value = generateOfferNo();
+      document.getElementById('offerSendDate').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('offerClientSelect').value = '';
+      ['offerClientName','offerClientEmail','offerAmount','offerAuditReason','offerSpecialTerms','offerNotes'].forEach(function (id) {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('offerType').value = 'Denetim Hizmetleri';
+      document.getElementById('offerCurrency').value = 'TRY';
+      document.getElementById('offerLanguage').value = 'tr';
+      document.getElementById('offerStatus').value = 'Taslak';
+      document.getElementById('offerFrc').value = '';
+    }
+
+    function fillFormFromOffer(offer) {
+      document.getElementById('offerId').value = offer.id;
+      document.getElementById('offerModalLabel').textContent = 'Teklifi düzenle';
+      document.getElementById('offerNo').value = offer.offerNo;
+      document.getElementById('offerClientName').value = offer.clientName;
+      document.getElementById('offerType').value = offer.offerType;
+      document.getElementById('offerSendDate').value = offer.sendDate;
+      document.getElementById('offerStatus').value = offer.status;
+      const d = offer.details || {};
+      document.getElementById('offerClientEmail').value = d.client_email || '';
+      document.getElementById('offerPeriodStart').value = d.period_start || '';
+      document.getElementById('offerPeriodEnd').value = d.period_end || '';
+      document.getElementById('offerAmount').value = d.amount || '';
+      document.getElementById('offerCurrency').value = d.currency || 'TRY';
+      document.getElementById('offerLanguage').value = d.language || 'tr';
+      document.getElementById('offerFrc').value = d.frc || '';
+      document.getElementById('offerAuditReason').value = d.audit_reason || '';
+      document.getElementById('offerSpecialTerms').value = d.special_terms || '';
+      document.getElementById('offerNotes').value = d.notes || '';
+    }
+
+    async function saveOffer(andGeneratePpt) {
+      const payload = collectFormData();
+      if (!payload.client_name) {
+        alert('Müşteri unvanı zorunludur.');
+        return;
+      }
+
+      const supabase = resolveSupabaseClient();
+      const offerId = document.getElementById('offerId').value;
+      let savedOffer;
+
+      if (supabase) {
+        if (offerId) {
+          const existing = offersData.find(function (o) { return o.id === offerId; });
+          payload.ppt_files = existing ? existing.pptFiles : [];
+          payload.pdf_files = existing ? existing.pdfFiles : [];
+          const { data, error } = await supabase.from('offers').update(payload).eq('id', offerId).select().single();
+          if (error) { alert('Kayıt hatası: ' + error.message); return; }
+          savedOffer = mapOfferFromDb(data);
+        } else {
+          const { data, error } = await supabase.from('offers').insert(payload).select().single();
+          if (error) { alert('Kayıt hatası: ' + error.message); return; }
+          savedOffer = mapOfferFromDb(data);
+        }
+      } else {
+        if (offerId) {
+          const idx = offersData.findIndex(function (o) { return o.id === offerId; });
+          savedOffer = Object.assign({}, offersData[idx], {
+            offerNo: payload.offer_no,
+            clientName: payload.client_name,
+            offerType: payload.offer_type,
+            sendDate: payload.send_date,
+            status: payload.status,
+            details: payload.details
+          });
+          offersData[idx] = savedOffer;
+        } else {
+          savedOffer = {
+            id: 'local_' + Date.now(),
+            offerNo: payload.offer_no,
+            clientName: payload.client_name,
+            offerType: payload.offer_type,
+            sendDate: payload.send_date,
+            status: payload.status,
+            pptFiles: [],
+            pdfFiles: [],
+            details: payload.details
+          };
+          offersData.unshift(savedOffer);
+        }
+        localStorage.setItem('offers', JSON.stringify(offersData));
+      }
+
+      offersData = await getOffersFromSupabase();
+      if (!supabase) offersData = JSON.parse(localStorage.getItem('offers') || '[]');
+      populateTable(offersData);
+      $('#offerModal').modal('hide');
+
+      if (andGeneratePpt) {
+        await generatePptForOffer(savedOffer.id);
+      }
+    }
+
+    async function generatePptForOffer(offerId) {
+      const offer = offersData.find(function (o) { return o.id === offerId; });
+      if (!offer) return;
+      const btn = document.getElementById('saveAndPptBtn');
+      if (btn) btn.disabled = true;
+      try {
+        const result = await OfferPpt.generateOfferPresentation(offer);
+        const filename = result.filename;
+        let pdfFilename = '';
+        if (typeof OfferPpt.generateOfferPdf === 'function') {
+          const pdfResult = await OfferPpt.generateOfferPdf(offer);
+          pdfFilename = pdfResult.filename;
+        }
+        const supabase = resolveSupabaseClient();
+        if (supabase) {
+          const pptFiles = Array.isArray(offer.pptFiles) ? offer.pptFiles.slice() : [];
+          const pdfFiles = Array.isArray(offer.pdfFiles) ? offer.pdfFiles.slice() : [];
+          if (pptFiles.indexOf(filename) === -1) pptFiles.push(filename);
+          if (pdfFilename && pdfFiles.indexOf(pdfFilename) === -1) pdfFiles.push(pdfFilename);
+          await supabase.from('offers').update({ ppt_files: pptFiles, pdf_files: pdfFiles }).eq('id', offerId);
+          offersData = await getOffersFromSupabase();
+          populateTable(offersData);
+        } else {
+          offer.pptFiles = offer.pptFiles || [];
+          offer.pdfFiles = offer.pdfFiles || [];
+          if (offer.pptFiles.indexOf(filename) === -1) offer.pptFiles.push(filename);
+          if (pdfFilename && offer.pdfFiles.indexOf(pdfFilename) === -1) offer.pdfFiles.push(pdfFilename);
+          localStorage.setItem('offers', JSON.stringify(offersData));
+          populateTable(offersData);
+        }
+        alert('PowerPoint ve PDF oluşturuldu.\nPPT: ' + filename + (pdfFilename ? '\nPDF: ' + pdfFilename : ''));
+      } catch (err) {
+        alert('PowerPoint/PDF oluşturulamadı: ' + err.message);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    function editOffer(offerId) {
+      const offer = offersData.find(function (o) { return o.id === offerId; });
+      if (!offer) return;
+      fillFormFromOffer(offer);
+      $('#offerModal').modal('show');
+    }
+
+    async function deleteOffer(offerId) {
+      if (!confirm('Bu teklifi silmek istediğinize emin misiniz?')) return;
+      const supabase = resolveSupabaseClient();
+      if (supabase) {
+        const { error } = await supabase.from('offers').delete().eq('id', offerId);
+        if (error) { alert('Silme hatası: ' + error.message); return; }
+      } else {
+        offersData = offersData.filter(function (o) { return o.id !== offerId; });
+        localStorage.setItem('offers', JSON.stringify(offersData));
+      }
+      offersData = await getOffersFromSupabase();
+      if (!supabase) offersData = JSON.parse(localStorage.getItem('offers') || '[]');
+      populateTable(offersData);
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function (e) {
+      const q = e.target.value.toLowerCase();
+      const filtered = offersData.filter(function (o) {
+        return o.offerNo.toLowerCase().includes(q) ||
+          o.clientName.toLowerCase().includes(q) ||
+          o.offerType.toLowerCase().includes(q);
+      });
+      populateTable(filtered);
+    });
+
+    function togglePlaceholdersHelp() {
+      var help = document.getElementById('placeholdersHelp');
+      var btn = document.getElementById('togglePlaceholdersBtn');
+      if (!help || !btn) return;
+      var hidden = help.style.display === 'none';
+      help.style.display = hidden ? '' : 'none';
+      localStorage.setItem('hideOfferPlaceholders', hidden ? '0' : '1');
+      btn.innerHTML = hidden
+        ? '<i class="ph ph-eye-slash"></i> Yer tutucuları gizle'
+        : '<i class="ph ph-eye"></i> Yer tutucuları göster';
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      if (localStorage.getItem('hideOfferPlaceholders') === '1') {
+        var help = document.getElementById('placeholdersHelp');
+        var btn = document.getElementById('togglePlaceholdersBtn');
+        if (help) help.style.display = 'none';
+        if (btn) btn.innerHTML = '<i class="ph ph-eye"></i> Yer tutucuları göster';
+      }
+
+      setTimeout(function () {
+        if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
+          window.location.href = 'login.html';
+        }
+      }, 100);
+
+      await loadClients();
+      populateClientSelect();
+
+      if (typeof OfferTemplateStore !== 'undefined') {
+        try {
+          await OfferTemplateStore.syncFromSupabase();
+        } catch (e) {
+          console.warn('Şablon senkronizasyonu atlandı:', e);
+        }
+        renderTemplateStatus();
+        document.getElementById('templateUploadTr').addEventListener('change', function (e) {
+          if (e.target.files && e.target.files[0]) handleTemplateUpload('tr', e.target.files[0]);
+          e.target.value = '';
         });
-        
-        // Update user info in topbar (same as other pages)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
-                    // username field contains the email address
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av = document.getElementById('userAvatarInitial');
-                    if (av && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
+        document.getElementById('templateUploadEn').addEventListener('change', function (e) {
+          if (e.target.files && e.target.files[0]) handleTemplateUpload('en', e.target.files[0]);
+          e.target.value = '';
         });
-        
-        // Also update immediately if DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(function() {
-        const currentUser = Auth.getCurrentUser();
-        if (currentUser) {
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av2 = document.getElementById('userAvatarInitial');
-                    if (av2 && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av2.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
-        }
-        
-        // Get Supabase client helper function - uses global instance
-        function resolveSupabaseClient() {
-            if (window.__supabaseClientInstance) {
-                return window.__supabaseClientInstance;
-            }
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                return supabaseClient;
-            }
-            return null;
-        }
-        
-        // Supabase functions for offers
-        async function getOffersFromSupabase() {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                return offersData; // Fallback to static data
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('offers')
-                    .select('*')
-                    .order('send_date', { ascending: false });
-                
-                if (error) {
-                    console.error('Supabase error:', error);
-                    return offersData; // Fallback to static data
-                }
-                
-                // Convert Supabase format to local format
-                return (data || []).map(o => ({
-                    id: o.id,
-                    offerNo: o.offer_no,
-                    clientName: o.client_name,
-                    offerType: o.offer_type,
-                    sendDate: o.send_date,
-                    status: o.status,
-                    pptFiles: o.ppt_files || [],
-                    pdfFiles: o.pdf_files || []
-                }));
-            } catch (error) {
-                console.error('Error fetching offers:', error);
-                return offersData; // Fallback to static data
-            }
-        }
-        
-        function toggleLanguage() {
-            const currentLang = i18n.currentLang;
-            const newLang = currentLang === 'en' ? 'tr' : 'en';
-            i18n.setLanguage(newLang);
-            document.getElementById('langText').textContent = newLang === 'en' ? 'TR' : 'EN';
-        }
-        
-        // Sample offer data (fallback)
-        let offersData = [
-            { id: 1, offerNo: 'OFF-2024-001', clientName: 'ABC Construction Inc.', offerType: 'Denetim Hizmetleri', sendDate: '2024-01-15', status: 'Onay Bekliyor', pptFiles: ['presentation_001.pptx'], pdfFiles: ['offer_001.pdf'] },
-            { id: 2, offerNo: 'OFF-2024-002', clientName: 'DEF Food Ltd.', offerType: 'Mali Müşavirlik', sendDate: '2024-02-20', status: 'Kabul Edildi', pptFiles: ['presentation_002.pptx'], pdfFiles: ['offer_002.pdf', 'terms_002.pdf'] },
-            { id: 3, offerNo: 'OFF-2024-003', clientName: 'GHI Technology', offerType: 'Danışmanlık', sendDate: '2024-03-10', status: 'Reddedildi', pptFiles: ['presentation_003.pptx'], pdfFiles: ['offer_003.pdf'] },
-            { id: 4, offerNo: 'OFF-2024-004', clientName: 'JKL Manufacturing', offerType: 'Denetim Hizmetleri', sendDate: '2024-04-05', status: 'Onay Bekliyor', pptFiles: ['presentation_004.pptx', 'backup_004.pptx'], pdfFiles: ['offer_004.pdf'] },
-            { id: 5, offerNo: 'OFF-2024-005', clientName: 'MNO Retail', offerType: 'Mali Müşavirlik', sendDate: '2024-05-12', status: 'Kabul Edildi', pptFiles: ['presentation_005.pptx'], pdfFiles: ['offer_005.pdf', 'annex_005.pdf'] },
-            // Add more sample offers...
-        ];
-        
-        // Populate table
-        function populateTable(offers) {
-            const tbody = document.getElementById('offersTableBody');
-            tbody.innerHTML = '';
-            
-            offers.forEach(offer => {
-                const row = document.createElement('tr');
-                const pptFilesHtml = offer.pptFiles.map(file => 
-                    `<a href="#" class="btn btn-sm btn-warning mr-1 mb-1" onclick="downloadPPT('${file}')">
-                        <i class="fas fa-file-powerpoint file-icon"></i> ${file}
-                    </a>`
-                ).join('');
-                
-                const pdfFilesHtml = offer.pdfFiles.map(file => 
-                    `<a href="#" class="btn btn-sm btn-danger mr-1 mb-1" onclick="downloadPDF('${file}')">
-                        <i class="fas fa-file-pdf file-icon"></i> ${file}
-                    </a>`
-                ).join('');
-                
-                row.innerHTML = `
-                    <td>${offer.offerNo}</td>
-                    <td>${offer.clientName}</td>
-                    <td>${offer.offerType}</td>
-                    <td>${offer.sendDate}</td>
-                    <td><span class="badge badge-${offer.status === 'Kabul Edildi' ? 'success' : offer.status === 'Reddedildi' ? 'danger' : 'warning'}">${offer.status}</span></td>
-                    <td>${pptFilesHtml}</td>
-                    <td>${pdfFilesHtml}</td>
-                    <td>
-                        <button class="btn btn-sm btn-info" onclick="viewOfferDetails(${offer.id})">
-                            <i class="fas fa-eye"></i> Detay
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-            
-            document.getElementById('totalOffers').textContent = offers.length;
-        }
-        
-        // Search functionality
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const filteredOffers = offersData.filter(offer => 
-                offer.offerNo.toLowerCase().includes(searchTerm) ||
-                offer.clientName.toLowerCase().includes(searchTerm) ||
-                offer.offerType.toLowerCase().includes(searchTerm)
-            );
-            populateTable(filteredOffers);
-        });
-        
-        // View offer details
-        function viewOfferDetails(offerId) {
-            const offer = offersData.find(o => o.id === offerId);
-            if (offer) {
-                alert(`Teklif Detayları:\n\nTeklif No: ${offer.offerNo}\nMüşteri: ${offer.clientName}\nTip: ${offer.offerType}\nGönderim Tarihi: ${offer.sendDate}\nDurum: ${offer.status}\n\nPowerPoint Dosyaları: ${offer.pptFiles.join(', ')}\nPDF Dosyaları: ${offer.pdfFiles.join(', ')}`);
-            }
-        }
-        
-        // Download PowerPoint
-        function downloadPPT(filename) {
-            alert(`PowerPoint dosyası indiriliyor: ${filename}\n\nNot: Gerçek uygulamada bu dosya sunucudan indirilecektir.`);
-            // In real app: window.open(`/downloads/${filename}`, '_blank');
-        }
-        
-        // Download PDF
-        function downloadPDF(filename) {
-            alert(`PDF dosyası indiriliyor: ${filename}\n\nNot: Gerçek uygulamada bu dosya sunucudan indirilecektir.`);
-            // In real app: window.open(`/downloads/${filename}`, '_blank');
-        }
-        
-        // Initialize table
-        async function initOffers() {
-            offersData = await getOffersFromSupabase();
-        populateTable(offersData);
-        }
-        initOffers();
-        
-        // Update language switcher text on language change
-        document.addEventListener('languageChanged', function() {
-            document.getElementById('langText').textContent = i18n.currentLang === 'en' ? 'TR' : 'EN';
-        });
-    </script>
-<script src="atlas-shell.js"></script>
-</body>
-</html>
+      }
+
+      try {
+        offersData = JSON.parse(localStorage.getItem('offers') || '[]');
+      } catch (e) {
+        offersData = [];
+      }
+      offersData = await getOffersFromSupabase();
+      populateTable(offersData);
+    });
+  </script>
 </body>
 </html>

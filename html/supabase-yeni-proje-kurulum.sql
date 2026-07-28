@@ -10,6 +10,12 @@ create table if not exists public.clients (
   unvan varchar(255) not null,
   vergi_dairesi varchar(255),
   ekip varchar(100),
+  is_blacklisted boolean not null default false,
+  blacklist_reason text,
+  uygulamaci varchar(255),
+  partner varchar(255),
+  ekip_lideri varchar(255),
+  details jsonb default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -99,6 +105,7 @@ create table if not exists public.offers (
   status varchar(50) not null default 'Onay Bekliyor',
   ppt_files jsonb default '[]'::jsonb,
   pdf_files jsonb default '[]'::jsonb,
+  details jsonb default '{}'::jsonb,
   created_at timestamptz default now(),
   updated_at timestamptz default now(),
   created_by uuid references auth.users(id) on delete set null

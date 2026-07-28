@@ -1,501 +1,534 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
-    </script>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CROWE HSY - Denetçi Girişi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <link href="atlas-shell.css" rel="stylesheet">
-    <link href="atlas-auth.css" rel="stylesheet">
+  <script>
+  (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CROWE HSY - Denetçi Girişi</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <link href="atlas-shell.css" rel="stylesheet">
+  <style>
+    :root {
+      --login-mustard: #fdb913;
+      --login-ink: #111111;
+      --login-muted: #5b5b5b;
+      --login-line: #e8e8e8;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      height: 100%;
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      background: #fff;
+      color: var(--login-ink);
+    }
+
+    .login-shell {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      min-height: 100dvh;
+    }
+
+    .login-visual {
+      position: relative;
+      overflow: hidden;
+      background: #0f172a;
+      min-height: 100%;
+    }
+
+    .login-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      opacity: 0;
+      transform: scale(1.06);
+      transition: opacity 1s ease, transform 12s ease;
+      pointer-events: none;
+    }
+
+    .login-slide.is-active {
+      opacity: 1;
+      transform: scale(1);
+      z-index: 1;
+    }
+
+    .login-visual-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        linear-gradient(105deg, rgba(8, 12, 20, 0.55) 0%, rgba(8, 12, 20, 0.2) 48%, rgba(8, 12, 20, 0.45) 100%),
+        linear-gradient(180deg, transparent 40%, rgba(8, 12, 20, 0.7) 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 2.5rem;
+      color: #fff;
+      pointer-events: none;
+    }
+
+    .login-visual-overlay h1 {
+      margin: 0 0 0.5rem;
+      font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      max-width: 18ch;
+    }
+
+    .login-visual-overlay p {
+      margin: 0;
+      max-width: 38ch;
+      color: rgba(255,255,255,0.88);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .login-dots {
+      position: absolute;
+      left: 2.5rem;
+      bottom: 1.25rem;
+      z-index: 3;
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .login-dots button {
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.45);
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .login-dots button.is-active {
+      width: 1.35rem;
+      background: var(--login-mustard);
+    }
+
+    .login-panel {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      background: #fff;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 24rem;
+    }
+
+    .login-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .login-brand-mark {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 0.65rem;
+      background: var(--login-mustard);
+      color: #111;
+      display: grid;
+      place-items: center;
+      font-size: 1.25rem;
+    }
+
+    .login-brand strong {
+      display: block;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .login-brand span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--login-muted);
+    }
+
+    .login-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+
+    .login-card .lead {
+      margin: 0 0 1.5rem;
+      color: var(--login-muted);
+      font-size: 0.9rem;
+    }
+
+    .login-card .form-group {
+      margin-bottom: 0.9rem;
+    }
+
+    .login-card label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .login-card .form-control {
+      height: 2.75rem;
+      border: 1px solid var(--login-line);
+      border-radius: 0.65rem;
+      padding: 0.55rem 0.85rem;
+      font-size: 0.9rem;
+      background: #fafafa;
+    }
+
+    .login-card .form-control:focus {
+      background: #fff;
+      border-color: var(--login-mustard);
+      box-shadow: 0 0 0 3px rgba(253, 185, 19, 0.25);
+    }
+
+    .login-actions {
+      margin-top: 1.15rem;
+      display: grid;
+      gap: 0.65rem;
+    }
+
+    .btn-login-primary {
+      height: 2.85rem;
+      border: 0;
+      border-radius: 0.65rem;
+      background: var(--login-mustard);
+      color: #111;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    .btn-login-primary:hover {
+      filter: brightness(0.96);
+      transform: translateY(-1px);
+      color: #111;
+      text-decoration: none;
+    }
+
+    .btn-login-secondary {
+      height: 2.55rem;
+      border: 1px solid var(--login-line);
+      border-radius: 0.65rem;
+      background: #fff;
+      color: #222;
+      font-weight: 600;
+      font-size: 0.875rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      text-decoration: none;
+    }
+
+    .btn-login-secondary:hover {
+      background: #f7f7f7;
+      color: #111;
+      text-decoration: none;
+    }
+
+    .login-meta {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+
+    .login-meta a {
+      color: var(--login-muted);
+      text-decoration: none;
+    }
+
+    .login-meta a:hover {
+      color: #111;
+    }
+
+    #hata, #onay {
+      margin-top: 1rem;
+      border-radius: 0.65rem;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .login-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .login-visual {
+        min-height: 38vh;
+      }
+
+      .login-slide {
+        object-position: center 35%;
+      }
+
+      .login-visual-overlay {
+        padding: 1.25rem;
+      }
+
+      .login-dots {
+        left: 1.25rem;
+        bottom: 0.85rem;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .login-slide {
+        transition: opacity 200ms ease;
+        transform: none !important;
+      }
+    }
+  </style>
 </head>
-<body class="atlas-auth has-canvas">
+<body>
+  <div class="login-shell">
+    <section class="login-visual" aria-label="Tanıtım görselleri">
+      <img class="login-slide is-active" src="log-in_images/slide-1.jpg" alt="">
+      <img class="login-slide" src="log-in_images/slide-2.jpg" alt="">
+      <img class="login-slide" src="log-in_images/slide-3.jpg" alt="">
+      <img class="login-slide" src="log-in_images/slide-4.jpg" alt="">
+      <img class="login-slide" src="log-in_images/slide-5.jpg" alt="">
+      <img class="login-slide" src="log-in_images/slide-6.jpg" alt="">
+      <div class="login-visual-overlay">
+        <h1>Denetim ekosistemine hoş geldiniz</h1>
+        <p>HSY Crowe denetçi portalı — güvenli giriş, tek ekrandan müşteri ve sözleşme süreçleri.</p>
+      </div>
+      <div class="login-dots" id="loginDots" role="tablist" aria-label="Slayt seçimi"></div>
+    </section>
 
-  <div class="atlas-auth-top">
-    <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema"><i class="ph ph-moon" id="themeIcon"></i></button>
-  </div>
-<!-- Language Switcher -->
-    <div class="language-switcher">
-        <button class="btn btn-sm btn-outline-light" id="langSwitch" onclick="toggleLanguage()">
-            <i class="fas fa-globe"></i> <span id="langText">TR</span>
-        </button>
-    </div>
-    
-    <canvas class="webgl"></canvas>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="login-card">
-                    <div class="text-center mb-4">
-                        <i class="fas fa-user-shield login-icon"></i>
-                        <h1 class="h4 mb-2">WELCOME!</h1>
-                        <h2 class="mb-4">CROWE HSY</h2>
-                        <p>Financial Advisor Management Platform</p>
-                        <p class="mt-2"><strong>Denetçi Girişi</strong></p>
-                    </div>
-                    
-                    <form id="auditorLoginForm">
-                        <div class="form-group">
-                            <input type="email" class="form-control form-control-user" id="auditorKul" placeholder="E-posta Adresi (örn: kullanici@crowehsy.net)..." required autocomplete="username">
-                        </div>
-                        
-                        <div class="form-group">
-                            <input type="password" class="form-control form-control-user" id="auditorPas" placeholder="Şifre..." required autocomplete="current-password">
-                        </div>
-                        
-                        <a class="btn btn-primary btn-user btn-block text-white" href="#" id="auditorLoginBtn">
-                            <i class="fas fa-sign-in-alt"></i> Giriş Yap
-                        </a>
-                        
-                        <hr style="border-color: rgba(255, 255, 255, 0.3);">
-                    </form>
-                    
-                    <div class="text-center">
-                        <a class="small" href="#">Şifremi Unuttum?</a>
-                    </div>
-                    
-                    <div class="text-center mt-3">
-                        <a href="home.html" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
-                        </a>
-                    </div>
-                    
-                    <!-- Hata/Başarı Mesajları -->
-                    <div id="hata" class="alert alert-danger mt-3" style="display: none;">
-                        <div id="hataMesaji"></div>
-                    </div>
-                    <div id="onay" class="alert alert-success mt-3" style="display: none;">
-                        <div id="onayMesaji"></div>
-                    </div>
-                </div>
-            </div>
+    <section class="login-panel">
+      <div class="login-card">
+        <div class="login-brand">
+          <div class="login-brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
+          <div>
+            <strong>HSY Crowe</strong>
+            <span>Denetçi girişi</span>
+          </div>
         </div>
-    </div>
 
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
-    
-    <!-- Three.js Galaxy Animation -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!window.THREE) {
-                console.error('Three.js yüklenemedi');
-                return;
-            }
+        <h2>Giriş yap</h2>
+        <p class="lead">Kurumsal e-posta ve şifrenizle devam edin.</p>
 
-            const canvas = document.querySelector('canvas.webgl');
-            const scene = new THREE.Scene();
+        <form id="auditorLoginForm" autocomplete="on">
+          <div class="form-group">
+            <label for="auditorKul">E-posta</label>
+            <input type="email" class="form-control" id="auditorKul" placeholder="kullanici@crowehsy.net" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="auditorPas">Şifre</label>
+            <input type="password" class="form-control" id="auditorPas" placeholder="Şifreniz" required autocomplete="current-password">
+          </div>
 
-            const parameters = {
-                count: 80000,
-                size: 0.009,
-                radius: 2.3,
-                branches: 4,
-                spin: 2.5,
-                randomness: 2,
-                randomnessPower: 3,
-                insideColor: '#ffffff',
-                outsideColor: '#38bdf8'
-            };
+          <div class="login-actions">
+            <a class="btn-login-primary d-flex align-items-center justify-content-center" href="#" id="auditorLoginBtn">
+              <i class="ph ph-sign-in mr-2"></i> Giriş Yap
+            </a>
+            <a class="btn-login-secondary" href="home.html">
+              <i class="ph ph-arrow-left"></i> Ana sayfaya dön
+            </a>
+          </div>
+        </form>
 
-        let material = null; 
-        let geometry = null; 
-        let points = null; 
+        <div class="login-meta">
+          <a href="#">Şifremi unuttum?</a>
+        </div>
 
-        const generateGalaxy = () => {
-                if (points !== null) {
-            geometry.dispose();
-            material.dispose();
-            scene.remove(points);
+        <div id="hata" class="alert alert-danger" style="display:none;">
+          <div id="hataMesaji"></div>
+        </div>
+        <div id="onay" class="alert alert-success" style="display:none;">
+          <div id="onayMesaji"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    (function () {
+      var slides = Array.prototype.slice.call(document.querySelectorAll('.login-slide'));
+      var dotsWrap = document.getElementById('loginDots');
+      var index = 0;
+      var timer = null;
+
+      function show(i) {
+        index = (i + slides.length) % slides.length;
+        slides.forEach(function (slide, idx) {
+          slide.classList.toggle('is-active', idx === index);
+        });
+        Array.prototype.forEach.call(dotsWrap.children, function (dot, idx) {
+          dot.classList.toggle('is-active', idx === index);
+          dot.setAttribute('aria-selected', idx === index ? 'true' : 'false');
+        });
+      }
+
+      slides.forEach(function (_, idx) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Slayt ' + (idx + 1));
+        btn.addEventListener('click', function () {
+          show(idx);
+          restart();
+        });
+        dotsWrap.appendChild(btn);
+      });
+
+      function restart() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(function () { show(index + 1); }, 15000);
+      }
+
+      show(0);
+      restart();
+    })();
+
+    $(function () {
+      function hataAc(icerik) {
+        $("#hataMesaji").text(icerik);
+        $("#hata").show();
+        $("#onay").hide();
+      }
+
+      function onayAc(icerik) {
+        $("#onayMesaji").text(icerik);
+        $("#onay").show();
+        $("#hata").hide();
+      }
+
+      var DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
+      var fallbackAuditors = [
+        "ibrahim.kuvvet@crowehsy.net", "yunusemre.durmus@crowehsy.net",
+        "berki.ozkan@crowehsy.net", "dilan.ulusu@crowehsy.net",
+        "aykan.altintel@crowehsy.net", "beste.darcan@crowehsy.net",
+        "fatih.senturk@crowehsy.net", "kasim.durmus@crowehsy.net",
+        "yaprak.tosun@crowehsy.net", "nida.cetin@crowehsy.net",
+        "dilek.cinar2@crowehsy.net", "elif.girgin@crowehsy.net",
+        "servet.aykanat@crowehsy.net", "cevahir.dogan@crowehsy.net",
+        "adar.kilic@crowehsy.net", "hasan.bozkaya@crowehsy.net",
+        "mesut.molla@crowehsy.net", "s.korkmaz@crowehsy.net",
+        "serdar.karaagin@crowehsy.net"
+      ];
+
+      function saveAuditorSession(email) {
+        localStorage.setItem('auditorUser', email);
+        localStorage.setItem('loginPortal', 'auditor');
+        localStorage.removeItem('auth_user');
+        localStorage.removeItem('auth_token');
+      }
+
+      function goDashboard() {
+        onayAc("Giriş başarılı! Yönlendiriliyorsunuz...");
+        setTimeout(function () {
+          window.location.href = 'auditor-dashboard.html';
+        }, 600);
+      }
+
+      async function supabaseAuditorLogin(email, password) {
+        var client = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : null;
+        if (!client) return { ok: false, reason: 'no-client' };
+
+        var result = await client.auth.signInWithPassword({ email: email, password: password });
+        if (result.error || !result.data || !result.data.session) {
+          return { ok: false, reason: 'auth-failed', message: result.error ? result.error.message : '' };
         }
 
-        material = new THREE.PointsMaterial({
-            size: parameters.size,
-            sizeAttenuation: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            vertexColors: true
-                });
+        try {
+          var res = await client
+            .from('auditor_team_members')
+            .select('email, full_name, team, role, status')
+            .eq('email', email)
+            .maybeSingle();
 
-            geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(parameters.count * 3);
-            const colors = new Float32Array(parameters.count * 3);
-            const colorInside = new THREE.Color(parameters.insideColor);
-            const colorOutside = new THREE.Color(parameters.outsideColor);
-
-                for (let i = 0; i < parameters.count; i++) {
-                    const i3 = i * 3;
-                    const radius = Math.random() * parameters.radius;
-                    const spinAngle = radius * parameters.spin;
-                    const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
-                
-                    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-                    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-                    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-
-                    positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                    positions[i3 + 1] = randomY * 0.4;
-                    positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-                const mixedColor = colorInside.clone();
-                    mixedColor.lerp(colorOutside, radius / parameters.radius);
-
-                colors[i3] = mixedColor.r;
-                    colors[i3 + 1] = mixedColor.g;
-                    colors[i3 + 2] = mixedColor.b;
-                }
-
-                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            points = new THREE.Points(geometry, material);
-            scene.add(points);
-            };
-
-        generateGalaxy();
-
-        const sizes = {
-            width: window.innerWidth,
-            height: window.innerHeight
-            };
-
-            const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-            camera.position.set(2.5, 2.5, 2.5);
-            scene.add(camera);
-
-            const controls = new THREE.OrbitControls(camera, canvas);
-            controls.enableDamping = true;
-            controls.enablePan = false;
-            controls.enableZoom = false;
-
-        const renderer = new THREE.WebGLRenderer({
-                canvas: canvas,
-                antialias: true
-            });
-            renderer.setSize(sizes.width, sizes.height);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x000000, 0);
-
-            window.addEventListener('resize', () => {
-                sizes.width = window.innerWidth;
-                sizes.height = window.innerHeight;
-
-                camera.aspect = sizes.width / sizes.height;
-                camera.updateProjectionMatrix();
-
-                renderer.setSize(sizes.width, sizes.height);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            });
-
-            const clock = new THREE.Clock();
-
-            const tick = () => {
-                const elapsedTime = clock.getElapsedTime();
-
-                controls.update();
-
-                camera.position.x = Math.cos(elapsedTime * 0.04) * 3;
-                camera.position.z = Math.sin(elapsedTime * 0.04) * 3;
-                camera.lookAt(0, 0, 0);
-
-                renderer.render(scene, camera);
-
-                window.requestAnimationFrame(tick);
-            };
-
-            tick();
-        });
-    </script>
-    
-<!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/examples/js/controls/OrbitControls.js"></script>
-    
-    <!-- Three.js Galaxy Animation -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!window.THREE) {
-                console.error('Three.js yüklenemedi');
-                return;
+          if (res.data) {
+            if (res.data.status === 'suspended') {
+              await client.auth.signOut();
+              return { ok: false, reason: 'suspended' };
             }
+            localStorage.setItem('auditorProfile', JSON.stringify(res.data));
+          }
+        } catch (e) { /* ignore */ }
 
-            const canvas = document.querySelector('canvas.webgl');
-            const scene = new THREE.Scene();
+        return { ok: true };
+      }
 
-            const parameters = {
-                count: 80000,
-                size: 0.009,
-                radius: 2.3,
-                branches: 4,
-                spin: 2.5,
-                randomness: 2,
-                randomnessPower: 3,
-                insideColor: '#ffffff',
-                outsideColor: '#38bdf8'
-            };
+      function localFallbackLogin(email, password) {
+        var stored = localStorage.getItem("auditorPassword_" + email) || DEFAULT_AUDITOR_PASSWORD;
+        if (fallbackAuditors.indexOf(email) === -1 || stored !== password) return false;
 
-        let material = null; 
-        let geometry = null; 
-        let points = null; 
+        var changed = localStorage.getItem("auditorPasswordChanged_" + email) === 'true';
+        saveAuditorSession(email);
+        if (stored === DEFAULT_AUDITOR_PASSWORD || !changed) {
+          localStorage.setItem('auditorPendingPasswordChange', email);
+          onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
+          setTimeout(function () {
+            window.location.href = 'auditor-password-change.html';
+          }, 600);
+        } else {
+          localStorage.removeItem('auditorPendingPasswordChange');
+          goDashboard();
+        }
+        return true;
+      }
 
-        const generateGalaxy = () => {
-                if (points !== null) {
-            geometry.dispose();
-            material.dispose();
-            scene.remove(points);
+      $("#auditorLoginBtn").click(async function (e) {
+        e.preventDefault();
+        var kul = $("#auditorKul").val();
+        var pas = $("#auditorPas").val();
+        if (!kul || !pas) {
+          hataAc("Lütfen e-posta adresi ve şifre giriniz!");
+          return;
         }
 
-        material = new THREE.PointsMaterial({
-            size: parameters.size,
-            sizeAttenuation: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            vertexColors: true
-                });
+        var email = kul.toLowerCase().trim();
 
-            geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array(parameters.count * 3);
-            const colors = new Float32Array(parameters.count * 3);
-            const colorInside = new THREE.Color(parameters.insideColor);
-            const colorOutside = new THREE.Color(parameters.outsideColor);
-
-                for (let i = 0; i < parameters.count; i++) {
-                    const i3 = i * 3;
-                    const radius = Math.random() * parameters.radius;
-                    const spinAngle = radius * parameters.spin;
-                    const branchAngle = (i % parameters.branches) / parameters.branches * Math.PI * 2;
-                
-                    const randomX = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-                    const randomY = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-                    const randomZ = Math.pow(Math.random(), parameters.randomnessPower) * (Math.random() < 0.5 ? 1 : -1);
-
-                    positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-                    positions[i3 + 1] = randomY * 0.4;
-                    positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-                const mixedColor = colorInside.clone();
-                    mixedColor.lerp(colorOutside, radius / parameters.radius);
-
-                colors[i3] = mixedColor.r;
-                    colors[i3 + 1] = mixedColor.g;
-                    colors[i3 + 2] = mixedColor.b;
-                }
-
-                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            points = new THREE.Points(geometry, material);
-            scene.add(points);
-            };
-
-        generateGalaxy();
-
-        const sizes = {
-            width: window.innerWidth,
-            height: window.innerHeight
-            };
-
-            const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
-            camera.position.set(2.5, 2.5, 2.5);
-            scene.add(camera);
-
-            const controls = new THREE.OrbitControls(camera, canvas);
-            controls.enableDamping = true;
-            controls.enablePan = false;
-            controls.enableZoom = false;
-
-        const renderer = new THREE.WebGLRenderer({
-                canvas: canvas,
-                antialias: true
-            });
-            renderer.setSize(sizes.width, sizes.height);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setClearColor(0x000000, 0);
-
-            window.addEventListener('resize', () => {
-                sizes.width = window.innerWidth;
-                sizes.height = window.innerHeight;
-
-                camera.aspect = sizes.width / sizes.height;
-                camera.updateProjectionMatrix();
-
-                renderer.setSize(sizes.width, sizes.height);
-                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            });
-
-            const clock = new THREE.Clock();
-
-            const tick = () => {
-                const elapsedTime = clock.getElapsedTime();
-
-                controls.update();
-
-                camera.position.x = Math.cos(elapsedTime * 0.04) * 3;
-                camera.position.z = Math.sin(elapsedTime * 0.04) * 3;
-                camera.lookAt(0, 0, 0);
-
-                renderer.render(scene, camera);
-
-                window.requestAnimationFrame(tick);
-            };
-
-            tick();
-        });
-    </script>
-    
-    <script src="config.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <script>
-        function toggleLanguage() {
-            const currentLang = document.getElementById('langText').textContent;
-            const newLang = currentLang === 'EN' ? 'TR' : 'EN';
-            document.getElementById('langText').textContent = newLang;
+        try {
+          var result = await supabaseAuditorLogin(email, pas);
+          if (result.ok) {
+            saveAuditorSession(email);
+            localStorage.removeItem('auditorPendingPasswordChange');
+            goDashboard();
+            return;
+          }
+          if (result.reason === 'suspended') {
+            hataAc("Hesabınız askıya alınmış. Yöneticinizle iletişime geçin.");
+            return;
+          }
+        } catch (err) {
+          console.warn('Supabase auditor login hatası:', err);
         }
-        
-        $(function(){
-            function hataAc(icerik){
-                $("#hataMesaji").text(icerik);
-                $("#hata").show();
-                $("#onay").hide();
-            }
-            
-            function onayAc(icerik){
-                $("#onayMesaji").text(icerik);
-                $("#onay").show();
-                $("#hata").hide();
-            }
 
-            // Yerel fallback listesi — Supabase erişilemezse kullanılır
-            const DEFAULT_AUDITOR_PASSWORD = "Crowe2022!";
-            const fallbackAuditors = [
-                "ibrahim.kuvvet@crowehsy.net", "yunusemre.durmus@crowehsy.net",
-                "berki.ozkan@crowehsy.net", "dilan.ulusu@crowehsy.net",
-                "aykan.altintel@crowehsy.net", "beste.darcan@crowehsy.net",
-                "fatih.senturk@crowehsy.net", "kasim.durmus@crowehsy.net",
-                "yaprak.tosun@crowehsy.net", "nida.cetin@crowehsy.net",
-                "dilek.cinar2@crowehsy.net", "elif.girgin@crowehsy.net",
-                "servet.aykanat@crowehsy.net", "cevahir.dogan@crowehsy.net",
-                "adar.kilic@crowehsy.net", "hasan.bozkaya@crowehsy.net",
-                "mesut.molla@crowehsy.net", "s.korkmaz@crowehsy.net",
-                "serdar.karaagin@crowehsy.net"
-            ];
+        if (!localFallbackLogin(email, pas)) {
+          hataAc("Kullanıcı adı veya şifre hatalı!");
+        }
+      });
 
-            function saveAuditorSession(email) {
-                localStorage.setItem('auditorUser', email);
-                localStorage.setItem('loginPortal', 'auditor');
-                // Denetçi girişi admin oturumu oluşturmasın
-                localStorage.removeItem('auth_user');
-                localStorage.removeItem('auth_token');
-            }
-
-            function goDashboard() {
-                onayAc("Giriş başarılı! Yönlendiriliyorsunuz...");
-                setTimeout(function() {
-                    window.location.href = 'auditor-dashboard.html';
-                }, 600);
-            }
-
-            async function supabaseAuditorLogin(email, password) {
-                const client = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : null;
-                if (!client) return { ok: false, reason: 'no-client' };
-
-                const { data, error } = await client.auth.signInWithPassword({ email: email, password: password });
-                if (error || !data || !data.session) {
-                    return { ok: false, reason: 'auth-failed', message: error ? error.message : '' };
-                }
-
-                // Denetçi kaydını ve askı durumunu kontrol et
-                try {
-                    const res = await client
-                        .from('auditor_team_members')
-                        .select('email, full_name, team, role, status')
-                        .eq('email', email)
-                        .maybeSingle();
-
-                    if (res.data) {
-                        if (res.data.status === 'suspended') {
-                            await client.auth.signOut();
-                            return { ok: false, reason: 'suspended' };
-                        }
-                        localStorage.setItem('auditorProfile', JSON.stringify(res.data));
-                    }
-                } catch (e) { /* tablo yoksa auth yeterli */ }
-
-                return { ok: true };
-            }
-
-            function localFallbackLogin(email, password) {
-                const stored = localStorage.getItem("auditorPassword_" + email) || DEFAULT_AUDITOR_PASSWORD;
-                if (!fallbackAuditors.includes(email) || stored !== password) return false;
-
-                const changed = localStorage.getItem("auditorPasswordChanged_" + email) === 'true';
-                saveAuditorSession(email);
-                if (stored === DEFAULT_AUDITOR_PASSWORD || !changed) {
-                    localStorage.setItem('auditorPendingPasswordChange', email);
-                    onayAc("İlk giriş tespit edildi. Lütfen yeni bir şifre belirleyin...");
-                    setTimeout(function() {
-                        window.location.href = 'auditor-password-change.html';
-                    }, 600);
-                } else {
-                    localStorage.removeItem('auditorPendingPasswordChange');
-                    goDashboard();
-                }
-                return true;
-            }
-
-            $("#auditorLoginBtn").click(async function(e){
-                e.preventDefault();
-                
-                var kul = $("#auditorKul").val();
-                var pas = $("#auditorPas").val();
-                
-                if (!kul || !pas) {
-                    hataAc("Lütfen e-posta adresi ve şifre giriniz!");
-                    return;
-                }
-
-                const email = kul.toLowerCase().trim();
-
-                // 1) Supabase Auth dene
-                try {
-                    const result = await supabaseAuditorLogin(email, pas);
-                    if (result.ok) {
-                        saveAuditorSession(email);
-                        localStorage.removeItem('auditorPendingPasswordChange');
-                        goDashboard();
-                        return;
-                    }
-                    if (result.reason === 'suspended') {
-                        hataAc("Hesabınız askıya alınmış. Yöneticinizle iletişime geçin.");
-                        return;
-                    }
-                } catch (err) {
-                    console.warn('Supabase auditor login hatası:', err);
-                }
-
-                // 2) Yerel fallback
-                if (!localFallbackLogin(email, pas)) {
-                    hataAc("Kullanıcı adı veya şifre hatalı!");
-                }
-            });
-        });
-    </script>
-<script src="atlas-shell.js"></script>
+      $("#auditorLoginForm").on('submit', function (e) {
+        e.preventDefault();
+        $("#auditorLoginBtn").click();
+      });
+    });
+  </script>
 </body>
 </html>

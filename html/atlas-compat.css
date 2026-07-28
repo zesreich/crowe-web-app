@@ -13,10 +13,10 @@
 .page-content .card-chart,
 .page-content .card-table,
 .page-content .card.shadow {
-  background: var(--bg) !important;
+  background: var(--surface) !important;
   border: 1px solid var(--line) !important;
   border-radius: var(--radius-lg) !important;
-  box-shadow: none !important;
+  box-shadow: 0 1px 2px var(--shadow) !important;
 }
 
 .page-content .card-header,
@@ -80,6 +80,37 @@
   background: var(--primary) !important;
   border-color: var(--primary) !important;
   color: var(--primary-ink) !important;
+}
+
+.page-content .btn-primary:hover,
+.page-content .btn-success:hover {
+  background: #e5a800 !important;
+  border-color: #e5a800 !important;
+  color: #000000 !important;
+}
+
+.page-content .btn-outline-primary {
+  background: #ffffff !important;
+  border: 1.5px solid var(--primary) !important;
+  color: #000000 !important;
+}
+
+.page-content .btn-outline-primary:hover:not(:disabled) {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #000000 !important;
+}
+
+.page-content .btn-outline-dark {
+  background: #ffffff !important;
+  border: 1.5px solid #000000 !important;
+  color: #000000 !important;
+}
+
+.page-content .btn-outline-dark:hover:not(:disabled) {
+  background: #f7f7f7 !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
 }
 
 .page-content .btn-danger {
@@ -262,6 +293,223 @@ body[data-atlas-page="contracts"] .text-info {
   color: var(--primary) !important;
 }
 
+body[data-atlas-page="contracts"] .card,
+body[data-atlas-page="contracts"] .card-body,
+body[data-atlas-page="contracts"] .tab-pane,
+body[data-atlas-page="contracts"] #contractTabsContent {
+  min-width: 0;
+  max-width: 100%;
+}
+
+body[data-atlas-page="contracts"] .contract-tab-system {
+  margin-bottom: 1.25rem;
+}
+
+body[data-atlas-page="contracts"] .contract-type-tabs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0.35rem;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+body[data-atlas-page="contracts"] .contract-type-tabs li {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+body[data-atlas-page="contracts"] .contract-type-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 220ms var(--ease), background 220ms var(--ease), border-color 220ms var(--ease), box-shadow 220ms var(--ease), transform 180ms var(--ease);
+}
+
+body[data-atlas-page="contracts"] .contract-type-tab:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--primary) 6%, var(--surface));
+}
+
+body[data-atlas-page="contracts"] .contract-type-tab.active,
+body[data-atlas-page="contracts"] .contract-type-tab[aria-selected="true"] {
+  color: var(--primary-ink);
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+body[data-atlas-page="contracts"] .contract-type-tab i {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+body[data-atlas-page="contracts"] .contract-tab-panels .tab-pane {
+  animation: contractPanelIn 280ms var(--ease);
+}
+
+@keyframes contractPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body[data-atlas-page="contracts"] .contract-year-bar {
+  margin-bottom: 0.85rem;
+}
+
+body[data-atlas-page="contracts"] .contract-year-tabs {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+body[data-atlas-page="contracts"] .contract-year-tab {
+  min-width: 3.25rem;
+  min-height: 36px;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: color 200ms var(--ease), background 200ms var(--ease), border-color 200ms var(--ease), transform 180ms var(--ease);
+}
+
+body[data-atlas-page="contracts"] .contract-year-tab:hover {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
+}
+
+body[data-atlas-page="contracts"] .contract-year-tab.active,
+body[data-atlas-page="contracts"] .contract-year-tab[aria-selected="true"] {
+  color: var(--accent-ink);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+body[data-atlas-page="contracts"] .contract-year-tab .year-count {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+body[data-atlas-page="contracts"] .contract-list-panel {
+  margin-bottom: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+  animation: contractPanelIn 300ms var(--ease);
+}
+
+body[data-atlas-page="contracts"] .contract-list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+body[data-atlas-page="contracts"] .contract-list-head h6 {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+body[data-atlas-page="contracts"] .contract-list-head span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+body[data-atlas-page="contracts"] .contract-list-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+body[data-atlas-page="contracts"] .contract-list-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+  font-size: 0.8125rem;
+}
+
+body[data-atlas-page="contracts"] .contract-list-table th,
+body[data-atlas-page="contracts"] .contract-list-table td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: middle;
+}
+
+body[data-atlas-page="contracts"] .contract-list-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--surface);
+  white-space: nowrap;
+}
+
+body[data-atlas-page="contracts"] .contract-list-table tbody tr {
+  transition: background 180ms var(--ease);
+}
+
+body[data-atlas-page="contracts"] .contract-list-table tbody tr:hover {
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+}
+
+body[data-atlas-page="contracts"] .contract-list-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+
+body[data-atlas-page="contracts"] .contract-list-empty i {
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.6;
+}
+
 body[data-atlas-page="contracts"] .nav-tabs {
   border-bottom: 1px solid var(--line);
   gap: 0.25rem;
@@ -289,11 +537,136 @@ body[data-atlas-page="contracts"] .nav-tabs .nav-link.active {
   border-color: transparent transparent var(--primary);
 }
 
-body[data-atlas-page="contracts"] .contract-spreadsheet-container {
+body[data-atlas-page="contracts"] .excel-theme-isolated {
+  --excel-bg: #ffffff;
+  --excel-surface: #f5f5f5;
+  --excel-ink: #1a1a1a;
+  --excel-line: #d4d4d4;
+  --excel-header: #e8e8e8;
+}
+
+body[data-atlas-page="contracts"] .excel-theme-isolated.contract-sheet-panel {
+  background: var(--excel-bg) !important;
+  border-color: var(--excel-line) !important;
+  color: var(--excel-ink) !important;
+}
+
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-title,
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-meta,
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-hint {
+  color: var(--excel-ink) !important;
+}
+
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-meta,
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-hint {
+  opacity: 0.75;
+}
+
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-viewport {
+  background: var(--excel-surface) !important;
+  border-color: var(--excel-line) !important;
+}
+
+body[data-atlas-page="contracts"] .excel-theme-isolated .contract-sheet-hint {
+  background: #f0f4f8 !important;
+  border-color: var(--excel-line) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-atlas-page="contracts"] .contract-tab-panels .tab-pane,
+  body[data-atlas-page="contracts"] .contract-list-panel {
+    animation: none;
+  }
+}
+
+body[data-atlas-page="contracts"] .contract-spreadsheet-container,
+body[data-atlas-page="contracts"] .contract-sheet-panel {
   background: var(--surface) !important;
   border: 1px solid var(--line) !important;
   color: var(--ink);
   border-radius: var(--radius-lg);
+  padding: 1rem;
+  min-width: 0;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-meta {
+  margin: 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+  max-width: 42ch;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  max-height: min(56vh, 440px);
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport .contract-spreadsheet {
+  min-width: 1290px;
+  width: max-content;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport .jspreadsheet-container,
+body[data-atlas-page="contracts"] .contract-sheet-viewport .jexcel_container {
+  overflow: visible !important;
+  width: max-content !important;
+  min-width: 1290px;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport .jexcel_content {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin: 0.75rem 0 0;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--muted);
+  background: color-mix(in oklch, var(--primary) 5%, var(--surface));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
 }
 
 body[data-atlas-page="contracts"] .contract-spreadsheet {
@@ -303,10 +676,47 @@ body[data-atlas-page="contracts"] .contract-spreadsheet {
   overflow: hidden;
 }
 
+body[data-atlas-page="contracts"] .contract-sheet-viewport .contract-spreadsheet table.jexcel {
+  margin: 0;
+}
+
 body[data-atlas-page="contracts"] .contract-spreadsheet .jexcel_content,
 body[data-atlas-page="contracts"] .contract-spreadsheet table.jexcel {
   background: oklch(0.99 0.002 170) !important;
   color: oklch(0.22 0.018 170) !important;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport table.jexcel thead td,
+body[data-atlas-page="contracts"] .contract-sheet-viewport table.jexcel thead th {
+  background: #e8e8e8 !important;
+  color: #1a1a1a !important;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-color: #d4d4d4 !important;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport table.jexcel tbody td {
+  font-size: 0.8125rem;
+  border-color: #d4d4d4 !important;
+  vertical-align: middle;
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport .table-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+body[data-atlas-page="contracts"] .contract-sheet-viewport .table-action-btn {
+  padding: 0.2rem 0.45rem;
+  line-height: 1;
 }
 
 body[data-atlas-page="contracts"] .alert-info {
@@ -426,6 +836,49 @@ body[data-atlas-page="contracts"] .btn-outline-secondary {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   overflow: hidden;
+}
+
+.template-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.template-card-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+}
+
+.template-card-status {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  margin: 0 0 1rem;
+  line-height: 1.45;
+}
+
+.template-card-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 420px) {
+  .template-card-actions {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
+  }
+}
+
+.template-card-actions .btn {
+  width: 100%;
+  min-height: 36px;
+  justify-content: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
 }
 
 .atlas-toolbar {

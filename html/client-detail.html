@@ -2,12 +2,11 @@
 <html lang="tr">
 <head>
     <script>
-    (function(){try{var d=localStorage.getItem('darkmode');var a=localStorage.getItem('hsy-atlas-theme');var dark=d==='active'||(d===null&&a==='dark')||(d===null&&a===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(dark){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('darkmode');}else{document.documentElement.setAttribute('data-theme','light');}}catch(e){}})();
+    (function(){try{document.documentElement.setAttribute('data-theme','light');document.documentElement.classList.remove('darkmode');document.documentElement.removeAttribute('data-brand');}catch(e){}})();
     </script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CROWE HSY - Müşteri Detayı</title>
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,12 +15,14 @@
     <link href="atlas-shell.css" rel="stylesheet">
     <link href="atlas-compat.css" rel="stylesheet">
     <style>
-.assigned-user-selector {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius, 0.5rem);
+        .client-blacklist-banner {
+            border: 1px solid color-mix(in srgb, #dc3545 35%, transparent);
+            background: color-mix(in srgb, #dc3545 8%, transparent);
+            border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem;
         }
-        .table-responsive { max-height: 40vh; }
+        .client-meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; }
+        .client-meta-item label { display: block; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.15rem; }
+        .client-meta-item strong { font-weight: 600; }
     </style>
 </head>
 <body data-atlas-page="clients">
@@ -30,492 +31,550 @@
     <aside class="rail" aria-label="Ana menü">
       <a class="brand" href="dashboard.html" style="text-decoration:none;color:inherit;">
         <div class="brand-mark" aria-hidden="true"><i class="ph ph-compass-tool"></i></div>
-        <div class="brand-text">
-          <strong>HSY Atlas</strong>
-          <span>Denetim ekosistemi</span>
-        </div>
+        <div class="brand-text"><strong>HSY Crowe</strong><span>Denetim ekosistemi</span></div>
       </a>
       <nav class="nav" aria-label="Modüller">
-        <a class="nav-btn" href="dashboard.html">
-          <i class="ph ph-squares-four"></i><span>Kontrol paneli</span>
-        </a>
-        <a class="nav-btn" href="client-list.html" aria-current="page">
-          <i class="ph ph-buildings"></i><span>Müşteriler</span>
-        </a>
-        <a class="nav-btn" href="offers.html">
-          <i class="ph ph-file-text"></i><span>Teklifler</span>
-        </a>
-        <a class="nav-btn" href="contracts.html">
-          <i class="ph ph-signature"></i><span>Sözleşmeler</span>
-        </a>
-        <a class="nav-btn" href="payments.html">
-          <i class="ph ph-money"></i><span>Ödemeler</span>
-        </a>
-        <a class="nav-btn" href="reports.html">
-          <i class="ph ph-chart-line"></i><span>Raporlar</span>
-        </a>
-        <a class="nav-btn" href="users.html">
-          <i class="ph ph-users-three"></i><span>Kullanıcılar</span>
-        </a>
-        <a class="nav-btn" href="online-users.html">
-          <i class="ph ph-pulse"></i><span>Çevrimiçi</span>
-        </a>
-        <a class="nav-btn" href="ecosystem-mockup/">
-          <i class="ph ph-folder-simple"></i><span>Ekosistem</span>
-        </a>
-        <a class="nav-btn" href="auditor-dashboard.html">
-          <i class="ph ph-compass"></i><span>Denetçi</span>
-        </a>
+        <a class="nav-btn" href="dashboard.html"><i class="ph ph-squares-four"></i><span>Kontrol paneli</span></a>
+        <a class="nav-btn" href="client-list.html" aria-current="page"><i class="ph ph-buildings"></i><span>Müşteriler</span></a>
+        <a class="nav-btn" href="offers.html"><i class="ph ph-file-text"></i><span>Teklifler</span></a>
+        <a class="nav-btn" href="contracts.html"><i class="ph ph-signature"></i><span>Sözleşmeler</span></a>
+        <a class="nav-btn" href="payments.html"><i class="ph ph-money"></i><span>Ödeme Listesi</span></a>
+        <a class="nav-btn" href="reports.html"><i class="ph ph-chart-line"></i><span>Raporlar</span></a>
+        <a class="nav-btn" href="users.html"><i class="ph ph-users-three"></i><span>Kullanıcılar</span></a>
+        <a class="nav-btn" href="online-users.html"><i class="ph ph-pulse"></i><span>Çevrimiçi</span></a>
+        <a class="nav-btn" href="ecosystem-mockup/"><i class="ph ph-folder-simple"></i><span>Ekosistem</span></a>
+        <a class="nav-btn" href="auditor-dashboard.html"><i class="ph ph-compass"></i><span>Denetçi</span></a>
       </nav>
       <div class="rail-foot">
         <div class="persona">
           <div class="avatar" id="userAvatarInitial" aria-hidden="true">HS</div>
-          <div class="persona-meta">
-            <strong id="personaName">Kullanıcı</strong>
-            <span id="personaRole">Yönetici</span>
-          </div>
+          <div class="persona-meta"><strong id="personaName">Kullanıcı</strong><span id="personaRole">Yönetici</span></div>
         </div>
-        <button class="btn btn-ghost btn-sm" type="button" id="atlasLogout" style="width:100%;justify-content:center;">
-          <i class="ph ph-sign-out"></i> Çıkış
-        </button>
+        <button class="btn btn-ghost btn-sm" type="button" id="atlasLogout" style="width:100%;justify-content:center;"><i class="ph ph-sign-out"></i> Çıkış</button>
       </div>
     </aside>
     <header class="top">
       <div class="crumb">
-        <span>Atlas</span>
+        <span>Crowe</span><i class="ph ph-caret-right" aria-hidden="true"></i>
+        <a href="client-list.html" style="color:inherit;text-decoration:none;">Müşteriler</a>
         <i class="ph ph-caret-right" aria-hidden="true"></i>
-        <span>Detay</span>
-        <i class="ph ph-caret-right" aria-hidden="true"></i>
-        <strong>Müşteri detayı</strong>
+        <strong id="crumbClientName">Müşteri detayı</strong>
       </div>
       <label class="search" aria-label="Kısayol ara">
         <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
         <input type="search" id="atlasSearch" placeholder="Modül ara… Enter" autocomplete="off">
       </label>
       <span id="adminEnvBadge" class="badge" style="display:none;font-size:0.6875rem;"></span>
-      <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema">
-        <i class="ph ph-moon" id="themeIcon"></i>
-      </button>
+      <button class="icon-btn" type="button" id="themeToggle" aria-label="Tema"><i class="ph ph-moon" id="themeIcon"></i></button>
     </header>
     <main class="main page-content" id="main-content" tabindex="-1">
-<div class="container-fluid">
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <a href="client-list.html" class="btn btn-light">
-                            <i class="fas fa-arrow-left"></i> <span>Back to Client List</span>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card shadow">
-                            <div class="card-header bg-transparent" data-toggle="collapse" data-target="#demo">
-                                <h6 class="m-0 font-weight-bold text-dark">
-                                    <i class="fas fa-building"></i> <span id="musteriUnvan">ABC İnşaat A.Ş.</span>
-                                </h6>
-                            </div>
-                            <div class="row">
-                                <div class="col-xl-6">
-                                    <div class="card-body collapse show" id="demo">
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-dark align-self-center text-right">Unvan:</div>
-                                            <div class="col-lg-8" id="unvan">ABC İnşaat A.Ş.</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-dark align-self-center text-right">Vergi Dairesi:</div>
-                                            <div class="col-lg-8" id="vergiDairesi">Kadıköy VD</div>
-                                        </div>
-                                        
-                                        <div class="row mb-2">
-                                            <div class="col-lg-4 font-weight-bold text-dark align-self-center text-right">Vergi Numarası:</div>
-                                            <div class="col-lg-8" id="vergiNo">1234567890</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="col-xl-6">
-                                    <div class="card-body">
-                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-                                            <div>
-                                                <h6 class="font-weight-bold text-dark mb-1">Seçilen Ekip Çalışanları</h6>
-                                                <small class="text-muted">Ekip listelerinden çalışan seçip listeye ekleyin.</small>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="assigned-user-selector p-3 mb-3">
-                                            <div class="form-row">
-                                                <div class="form-group col-md-4">
-                                                    <label for="ekipSecimi" class="font-weight-bold text-muted">Ekip</label>
-                                                    <select id="ekipSecimi" class="form-control">
-                                                        <option value="B3">B3 Ekibi</option>
-                                                        <option value="B2">B2 Ekibi</option>
-                                                        <option value="B1">B1 Ekibi</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group col-md-8">
-                                                    <label class="font-weight-bold text-muted d-block">Çalışanlar</label>
-                                                    <div id="ekipKisileri" class="d-flex flex-wrap"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <button type="button" class="btn btn-outline-secondary btn-sm mr-2" id="clearSelectionsBtn">Seçimleri Temizle</button>
-                                                <button type="button" class="btn btn-primary btn-sm" id="addTeamMembersBtn">Seçilenleri Ekle</button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th class=" text-center">Full Name</th>
-                                                        <th class=" text-center">Email</th>
-                                                        <th class=" text-center" style="width: 80px;">İşlem</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="kullanicilarListesi">
-                                                    <tr>
-                                                        <td colspan="3" class="text-center text-muted">Henüz çalışan eklenmedi.</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div class="container-fluid">
+        <div class="page-header-admin" style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+          <div>
+            <h1><i class="ph ph-buildings"></i> <span id="pageClientName">Müşteri</span></h1>
+            <p class="page-header-meta" id="pageClientMeta">Vergi no ve ekip bilgileri</p>
+          </div>
+          <a href="client-list.html" class="btn btn-ghost"><i class="ph ph-arrow-left"></i> Listeye dön</a>
+        </div>
+
+        <div id="blacklistBanner" class="client-blacklist-banner" style="display:none;">
+          <strong><i class="ph ph-warning"></i> Blacklist müşteri</strong>
+          <p id="blacklistReasonText" style="margin:0.35rem 0 0;font-size:0.875rem;"></p>
+        </div>
+
+        <section class="atlas-module" aria-label="Müşteri özeti">
+          <div class="client-meta-grid">
+            <div class="client-meta-item"><label>Vergi no</label><strong id="metaVergiNo" class="mono-cell">—</strong></div>
+            <div class="client-meta-item"><label>Vergi dairesi</label><strong id="metaVergiDairesi">—</strong></div>
+            <div class="client-meta-item"><label>Ekip</label><strong id="metaEkip">—</strong></div>
+            <div class="client-meta-item"><label>Blacklist</label><strong id="metaBlacklist">—</strong></div>
+            <div class="client-meta-item"><label>İletişim</label><strong id="metaIletisim">—</strong></div>
+            <div class="client-meta-item"><label>E-posta</label><strong id="metaEmail">—</strong></div>
+          </div>
+        </section>
+
+        <section class="atlas-module" aria-label="Müşteri sekmeleri">
+          <div class="auditor-tabs dr-tabs" role="tablist" aria-label="Müşteri detay sekmeleri">
+            <button type="button" class="auditor-tab is-active" data-tab="partner">Partner</button>
+            <button type="button" class="auditor-tab" data-tab="ekip-lideri">Ekip lideri</button>
+            <button type="button" class="auditor-tab" data-tab="iletisim">İletişim</button>
+            <button type="button" class="auditor-tab" data-tab="teklifler">Teklifler</button>
+            <button type="button" class="auditor-tab" data-tab="sozlesmeler">Sözleşmeler</button>
+          </div>
+
+          <div class="tab-content mt-3" data-tab="partner">
+            <div class="atlas-field-grid" style="grid-template-columns:1fr auto;align-items:end;gap:0.75rem;margin-bottom:1rem;">
+              <div class="form-group mb-0">
+                <label for="rolePartnerInput">Partner</label>
+                <select class="form-control" id="rolePartnerInput" onchange="onDetailPartnerChange()">
+                  <option value="">Partner seçin…</option>
+                  <option value="Eda Meriç Sefer">Eda Meriç Sefer</option>
+                  <option value="Hakan Kılıç">Hakan Kılıç</option>
+                  <option value="Mehmet Ali Sarıad">Mehmet Ali Sarıad</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="saveRoleField('partner')"><i class="ph ph-floppy-disk"></i> Kaydet</button>
             </div>
+            <p id="rolePartnerDisplay" class="text-muted" style="font-size:0.875rem;">Atanmamış</p>
+          </div>
+
+          <div class="tab-content mt-3" data-tab="ekip-lideri" hidden>
+            <div class="atlas-field-grid" style="grid-template-columns:1fr auto;align-items:end;gap:0.75rem;margin-bottom:1rem;">
+              <div class="form-group mb-0">
+                <label for="roleEkipLideriInput">Ekip lideri</label>
+                <select class="form-control" id="roleEkipLideriInput">
+                  <option value="">Önce partner seçin…</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="saveRoleField('ekip_lideri')"><i class="ph ph-floppy-disk"></i> Kaydet</button>
+            </div>
+            <p id="roleEkipLideriDisplay" class="text-muted" style="font-size:0.875rem;">Atanmamış</p>
+          </div>
+
+          <div class="tab-content mt-3" data-tab="iletisim" hidden>
+            <div class="atlas-field-grid" style="grid-template-columns:1fr 1fr auto;align-items:end;gap:0.75rem;margin-bottom:1rem;">
+              <div class="form-group mb-0">
+                <label for="roleIletisimInput">Müşteri iletişim</label>
+                <input type="text" class="form-control" id="roleIletisimInput" placeholder="İlgili kişi adı / telefon">
+              </div>
+              <div class="form-group mb-0">
+                <label for="roleEmailInput">E-posta</label>
+                <input type="email" class="form-control" id="roleEmailInput" placeholder="ornek@sirket.com">
+              </div>
+              <button type="button" class="btn btn-primary" onclick="saveContactFields()"><i class="ph ph-floppy-disk"></i> Kaydet</button>
+            </div>
+            <p id="roleIletisimDisplay" class="text-muted" style="font-size:0.875rem;">Atanmamış</p>
+          </div>
+
+          <div class="tab-content mt-3" data-tab="teklifler" hidden>
+            <div class="atlas-toolbar" style="margin-bottom:0.75rem;">
+              <p style="margin:0;font-size:0.875rem;color:var(--muted);">Bu müşteriye ait geçmiş teklif kayıtları</p>
+              <a href="offers.html" class="btn btn-sm btn-success"><i class="ph ph-plus"></i> Yeni teklif</a>
+            </div>
+            <div class="atlas-table-wrap">
+              <table class="table atlas-table">
+                <thead>
+                  <tr>
+                    <th>Teklif no</th>
+                    <th>Tip</th>
+                    <th>Tarih</th>
+                    <th>Tutar</th>
+                    <th>Durum</th>
+                  </tr>
+                </thead>
+                <tbody id="clientOffersBody">
+                  <tr><td colspan="5" class="text-muted">Yükleniyor…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="tab-content mt-3" data-tab="sozlesmeler" hidden>
+            <div class="atlas-toolbar" style="margin-bottom:0.75rem;">
+              <p style="margin:0;font-size:0.875rem;color:var(--muted);">Bu müşteriye ait geçmiş sözleşme kayıtları</p>
+              <a href="contracts.html" class="btn btn-sm btn-success"><i class="ph ph-plus"></i> Yeni sözleşme</a>
+            </div>
+            <div class="atlas-table-wrap">
+              <table class="table atlas-table">
+                <thead>
+                  <tr>
+                    <th>Sözleşme tipi</th>
+                    <th>Dönem</th>
+                    <th>Ekip</th>
+                    <th>Denetçiler</th>
+                    <th>Tarih</th>
+                  </tr>
+                </thead>
+                <tbody id="clientContractsBody">
+                  <tr><td colspan="5" class="text-muted">Yükleniyor…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
     </main>
   </div>
-in>
 
-<!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="config.js"></script>
-    <!-- Supabase Config & JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="supabase-config.js"></script>
-    <!-- Authentication System -->
-    <script src="auth.js"></script>
-    <!-- Dark Mode -->
-</script>
-    <!-- Prevent Active Link Reload -->
-    <script src="prevent-active-link-reload.js"></script>
-    <script>
-        // Check authentication on page load (DOMContentLoaded ile geciktir)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
-            }, 100);
-        });
-        
-        // Update user info in topbar (same as other pages)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
-                    // username field contains the email address
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                }
-            }, 100);
-        });
-        
-        // Also update immediately if DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(function() {
-        const currentUser = Auth.getCurrentUser();
-        if (currentUser) {
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                }
-            }, 100);
-        }
-        
-        function toggleLanguage() {
-            const currentLang = i18n.currentLang;
-            const newLang = currentLang === 'en' ? 'tr' : 'en';
-            i18n.setLanguage(newLang);
-            document.getElementById('langText').textContent = newLang === 'en' ? 'TR' : 'EN';
-        }
-        
-        // Update language switcher text on language change
-        document.addEventListener('languageChanged', function() {
-            document.getElementById('langText').textContent = i18n.currentLang === 'en' ? 'TR' : 'EN';
-        });
-        
-        // URL parametresinden müşteri ID'sini al
-        function getUrlParameter(name) {
-            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-            var results = regex.exec(location.search);
-            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-        }
-        
-        // Get Supabase client helper function - uses global instance
-        function resolveSupabaseClient() {
-            if (window.__supabaseClientInstance) {
-                return window.__supabaseClientInstance;
-            }
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                return supabaseClient;
-            }
-            return null;
-        }
-        
-        // Get clients from Supabase
-        async function getClientsFromSupabase() {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                // Fallback to localStorage if Supabase not available
-                const clients = localStorage.getItem('clients');
-                return clients ? JSON.parse(clients) : [];
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('clients')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) {
-                    console.error('Supabase error:', error);
-                    // Fallback to localStorage
-                    const clients = localStorage.getItem('clients');
-                    return clients ? JSON.parse(clients) : [];
-                }
-                
-                return data || [];
-            } catch (error) {
-                console.error('Error fetching clients:', error);
-                // Fallback to localStorage
-                const clients = localStorage.getItem('clients');
-                return clients ? JSON.parse(clients) : [];
-            }
-        }
-        
-        const ekipListeleri = {
-            B3: [
-                'Gözde Kızıleniş',
-                'Servet Aykanat',
-                'Aykan Altıntel',
-                'Elif Girgin',
-                'Şilan Korkmaz'
-            ],
-            B2: [
-                'İbrahim Kuvvet',
-                'Yunus Emre Durmuş',
-                'Fatih Şentürk',
-                'Kasım Durmuş',
-                'Yaprak Tosun',
-                'Ece Karaçalı',
-                'Beste Darcan',
-                'Nida Çetin'
-            ],
-            B1: [
-                'Berki Özkan',
-                'Hasan Bozkaya',
-                'Mehmet Molla',
-                'Dilek Çınar'
-            ]
-        };
-        
-        let assignedUsers = [];
-        
-        function generateCroweEmail(fullName) {
-            const replacements = {
-                'ç': 'c', 'ğ': 'g', 'ı': 'i', 'ö': 'o', 'ş': 's', 'ü': 'u',
-                'Ç': 'c', 'Ğ': 'g', 'İ': 'i', 'Ö': 'o', 'Ş': 's', 'Ü': 'u'
-            };
-            let normalized = fullName
-                .split('')
-                .map(char => replacements[char] || char)
-                .join('')
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/\s+/g, '.')
-                .replace(/[^a-z0-9.]/g, '');
-            if (!normalized.includes('.')) {
-                normalized = normalized.replace(/[^a-z0-9]/g, '');
-            }
-            return normalized + '@crowe.com.tr';
-        }
-        
-        function renderAssignedUsers() {
-            const tbody = document.getElementById('kullanicilarListesi');
-            if (!tbody) return;
-            
-            if (!assignedUsers.length) {
-                tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">Henüz çalışan eklenmedi.</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = assignedUsers.map(function(user, index) {
-                const email = user.email || generateCroweEmail(user.ad);
-                return '<tr>' +
-                    '<td>' + user.ad + '</td>' +
-                    '<td>' + email + '</td>' +
-                    '<td class="text-center">' +
-                        '<button type="button" class="btn btn-sm btn-outline-danger remove-assigned-user" data-index="' + index + '">' +
-                            '<i class="fas fa-trash-alt"></i>' +
-                        '</button>' +
-                    '</td>' +
-                '</tr>';
-            }).join('');
-            
-            tbody.querySelectorAll('.remove-assigned-user').forEach(function(button) {
-                button.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'), 10);
-                    removeAssignedUser(index);
-                });
-            });
-        }
-        
-        function renderTeamMemberCheckboxes(teamKey) {
-            const container = document.getElementById('ekipKisileri');
-            if (!container) return;
-            
-            const members = ekipListeleri[teamKey] || [];
-            if (!members.length) {
-                container.innerHTML = '<span class="text-muted">Bu ekip için kayıtlı kişi bulunamadı.</span>';
-                return;
-            }
-            
-            container.innerHTML = members.map(function(member, index) {
-                const checkboxId = 'ekip-' + teamKey + '-' + index;
-                return (
-                    '<div class="custom-control custom-checkbox mr-3 mb-2">' +
-                        '<input type="checkbox" class="custom-control-input ekip-kisi-checkbox" id="' + checkboxId + '" value="' + member + '">' +
-                        '<label class="custom-control-label" for="' + checkboxId + '">' + member + '</label>' +
-                    '</div>'
-                );
-            }).join('');
-        }
-        
-        function clearTeamSelections() {
-            document.querySelectorAll('#ekipKisileri .ekip-kisi-checkbox').forEach(function(checkbox) {
-                checkbox.checked = false;
-            });
-        }
-        
-        function addSelectedTeamMembers() {
-            const selectedMembers = Array.from(document.querySelectorAll('#ekipKisileri .ekip-kisi-checkbox:checked')).map(function(checkbox) {
-                return checkbox.value;
-            });
-            
-            if (!selectedMembers.length) {
-                return;
-            }
-            
-            selectedMembers.forEach(function(member) {
-                if (!assignedUsers.some(function(user) { return user.ad === member; })) {
-                    assignedUsers.push({
-                        ad: member,
-                        email: generateCroweEmail(member)
-                    });
-                }
-            });
-            
-            renderAssignedUsers();
-            clearTeamSelections();
-        }
-        
-        function removeAssignedUser(index) {
-            if (index > -1 && index < assignedUsers.length) {
-                assignedUsers.splice(index, 1);
-                renderAssignedUsers();
-            }
-        }
-        
-        // Sayfa yüklendiğinde müşteri bilgilerini göster
-        $(document).ready(async function() {
-            var musteriIndex = parseInt(getUrlParameter('id') || '1', 10) - 1; // URL'deki id index+1 formatında
-            
-            try {
-                const clients = await getClientsFromSupabase();
-                
-                if (clients.length === 0) {
-                    console.warn('No clients found');
-                    return;
-                }
-                
-                if (musteriIndex < 0 || musteriIndex >= clients.length) {
-                    console.error('Invalid client index:', musteriIndex);
-                    alert('Müşteri bulunamadı!');
-                    window.location.href = 'client-list.html';
-                    return;
-                }
-                
-                const musteri = clients[musteriIndex];
-                
-                // Handle both Supabase format (vergi_no, vergi_dairesi) and localStorage format (vergiNo, vergiDairesi)
-                const unvan = musteri.unvan || '';
-                const vergiDairesi = musteri.vergi_dairesi || musteri.vergiDairesi || '';
-                const vergiNo = musteri.vergi_no || musteri.vergiNo || '';
-                
-                // Müşteri bilgilerini göster
-                $('#musteriUnvan').text(unvan);
-                $('#musteriAdi').text(unvan);
-                $('#unvan').text(unvan);
-                $('#vergiDairesi').text(vergiDairesi);
-                $('#vergiNo').text(vergiNo);
-                
-                // Kullanıcıları yükle (eğer varsa)
-                if (musteri.kullanicilar && Array.isArray(musteri.kullanicilar)) {
-                    assignedUsers = musteri.kullanicilar.map(function(kullanici) {
-                        return {
-                            ad: kullanici.ad || kullanici.name || kullanici.full_name || '',
-                            email: kullanici.email || generateCroweEmail(kullanici.ad || kullanici.name || kullanici.full_name || '')
-                        };
-                    });
-                } else {
-                    assignedUsers = [];
-                }
-                renderAssignedUsers();
-                
-                // Ekip seçimi ve çalışan ekleme fonksiyonlarını başlat
-                var teamSelect = document.getElementById('ekipSecimi');
-                if (teamSelect) {
-                    renderTeamMemberCheckboxes(teamSelect.value);
-                    teamSelect.addEventListener('change', function() {
-                        renderTeamMemberCheckboxes(this.value);
-                    });
-                }
-                
-                var addBtn = document.getElementById('addTeamMembersBtn');
-                if (addBtn) {
-                    addBtn.addEventListener('click', addSelectedTeamMembers);
-                }
-                
-                var clearBtn = document.getElementById('clearSelectionsBtn');
-                if (clearBtn) {
-                    clearBtn.addEventListener('click', function() {
-                        clearTeamSelections();
-                    });
-                }
-            } catch (error) {
-                console.error('Error loading client:', error);
-                alert('Müşteri bilgileri yüklenirken bir hata oluştu!');
-            }
-        });
-    </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="prevent-active-link-reload.js"></script>
+  <script src="atlas-shell.js"></script>
+  <script>
+    let currentClient = null;
 
-<script src="atlas-shell.js"></script>
-</body>
-</html>
+    function resolveSupabaseClient() {
+      if (window.__supabaseClientInstance) return window.__supabaseClientInstance;
+      if (typeof supabaseClient !== 'undefined' && supabaseClient) return supabaseClient;
+      return null;
+    }
+
+    function getUrlParameter(name) {
+      var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      var results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    function isClientUUID(value) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(value || ''));
+    }
+
+    function normalizeClient(row) {
+      const details = row.details || {};
+      return {
+        id: row.id,
+        vergiNo: row.vergi_no || row.vergiNo || '',
+        unvan: row.unvan || '',
+        vergiDairesi: row.vergi_dairesi || row.vergiDairesi || '',
+        ekip: row.ekip || '',
+        isBlacklisted: !!(row.is_blacklisted || row.isBlacklisted),
+        blacklistReason: row.blacklist_reason || row.blacklistReason || '',
+        partner: row.partner || '',
+        ekipLideri: row.ekip_lideri || row.ekipLideri || '',
+        iletisim: row.iletisim || row.contact || details.iletisim || '',
+        email: row.email || row.client_email || details.email || '',
+        details: details
+      };
+    }
+
+    var PARTNER_LEADERS = {
+      'Eda Meriç Sefer': ['Dilek Çınar', 'Berki Özkan'],
+      'Hakan Kılıç': ['Şilan Korkmaz', 'Gözde Kızıleniş'],
+      'Mehmet Ali Sarıad': ['İbrahim Kuvvet', 'Dilan Ulusu', 'Yunus Emre Durmuş']
+    };
+
+    function fillLeaderSelect(selectedLeader) {
+      var partner = document.getElementById('rolePartnerInput').value;
+      var leaderEl = document.getElementById('roleEkipLideriInput');
+      var leaders = PARTNER_LEADERS[partner] || [];
+      var keep = selectedLeader || leaderEl.value;
+      leaderEl.innerHTML = '';
+      var placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = partner ? 'Ekip lideri seçin…' : 'Önce partner seçin…';
+      leaderEl.appendChild(placeholder);
+      leaders.forEach(function (name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        leaderEl.appendChild(opt);
+      });
+      if (keep && leaders.indexOf(keep) !== -1) leaderEl.value = keep;
+    }
+
+    function onDetailPartnerChange() {
+      fillLeaderSelect('');
+    }
+
+    async function fetchClientById(clientRef) {
+      const supabase = resolveSupabaseClient();
+      const clientsRaw = supabase ? null : JSON.parse(localStorage.getItem('clients') || '[]');
+      if (supabase) {
+        let query = supabase.from('clients').select('*');
+        if (isClientUUID(clientRef)) query = query.eq('id', clientRef);
+        else query = query.eq('vergi_no', clientRef);
+        const { data, error } = await query.maybeSingle();
+        if (error) throw error;
+        if (data) return normalizeClient(data);
+        const all = await supabase.from('clients').select('*');
+        const idx = parseInt(clientRef, 10);
+        if (!isNaN(idx) && all.data && all.data[idx - 1]) return normalizeClient(all.data[idx - 1]);
+        return null;
+      }
+      const idx = parseInt(clientRef, 10);
+      if (!isNaN(idx) && clientsRaw[idx - 1]) return normalizeClient(clientsRaw[idx - 1]);
+      return clientsRaw.map(normalizeClient).find(function (c) {
+        return c.id === clientRef || c.vergiNo === clientRef;
+      }) || null;
+    }
+
+    function matchesClientName(a, b) {
+      return String(a || '').trim().toLocaleLowerCase('tr') === String(b || '').trim().toLocaleLowerCase('tr');
+    }
+
+    function offerMatchesClient(offer, client) {
+      const details = offer.details || {};
+      const clientId = String(client.id || '');
+      const vergiNo = String(client.vergiNo || '');
+      if (matchesClientName(offer.client_name || offer.clientName, client.unvan)) return true;
+      if (details.client_id && (String(details.client_id) === clientId || String(details.client_id) === vergiNo)) return true;
+      return false;
+    }
+
+    function contractMatchesClient(contract, client) {
+      return matchesClientName(contract.company, client.unvan);
+    }
+
+    async function loadClientHistory(client) {
+      const supabase = resolveSupabaseClient();
+      let offers = [];
+      let contracts = [];
+
+      if (supabase) {
+        const [offersRes, contractsRes] = await Promise.all([
+          supabase.from('offers').select('*').order('send_date', { ascending: false }),
+          supabase.from('contracts').select('*').order('created_at', { ascending: false })
+        ]);
+        offers = (offersRes.data || []).filter(function (o) { return offerMatchesClient(o, client); });
+        contracts = (contractsRes.data || []).filter(function (c) { return contractMatchesClient(c, client); });
+      } else {
+        try { offers = JSON.parse(localStorage.getItem('offers') || '[]'); } catch (e) { offers = []; }
+        try { contracts = JSON.parse(localStorage.getItem('contracts') || '[]'); } catch (e) { contracts = []; }
+        offers = offers.filter(function (o) { return offerMatchesClient(o, client); });
+        contracts = contracts.filter(function (c) { return contractMatchesClient(c, client); });
+      }
+      return { offers: offers, contracts: contracts };
+    }
+
+    function statusBadge(status) {
+      const map = { 'Kabul Edildi': 'is-active', 'Reddedildi': 'is-suspended', 'Onay Bekliyor': 'is-auditor' };
+      return '<span class="status-badge ' + (map[status] || '') + '">' + (status || '—') + '</span>';
+    }
+
+    function renderOffers(offers) {
+      const tbody = document.getElementById('clientOffersBody');
+      if (!offers.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Bu müşteriye ait teklif kaydı bulunamadı.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = offers.map(function (o) {
+        const d = o.details || {};
+        const amount = d.amount ? Number(d.amount).toLocaleString('tr-TR') + ' ' + (d.currency || 'TRY') : '—';
+        return '<tr>' +
+          '<td class="mono-cell">' + (o.offer_no || o.offerNo || '—') + '</td>' +
+          '<td>' + (o.offer_type || o.offerType || '—') + '</td>' +
+          '<td>' + (o.send_date || o.sendDate || '—') + '</td>' +
+          '<td>' + amount + '</td>' +
+          '<td>' + statusBadge(o.status) + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderContracts(contracts) {
+      const tbody = document.getElementById('clientContractsBody');
+      if (!contracts.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-muted">Bu müşteriye ait sözleşme kaydı bulunamadı.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = contracts.map(function (c) {
+        const auditors = [c.auditor1, c.auditor2, c.auditor3].filter(Boolean).join(', ') || '—';
+        const date = (c.created_at || '').slice(0, 10) || '—';
+        return '<tr>' +
+          '<td>' + (c.contract_type || '—') + '</td>' +
+          '<td>' + (c.period || '—') + '</td>' +
+          '<td>' + (c.team || '—') + '</td>' +
+          '<td>' + auditors + '</td>' +
+          '<td>' + date + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function renderClient(client) {
+      currentClient = client;
+      document.getElementById('pageClientName').textContent = client.unvan;
+      document.getElementById('crumbClientName').textContent = client.unvan;
+      document.getElementById('pageClientMeta').textContent = client.vergiNo + ' · ' + (client.ekip || 'Ekip yok');
+      document.getElementById('metaVergiNo').textContent = client.vergiNo || '—';
+      document.getElementById('metaVergiDairesi').textContent = client.vergiDairesi || '—';
+      document.getElementById('metaEkip').textContent = client.ekip || '—';
+      document.getElementById('metaBlacklist').innerHTML = client.isBlacklisted
+        ? '<span class="status-badge is-suspended">Evet</span>'
+        : '<span class="status-badge">Hayır</span>';
+      document.getElementById('metaIletisim').textContent = client.iletisim || '—';
+      document.getElementById('metaEmail').textContent = client.email || '—';
+
+      const banner = document.getElementById('blacklistBanner');
+      if (client.isBlacklisted) {
+        banner.style.display = 'block';
+        document.getElementById('blacklistReasonText').textContent = client.blacklistReason || 'Neden belirtilmemiş.';
+      } else {
+        banner.style.display = 'none';
+      }
+
+      document.getElementById('rolePartnerInput').value = client.partner || '';
+      fillLeaderSelect(client.ekipLideri || '');
+      document.getElementById('rolePartnerDisplay').textContent = client.partner || 'Atanmamış';
+      document.getElementById('roleEkipLideriDisplay').textContent = client.ekipLideri || 'Atanmamış';
+      document.getElementById('roleIletisimInput').value = client.iletisim || '';
+      document.getElementById('roleEmailInput').value = client.email || '';
+      document.getElementById('roleIletisimDisplay').textContent =
+        (client.iletisim || client.email)
+          ? [client.iletisim, client.email].filter(Boolean).join(' · ')
+          : 'Atanmamış';
+    }
+
+    async function saveRoleField(field) {
+      if (!currentClient) return;
+      const inputMap = {
+        partner: 'rolePartnerInput',
+        ekip_lideri: 'roleEkipLideriInput'
+      };
+      const displayMap = {
+        partner: 'rolePartnerDisplay',
+        ekip_lideri: 'roleEkipLideriDisplay'
+      };
+      const value = document.getElementById(inputMap[field]).value.trim();
+      const partnerValue = field === 'partner' ? value : currentClient.partner;
+      let leaderValue = field === 'ekip_lideri' ? value : currentClient.ekipLideri;
+      if (field === 'partner') {
+        const allowed = PARTNER_LEADERS[partnerValue] || [];
+        if (allowed.indexOf(leaderValue) === -1) leaderValue = '';
+        fillLeaderSelect(leaderValue);
+      }
+      const details = Object.assign({}, currentClient.details || {}, {
+        iletisim: currentClient.iletisim || '',
+        email: currentClient.email || ''
+      });
+      const payload = {
+        vergi_no: currentClient.vergiNo,
+        unvan: currentClient.unvan,
+        vergi_dairesi: currentClient.vergiDairesi,
+        ekip: currentClient.ekip,
+        is_blacklisted: currentClient.isBlacklisted,
+        blacklist_reason: currentClient.blacklistReason || null,
+        partner: partnerValue || null,
+        ekip_lideri: leaderValue || null,
+        details: details
+      };
+
+      const supabase = resolveSupabaseClient();
+      const clientRef = currentClient.id || currentClient.vergiNo;
+      try {
+        if (supabase) {
+          let query = supabase.from('clients').update(payload);
+          if (isClientUUID(clientRef)) query = query.eq('id', clientRef);
+          else query = query.eq('vergi_no', clientRef);
+          const { error } = await query;
+          if (error) throw error;
+        } else {
+          const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+          const idx = clients.findIndex(function (c) {
+            return (c.id && c.id === clientRef) || (c.vergi_no || c.vergiNo) === currentClient.vergiNo;
+          });
+          if (idx >= 0) {
+            clients[idx] = Object.assign({}, clients[idx], {
+              partner: payload.partner,
+              ekip_lideri: payload.ekip_lideri,
+              details: details
+            });
+            localStorage.setItem('clients', JSON.stringify(clients));
+          }
+        }
+        currentClient.partner = payload.partner || '';
+        currentClient.ekipLideri = payload.ekip_lideri || '';
+        document.getElementById(displayMap[field]).textContent = value || 'Atanmamış';
+        if (field === 'partner') {
+          document.getElementById('roleEkipLideriDisplay').textContent = currentClient.ekipLideri || 'Atanmamış';
+        }
+        alert('Kaydedildi.');
+      } catch (err) {
+        alert('Kayıt hatası: ' + err.message);
+      }
+    }
+
+    async function saveContactFields() {
+      if (!currentClient) return;
+      const iletisim = document.getElementById('roleIletisimInput').value.trim();
+      const email = document.getElementById('roleEmailInput').value.trim();
+      const details = Object.assign({}, currentClient.details || {}, {
+        iletisim: iletisim,
+        email: email
+      });
+      const payload = {
+        vergi_no: currentClient.vergiNo,
+        unvan: currentClient.unvan,
+        vergi_dairesi: currentClient.vergiDairesi,
+        ekip: currentClient.ekip,
+        is_blacklisted: currentClient.isBlacklisted,
+        blacklist_reason: currentClient.blacklistReason || null,
+        partner: currentClient.partner || null,
+        ekip_lideri: currentClient.ekipLideri || null,
+        details: details
+      };
+      const supabase = resolveSupabaseClient();
+      const clientRef = currentClient.id || currentClient.vergiNo;
+      try {
+        if (supabase) {
+          let query = supabase.from('clients').update(payload);
+          if (isClientUUID(clientRef)) query = query.eq('id', clientRef);
+          else query = query.eq('vergi_no', clientRef);
+          const { error } = await query;
+          if (error) throw error;
+        } else {
+          const clients = JSON.parse(localStorage.getItem('clients') || '[]');
+          const idx = clients.findIndex(function (c) {
+            return (c.id && c.id === clientRef) || (c.vergi_no || c.vergiNo) === currentClient.vergiNo;
+          });
+          if (idx >= 0) {
+            clients[idx] = Object.assign({}, clients[idx], {
+              iletisim: iletisim,
+              email: email,
+              details: details
+            });
+            localStorage.setItem('clients', JSON.stringify(clients));
+          }
+        }
+        currentClient.iletisim = iletisim;
+        currentClient.email = email;
+        currentClient.details = details;
+        document.getElementById('metaIletisim').textContent = iletisim || '—';
+        document.getElementById('metaEmail').textContent = email || '—';
+        document.getElementById('roleIletisimDisplay').textContent =
+          (iletisim || email) ? [iletisim, email].filter(Boolean).join(' · ') : 'Atanmamış';
+        alert('Kaydedildi.');
+      } catch (err) {
+        alert('Kayıt hatası: ' + err.message);
+      }
+    }
+
+    function showClientTab(tab, event) {
+      if (event) event.preventDefault();
+      document.querySelectorAll('.auditor-tab').forEach(function (btn) {
+        btn.classList.toggle('is-active', btn.getAttribute('data-tab') === tab);
+      });
+      document.querySelectorAll('.tab-content[data-tab]').forEach(function (panel) {
+        panel.hidden = panel.getAttribute('data-tab') !== tab;
+      });
+    }
+
+    document.querySelectorAll('.auditor-tab[data-tab]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        showClientTab(btn.getAttribute('data-tab'), e);
+      });
+    });
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      setTimeout(function () {
+        if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) window.location.href = 'login.html';
+      }, 100);
+
+      const clientRef = getUrlParameter('id');
+      if (!clientRef) {
+        alert('Müşteri bulunamadı.');
+        window.location.href = 'client-list.html';
+        return;
+      }
+
+      try {
+        const client = await fetchClientById(clientRef);
+        if (!client) {
+          alert('Müşteri bulunamadı.');
+          window.location.href = 'client-list.html';
+          return;
+        }
+        renderClient(client);
+        const history = await loadClientHistory(client);
+        renderOffers(history.offers);
+        renderContracts(history.contracts);
+      } catch (err) {
+        console.error(err);
+        alert('Müşteri yüklenirken hata oluştu.');
+      }
+    });
+  </script>
 </body>
 </html>

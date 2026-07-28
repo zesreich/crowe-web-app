@@ -15,6 +15,12 @@ CREATE TABLE IF NOT EXISTS clients (
     unvan VARCHAR(255) NOT NULL,
     vergi_dairesi VARCHAR(255) NOT NULL,
     ekip VARCHAR(100) NOT NULL,
+    is_blacklisted BOOLEAN NOT NULL DEFAULT false,
+    blacklist_reason TEXT,
+    uygulamaci VARCHAR(255),
+    partner VARCHAR(255),
+    ekip_lideri VARCHAR(255),
+    details JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -25,6 +31,7 @@ CREATE TABLE IF NOT EXISTS clients (
 CREATE INDEX IF NOT EXISTS idx_clients_vergi_no ON clients(vergi_no);
 CREATE INDEX IF NOT EXISTS idx_clients_unvan ON clients(unvan);
 CREATE INDEX IF NOT EXISTS idx_clients_ekip ON clients(ekip);
+CREATE INDEX IF NOT EXISTS idx_clients_blacklisted ON clients(is_blacklisted) WHERE is_blacklisted = true;
 CREATE INDEX IF NOT EXISTS idx_clients_created_at ON clients(created_at DESC);
 
 -- =====================================================
@@ -84,6 +91,13 @@ CREATE POLICY "Authenticated users can delete clients" ON clients
 -- =====================================================
 
 -- Check if table was created successfully
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS is_blacklisted BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS blacklist_reason TEXT;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS uygulamaci VARCHAR(255);
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS partner VARCHAR(255);
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS ekip_lideri VARCHAR(255);
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}'::jsonb;
+
 SELECT 
     'clients' as table_name,
     COUNT(*) as row_count

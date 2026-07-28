@@ -2,21 +2,33 @@
    Seed: oklch(0.45 0.086 170) oxidized teal · copper accent */
 
 :root {
-  --bg: oklch(1 0 0);
-  --surface: oklch(0.975 0.004 170);
-  --surface-2: oklch(0.955 0.006 170);
-  --ink: oklch(0.22 0.018 170);
-  --muted: oklch(0.48 0.016 170);
-  --line: oklch(0.88 0.01 170);
-  --primary: oklch(0.42 0.09 170);
-  --primary-ink: oklch(0.985 0 0);
-  --accent: oklch(0.58 0.12 45);
-  --accent-ink: oklch(0.985 0 0);
-  --ok: oklch(0.52 0.1 155);
-  --warn: oklch(0.68 0.13 75);
-  --danger: oklch(0.55 0.16 25);
-  --focus: oklch(0.52 0.11 170);
-  --shadow: oklch(0.22 0.018 170 / 0.08);
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f7f7;
+  --ink: #000000;
+  --muted: #333333;
+  --line: #e5e5e5;
+  --primary: #fdb913;
+  --primary-ink: #000000;
+  --accent: #fdb913;
+  --accent-ink: #000000;
+  --ok: #2d6a4f;
+  --warn: #b8860b;
+  --danger: #8b0000;
+  --focus: #c99700;
+  --shadow: rgb(0 0 0 / 0.06);
+
+  --rail-bg: #ffffff;
+  --rail-ink: #000000;
+  --rail-muted: #333333;
+  --rail-line: #e5e5e5;
+  --rail-hover: #f7f7f7;
+  --rail-active-bg: #fdb913;
+  --rail-active-ink: #000000;
+  --top-bg: #ffffff;
+  --top-line: #e5e5e5;
+  --brand-mark-bg: #fdb913;
+  --brand-mark-ink: #000000;
 
   --rail: 13.5rem;
   --top: 3.25rem;
@@ -28,22 +40,36 @@
   --mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
+/* Tek tema — koyu mod devre dışı */
 [data-theme="dark"] {
-  --bg: oklch(0.14 0 0);
-  --surface: oklch(0.185 0.006 170);
-  --surface-2: oklch(0.22 0.008 170);
-  --ink: oklch(0.93 0.008 170);
-  --muted: oklch(0.7 0.014 170);
-  --line: oklch(0.3 0.01 170);
-  --primary: oklch(0.68 0.09 170);
-  --primary-ink: oklch(0.14 0 0);
-  --accent: oklch(0.72 0.11 45);
-  --accent-ink: oklch(0.16 0 0);
-  --ok: oklch(0.72 0.1 155);
-  --warn: oklch(0.78 0.12 75);
-  --danger: oklch(0.68 0.14 25);
-  --focus: oklch(0.72 0.09 170);
-  --shadow: oklch(0 0 0 / 0.35);
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f7f7f7;
+  --ink: #000000;
+  --muted: #333333;
+  --line: #e5e5e5;
+  --primary: #fdb913;
+  --primary-ink: #000000;
+  --accent: #fdb913;
+  --accent-ink: #000000;
+  --focus: #c99700;
+  --shadow: rgb(0 0 0 / 0.06);
+  --rail-bg: #ffffff;
+  --rail-ink: #000000;
+  --rail-muted: #333333;
+  --rail-line: #e5e5e5;
+  --rail-hover: #f7f7f7;
+  --rail-active-bg: #fdb913;
+  --rail-active-ink: #000000;
+  --top-bg: #ffffff;
+  --top-line: #e5e5e5;
+  --brand-mark-bg: #fdb913;
+  --brand-mark-ink: #000000;
+}
+
+#themeToggle,
+#brandThemePicker {
+  display: none !important;
 }
 
 *,
@@ -53,7 +79,7 @@
 }
 
 html {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 body {
@@ -66,6 +92,15 @@ body {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  transition: background-color 240ms var(--ease), color 240ms var(--ease);
+}
+
+.rail,
+.top,
+.card,
+.btn,
+.brand-theme-picker button {
+  transition: background-color 240ms var(--ease), color 240ms var(--ease), border-color 240ms var(--ease), box-shadow 240ms var(--ease);
 }
 
 button,
@@ -95,8 +130,9 @@ textarea {
   flex-direction: column;
   gap: 1.25rem;
   padding: 1rem 0.75rem;
-  background: var(--surface);
-  border-right: 1px solid var(--line);
+  background: var(--rail-bg, var(--surface));
+  border-right: 1px solid var(--rail-line, var(--line));
+  color: var(--rail-ink, var(--ink));
 }
 
 .brand {
@@ -110,8 +146,8 @@ textarea {
   width: 2rem;
   height: 2rem;
   border-radius: var(--radius);
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--brand-mark-bg, var(--primary));
+  color: var(--brand-mark-ink, var(--primary-ink));
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -127,14 +163,15 @@ textarea {
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: -0.01em;
+  color: var(--rail-ink, var(--ink));
 }
 
 .brand-text span {
   font-size: 0.6875rem;
-  color: var(--muted);
+  color: var(--rail-muted, var(--muted));
 }
 
-.nav {
+.rail > .nav {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -150,20 +187,21 @@ textarea {
   border: 0;
   border-radius: var(--radius);
   background: transparent;
-  color: var(--muted);
+  color: var(--rail-muted, var(--muted));
   cursor: pointer;
   text-align: left;
+  text-decoration: none;
   transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
 
 .nav-btn:hover {
-  background: var(--surface-2);
-  color: var(--ink);
+  background: var(--rail-hover, var(--surface-2));
+  color: var(--rail-ink, var(--ink));
 }
 
 .nav-btn[aria-current="page"] {
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--rail-active-bg, var(--primary));
+  color: var(--rail-active-ink, var(--primary-ink));
 }
 
 .nav-btn i {
@@ -173,7 +211,7 @@ textarea {
 
 .rail-foot {
   padding: 0.5rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--rail-line, var(--line));
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -190,8 +228,8 @@ textarea {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 999px;
-  background: color-mix(in oklch, var(--primary) 25%, var(--surface-2));
-  color: var(--primary);
+  background: color-mix(in srgb, var(--rail-active-bg, var(--primary)) 18%, var(--rail-bg, var(--surface)));
+  color: var(--rail-active-bg, var(--primary));
   display: grid;
   place-items: center;
   font-size: 0.6875rem;
@@ -207,11 +245,12 @@ textarea {
 .persona-meta strong {
   font-size: 0.75rem;
   font-weight: 600;
+  color: var(--rail-ink, var(--ink));
 }
 
 .persona-meta span {
   font-size: 0.6875rem;
-  color: var(--muted);
+  color: var(--rail-muted, var(--muted));
 }
 
 /* ── Topbar ── */
@@ -220,8 +259,8 @@ textarea {
   align-items: center;
   gap: 0.75rem;
   padding: 0 1.25rem;
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
+  border-bottom: 1px solid var(--top-line, var(--line));
+  background: var(--top-bg, var(--bg));
 }
 
 .crumb {
@@ -1050,7 +1089,7 @@ textarea {
     border-bottom: 1px solid var(--line);
   }
 
-  .nav {
+  .rail > .nav {
     flex-direction: row;
     flex: 1;
   }

@@ -433,11 +433,24 @@ body:not(.darkmode) .stat-icon {
 
 /* Contracts: spreadsheet workspace stays light; container follows theme */
 .darkmode .contract-spreadsheet-container,
-[data-theme="dark"] .contract-spreadsheet-container {
+.darkmode .contract-sheet-panel,
+[data-theme="dark"] .contract-spreadsheet-container,
+[data-theme="dark"] .contract-sheet-panel {
   background: var(--surface) !important;
   border-color: var(--line) !important;
   color: var(--ink) !important;
   box-shadow: none !important;
+}
+
+.darkmode .contract-sheet-viewport,
+[data-theme="dark"] .contract-sheet-viewport {
+  background: var(--surface-2) !important;
+  border-color: var(--line) !important;
+}
+
+.darkmode .contract-sheet-viewport .contract-spreadsheet,
+[data-theme="dark"] .contract-sheet-viewport .contract-spreadsheet {
+  background: oklch(0.98 0.002 170) !important;
 }
 
 .darkmode .contract-spreadsheet,
