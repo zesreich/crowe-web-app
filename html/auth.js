@@ -235,9 +235,11 @@ const Auth = {
             }
         }
 
-        // Fallback: local listed admins (sadece development veya Supabase yoksa)
-        // Production'da bu bölüm çalışmamalı
-        if (authAppEnv === 'production' && supabaseClient) {
+        // Fallback: config.js içindeki FALLBACK_ADMINS (ALLOW_FALLBACK_ADMINS=true ise production'da da çalışır)
+        const fallbackEnabled =
+            Object.keys(authFallbackAdmins).length > 0 && !!authFallbackDefaultPassword;
+
+        if (authAppEnv === 'production' && supabaseClient && !fallbackEnabled) {
             return { success: false, error: 'Kullanıcı bulunamadı veya şifre hatalı.' };
         }
         
@@ -246,14 +248,16 @@ const Auth = {
             return { success: false, error: 'Kullanıcı bulunamadı.' };
         }
 
-        // Production'da fallback şifre kullanılmamalı
         if (authAppEnv === 'production' && !authFallbackDefaultPassword) {
             return { success: false, error: 'Şifre değiştirilmelidir. Lütfen yönetici ile iletişime geçin.' };
         }
 
         const storedPassword = getStoredPassword(normalizedEmail) || authFallbackDefaultPassword;
-        if (!storedPassword || password !== storedPassword) {
-            return { success: false, error: 'Şifre hatalı.' };
+        const normalizePass = function (value) {
+            return String(value || '').replace(/\s+/g, '');
+        };
+        if (!storedPassword || normalizePass(password) !== normalizePass(storedPassword)) {
+            return { success: false, error: 'Şifre hatalı. Doğru format: Crowe2022! (boşluksuz)' };
         }
 
         const payload = {

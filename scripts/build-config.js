@@ -17,8 +17,12 @@ const apiBase =
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
+// ALLOW_FALLBACK_ADMINS=true ise production dahil fallback açılır.
+// Aksi halde yalnızca development'ta varsayılan olarak açıktır.
+const allowFallbackExplicit = process.env.ALLOW_FALLBACK_ADMINS === 'true';
 const allowFallback =
-  appEnv !== 'production' && process.env.ALLOW_FALLBACK_ADMINS !== 'false';
+  allowFallbackExplicit ||
+  (appEnv !== 'production' && process.env.ALLOW_FALLBACK_ADMINS !== 'false');
 
 const fallbackPassword = allowFallback
   ? process.env.FALLBACK_DEFAULT_PASSWORD || 'Crowe2022!'
@@ -27,6 +31,12 @@ const fallbackPassword = allowFallback
 const fallbackAdmins = allowFallback
   ? {
       'admin.test@crowehsy.net': { fullName: 'Admin Test', role: 'admin' },
+      'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
+      'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
+      'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
+      'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
+      'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
+      'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' }
     }
   : {};
 
@@ -51,4 +61,4 @@ if (CONFIG_APP_ENV === 'production' && (CONFIG_FALLBACK_DEFAULT_PASSWORD || Obje
 
 const outPath = path.join(__dirname, '..', 'html', 'config.js');
 fs.writeFileSync(outPath, content, 'utf8');
-console.log(`✓ config.js oluşturuldu (${appEnv}, API: ${apiBase})`);
+console.log(`✓ config.js oluşturuldu (${appEnv}, fallback=${allowFallback}, API: ${apiBase})`);
