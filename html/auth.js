@@ -217,13 +217,31 @@ async function syncSupabaseSession() {
             avatar: savedAvatar || null,
             loginTime: new Date().toISOString()
         };
+        const needsPw = userNeedsPasswordChange(email, {
+            metaRequires: supUser.user_metadata?.requires_password_change
+        });
         storeSessionLocally(payload, currentSupabaseSession.access_token, {
-            requiresPasswordChange: !!localStorage.getItem('pendingPasswordChange') ||
-                supUser.user_metadata?.requires_password_change === true
+            requiresPasswordChange: needsPw
         });
     }
     // Supabase oturumu yoksa local fallback oturumunu silme —
     // development login (FALLBACK_ADMINS) localStorage'da tutulur.
+}
+
+function truthyFlag(value) {
+    return value === true || value === 'true' || value === 1 || value === '1';
+}
+
+function userNeedsPasswordChange(email, options) {
+    options = options || {};
+    const normalized = String(email || '').toLowerCase();
+    // Bir kez başarıyla değiştirildiyse bir daha zorlanmasın
+    if (normalized && hasPasswordChanged(normalized)) {
+        return false;
+    }
+    if (options.usingDefaultPassword) return true;
+    if (truthyFlag(options.metaRequires)) return true;
+    return false;
 }
 
 const Auth = {
@@ -283,14 +301,20 @@ const Auth = {
                 if (!error && data && data.session) {
                     currentSupabaseSession = data.session;
                     const supUser = data.user;
+                    const email = String(supUser.email || '').toLowerCase();
+                    const savedName = localStorage.getItem(getDisplayNameKey(email));
+                    const savedAvatar = localStorage.getItem(getAvatarKey(email));
                     const payload = {
                         username: supUser.email,
-                        fullName: supUser.user_metadata?.full_name || supUser.email,
+                        fullName: savedName || supUser.user_metadata?.full_name || supUser.email,
                         role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+                        avatar: savedAvatar || null,
                         loginTime: new Date().toISOString()
                     };
 
-                    const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
+                    const requiresPasswordChange = userNeedsPasswordChange(email, {
+                        metaRequires: supUser.user_metadata?.requires_password_change
+                    });
                     storeSessionLocally(payload, data.session?.access_token, { requiresPasswordChange });
 
                     return { success: true, user: payload, requiresPasswordChange };
@@ -337,8 +361,11 @@ const Auth = {
             loginTime: new Date().toISOString()
         };
 
-        const needsPasswordChange = !hasPasswordChanged(normalizedEmail) ||
-            normalizedStoredPassword === String(authFallbackDefaultPassword || '').replace(/\s+/g, '');
+        const usingDefault = normalizedStoredPassword ===
+            String(authFallbackDefaultPassword || '').replace(/\s+/g, '');
+        const needsPasswordChange = userNeedsPasswordChange(normalizedEmail, {
+            usingDefaultPassword: usingDefault
+        });
 
         // Stale Supabase oturumu yerel fallback'i ezmesin
         if (supabaseClient) {
@@ -389,27 +416,37 @@ const Auth = {
             return { success: false, error: check.error };
         }
 
+        // Supabase oturumu varsa metadata + şifreyi güncelle; yoksa (fallback) lokal kayda devam et
         if (supabaseClient) {
-            const { error } = await supabaseClient.auth.updateUser({
-                password: newPassword,
-                data: {
-                    requires_password_change: false,
-                    password_hint: String(hint || '').trim()
+            try {
+                const { data: sessionWrap } = await supabaseClient.auth.getSession();
+                if (sessionWrap && sessionWrap.session) {
+                    const { error } = await supabaseClient.auth.updateUser({
+                        password: newPassword,
+                        data: {
+                            requires_password_change: false,
+                            password_hint: String(hint || '').trim()
+                        }
+                    });
+                    if (error) {
+                        return { success: false, error: error.message };
+                    }
+                    try {
+                        await supabaseClient.auth.refreshSession();
+                    } catch (refreshErr) { /* ignore */ }
                 }
-            });
-
-            if (error) {
-                return { success: false, error: error.message };
+            } catch (err) {
+                console.warn('Supabase şifre güncellemesi atlandı:', err && err.message);
             }
         }
 
         setStoredPassword(normalizedEmail, newPassword);
+        markPasswordChanged(normalizedEmail, true);
         localStorage.setItem(getHintKey(normalizedEmail), String(hint || '').trim());
         this.clearPendingPasswordChange();
 
-        if (!this.getCurrentUser() && currentUser) {
-            storeSessionLocally(currentUser, null, { requiresPasswordChange: false });
-        }
+        const token = localStorage.getItem('auth_token');
+        storeSessionLocally(currentUser, token, { requiresPasswordChange: false });
 
         return { success: true };
     },
@@ -425,6 +462,7 @@ const Auth = {
         const user = this.getCurrentUser() || this.getPendingPasswordChange();
         if (!user) return { success: false, error: 'Oturum bulunamadı.' };
         const email = String(user.username || user.email || '').toLowerCase();
+        if (!email) return { success: false, error: 'E-posta bulunamadı.' };
         const next = Object.assign({}, user);
 
         if (updates && typeof updates.fullName === 'string') {
@@ -432,6 +470,13 @@ const Auth = {
             if (name.length < 2) return { success: false, error: 'İsim en az 2 karakter olmalıdır.' };
             next.fullName = name;
             localStorage.setItem(getDisplayNameKey(email), name);
+            if (supabaseClient) {
+                supabaseClient.auth.updateUser({
+                    data: { full_name: name }
+                }).catch(function (err) {
+                    console.warn('Supabase isim güncellenemedi:', err && err.message);
+                });
+            }
         }
 
         if (updates && Object.prototype.hasOwnProperty.call(updates, 'avatar')) {
@@ -526,7 +571,9 @@ if (supabaseClient) {
                 avatar: savedAvatar || null,
                 loginTime: new Date().toISOString()
             };
-            const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
+            const requiresPasswordChange = userNeedsPasswordChange(email, {
+                metaRequires: supUser.user_metadata?.requires_password_change
+            });
             storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
         } else if (event === 'SIGNED_OUT') {
             const token = localStorage.getItem('auth_token') || '';
@@ -537,6 +584,9 @@ if (supabaseClient) {
         }
     });
 }
+
+// const/let window'a yazılmaz; shell ve sayfalar window.Auth bekliyor
+window.Auth = Auth;
 
 // Global authentication kontrolü - DOMContentLoaded ile geciktir
 if (typeof window !== 'undefined' && window.location.pathname !== '/login.html' && !window.location.pathname.includes('login.html')) {

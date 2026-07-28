@@ -123,12 +123,19 @@
       if (e.target && e.target.getAttribute("data-close") === "1") closeProfile();
     });
 
-    document.getElementById("atlasProfileSaveName").addEventListener("click", function () {
-      if (!window.Auth) return;
-      var name = document.getElementById("atlasProfileName").value;
-      var result = Auth.updateProfile({ fullName: name });
-      if (!result.success) {
-        alert(result.error || "Kaydedilemedi");
+    document.getElementById("atlasProfileSaveName").addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (!authApi || typeof authApi.updateProfile !== "function") {
+        alert("Oturum modülü yüklenemedi. Sayfayı yenileyip tekrar deneyin.");
+        return;
+      }
+      var nameInput = document.getElementById("atlasProfileName");
+      var name = nameInput ? nameInput.value : "";
+      var result = authApi.updateProfile({ fullName: name });
+      if (!result || !result.success) {
+        alert((result && result.error) || "Kaydedilemedi");
         return;
       }
       bindUser();
@@ -143,9 +150,10 @@
     });
 
     document.getElementById("atlasProfileResetPass").addEventListener("click", function () {
-      if (!window.Auth) return;
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (!authApi) return;
       if (!confirm("Şifre varsayılan haline (Crowe2022!) sıfırlansın mı? Sonraki girişte yeniden değiştirmeniz gerekir.")) return;
-      var result = Auth.resetPasswordWithDefault();
+      var result = authApi.resetPasswordWithDefault();
       if (!result.success) {
         alert(result.error || "Sıfırlanamadı");
         return;
@@ -155,7 +163,8 @@
 
     document.getElementById("atlasProfileAvatarInput").addEventListener("change", function (e) {
       var file = e.target.files && e.target.files[0];
-      if (!file || !window.Auth) return;
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (!file || !authApi) return;
       if (file.size > 800 * 1024) {
         alert("Avatar en fazla 800KB olabilir.");
         e.target.value = "";
@@ -164,7 +173,7 @@
       var reader = new FileReader();
       reader.onload = function () {
         var dataUrl = String(reader.result || "");
-        var result = Auth.updateProfile({ avatar: dataUrl });
+        var result = authApi.updateProfile({ avatar: dataUrl });
         if (!result.success) {
           alert(result.error || "Avatar kaydedilemedi");
           return;
@@ -176,20 +185,27 @@
     });
 
     document.getElementById("atlasProfileAvatarClear").addEventListener("click", function () {
-      if (!window.Auth) return;
-      Auth.updateProfile({ avatar: "" });
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (!authApi) return;
+      authApi.updateProfile({ avatar: "" });
       bindUser();
       fillProfileForm();
     });
   }
 
   function fillProfileForm() {
-    if (!window.Auth) return;
-    var user = Auth.getCurrentUser();
+    var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+    if (!authApi) return;
+    var user = authApi.getCurrentUser();
     if (!user) return;
-    document.getElementById("atlasProfileName").value = user.fullName || "";
-    document.getElementById("atlasProfileEmail").value = user.username || user.email || "";
-    var hint = Auth.getPasswordHint ? Auth.getPasswordHint() : "";
+    var email = user.username || user.email || "";
+    var savedName = "";
+    try {
+      if (email) savedName = localStorage.getItem("userDisplayName_" + String(email).toLowerCase()) || "";
+    } catch (err) {}
+    document.getElementById("atlasProfileName").value = savedName || user.fullName || "";
+    document.getElementById("atlasProfileEmail").value = email;
+    var hint = authApi.getPasswordHint ? authApi.getPasswordHint() : "";
     document.getElementById("atlasProfileHintText").textContent = "Hatırlatıcı: " + (hint || "—");
     var preview = document.getElementById("atlasProfileAvatarPreview");
     if (user.avatar) {
@@ -199,7 +215,7 @@
     } else {
       preview.style.backgroundImage = "";
       preview.classList.remove("has-image");
-      preview.textContent = initials(user.fullName || user.username || user.email);
+      preview.textContent = initials(savedName || user.fullName || user.username || user.email);
     }
   }
 
@@ -251,8 +267,9 @@
     }
 
     try {
-      if (window.Auth && typeof Auth.getCurrentUser === "function") {
-        user = Auth.getCurrentUser();
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (authApi && typeof authApi.getCurrentUser === "function") {
+        user = authApi.getCurrentUser();
       }
     } catch (e) {}
     if (!user) return;
@@ -363,8 +380,9 @@
         window.location.replace("auditor-login.html");
         return;
       }
-      if (window.Auth && typeof Auth.logout === "function") {
-        Auth.logout({ redirect: true });
+      var authApi = window.Auth || (typeof Auth !== "undefined" ? Auth : null);
+      if (authApi && typeof authApi.logout === "function") {
+        authApi.logout({ redirect: true });
         return;
       }
       try {
