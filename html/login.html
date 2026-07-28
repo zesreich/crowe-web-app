@@ -333,6 +333,12 @@
           return;
         }
         try {
+          // Eski oturum kalıntısı (ör. admin.test) yeni girişle karışmasın
+          try {
+            localStorage.removeItem('pendingPasswordChange');
+            localStorage.removeItem('auth_user');
+            localStorage.removeItem('auth_token');
+          } catch (clearErr) {}
           var result = await Auth.login(kul, pas.trim());
           if (!result.success) {
             hataAc(result.error || 'Giriş başarısız.');

@@ -629,49 +629,6 @@
             }, 100);
         });
         
-        // Update user info in topbar (same as other pages)
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-        const currentUser = Auth.getCurrentUser();
-        if (currentUser) {
-                    // username field contains the email address
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av = document.getElementById('userAvatarInitial');
-                    if (av && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
-        });
-        
-        // Also update immediately if DOM is already loaded
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(function() {
-                const currentUser = Auth.getCurrentUser();
-                if (currentUser) {
-                    const userEmail = currentUser.username || currentUser.email || currentUser.fullName || currentUser.full_name;
-                    const userEmailElement = document.getElementById('userEmail');
-                    if (userEmailElement) {
-                        userEmailElement.textContent = userEmail;
-                    }
-                    const av = document.getElementById('userAvatarInitial');
-                    if (av && userEmail) {
-                        const parts = String(userEmail).split(/[@\s.]+/).filter(Boolean);
-                        const a = (parts[0] && parts[0][0]) ? parts[0][0] : '';
-                        const b = (parts[1] && parts[1][0]) ? parts[1][0] : '';
-                        av.textContent = (a + b).toUpperCase() || 'A';
-                    }
-                }
-            }, 100);
-        }
-        
         
         const AUDITOR_SESSIONS_KEY = 'auditorSessions';
 

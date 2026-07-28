@@ -132,6 +132,9 @@
         return;
       }
       bindUser();
+      var nameEl = document.getElementById("personaName");
+      if (nameEl) nameEl.textContent = result.user.fullName;
+      fillProfileForm();
       alert("İsim güncellendi.");
     });
 
@@ -254,15 +257,26 @@
     } catch (e) {}
     if (!user) return;
 
-    var email = user.username || user.email || user.fullName || "Yönetici";
-    applyAvatarToEl(document.getElementById("userAvatarInitial"), user, email);
-    applyAvatarToEl(document.querySelector(".rail-foot .avatar"), user, email);
+    var email = user.username || user.email || "";
+    var savedName = "";
+    try {
+      if (email) savedName = localStorage.getItem("userDisplayName_" + String(email).toLowerCase()) || "";
+    } catch (e2) {}
+    var displayName = savedName || user.fullName || (email ? email.split("@")[0] : "Yönetici");
+    if (savedName && user.fullName !== savedName) {
+      user.fullName = savedName;
+      try {
+        localStorage.setItem("auth_user", JSON.stringify(user));
+      } catch (e3) {}
+    }
+    applyAvatarToEl(document.getElementById("userAvatarInitial"), user, displayName || email);
+    applyAvatarToEl(document.querySelector(".rail-foot .avatar"), user, displayName || email);
     var nameEl = document.getElementById("personaName");
-    if (nameEl) nameEl.textContent = user.fullName || email.split("@")[0];
+    if (nameEl) nameEl.textContent = displayName;
     var roleEl = document.getElementById("personaRole");
     if (roleEl) roleEl.textContent = user.role === "admin" ? "Yönetici" : "Kullanıcı";
     var emailEl = document.getElementById("userEmail");
-    if (emailEl) emailEl.textContent = email;
+    if (emailEl) emailEl.textContent = email || displayName;
   }
 
   function bindProfileTrigger() {
@@ -336,19 +350,30 @@
     if (!btn || btn.dataset.bound) return;
     btn.dataset.bound = "1";
     btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
       var auditorEmail = null;
       try {
         auditorEmail = localStorage.getItem("auditorUser");
       } catch (err) {}
       if (auditorEmail && document.body.getAttribute("data-atlas-page") === "auditor") {
-        e.preventDefault();
         localStorage.removeItem("auditorUser");
         localStorage.removeItem("auditorPendingPasswordChange");
         localStorage.removeItem("loginPortal");
-        softNavigate("auditor-login.html");
+        window.location.replace("auditor-login.html");
         return;
       }
-      if (window.Auth && Auth.logout) Auth.logout();
+      if (window.Auth && typeof Auth.logout === "function") {
+        Auth.logout({ redirect: true });
+        return;
+      }
+      try {
+        localStorage.removeItem("auth_user");
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("pendingPasswordChange");
+        localStorage.removeItem("loginPortal");
+      } catch (err2) {}
+      window.location.replace("login.html");
     });
   }
 

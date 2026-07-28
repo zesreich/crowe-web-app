@@ -192,15 +192,34 @@ async function syncSupabaseSession() {
     }
     currentSupabaseSession = data.session || null;
     if (currentSupabaseSession) {
+        const token = localStorage.getItem('auth_token') || '';
+        const isLocalFallbackToken = token.indexOf('token_') === 0;
+        if (isLocalFallbackToken) {
+            try {
+                const local = JSON.parse(localStorage.getItem('auth_user') || 'null');
+                if (local && local.username &&
+                    String(local.username).toLowerCase() !== String(currentSupabaseSession.user.email || '').toLowerCase()) {
+                    // Yerel fallback oturumu korunur; eski Supabase oturumu temizlenir
+                    supabaseClient.auth.signOut().catch(function () {});
+                    currentSupabaseSession = null;
+                    return;
+                }
+            } catch (e) { /* ignore */ }
+        }
         const supUser = currentSupabaseSession.user;
+        const email = String(supUser.email || '').toLowerCase();
+        const savedName = localStorage.getItem(getDisplayNameKey(email));
+        const savedAvatar = localStorage.getItem(getAvatarKey(email));
         const payload = {
             username: supUser.email,
-            fullName: supUser.user_metadata?.full_name || supUser.email,
+            fullName: savedName || supUser.user_metadata?.full_name || supUser.email,
             role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+            avatar: savedAvatar || null,
             loginTime: new Date().toISOString()
         };
         storeSessionLocally(payload, currentSupabaseSession.access_token, {
-            requiresPasswordChange: supUser.user_metadata?.requires_password_change === true
+            requiresPasswordChange: !!localStorage.getItem('pendingPasswordChange') ||
+                supUser.user_metadata?.requires_password_change === true
         });
     }
     // Supabase oturumu yoksa local fallback oturumunu silme —
@@ -321,6 +340,16 @@ const Auth = {
         const needsPasswordChange = !hasPasswordChanged(normalizedEmail) ||
             normalizedStoredPassword === String(authFallbackDefaultPassword || '').replace(/\s+/g, '');
 
+        // Stale Supabase oturumu yerel fallback'i ezmesin
+        if (supabaseClient) {
+            try {
+                await Promise.race([
+                    supabaseClient.auth.signOut(),
+                    new Promise(function (resolve) { setTimeout(resolve, 800); })
+                ]);
+            } catch (e) { /* ignore */ }
+        }
+
         storeSessionLocally(payload, null, { requiresPasswordChange: needsPasswordChange });
 
         return { success: true, user: payload, requiresPasswordChange: needsPasswordChange };
@@ -330,8 +359,26 @@ const Auth = {
         return validateNewPassword(password, hint);
     },
 
+    getPasswordRuleStatus: function(password, hint) {
+        const pwd = String(password || '');
+        const reminder = String(hint || '').trim();
+        const defaultPassword = String(authFallbackDefaultPassword || 'Crowe2022!');
+        return {
+            minLength: pwd.length >= 8,
+            upper: /[A-ZÇĞİÖŞÜ]/.test(pwd),
+            lower: /[a-zçğıöşü]/.test(pwd),
+            digit: /[0-9]/.test(pwd),
+            symbol: /[^A-Za-z0-9ÇĞİÖŞÜçğıöşü]/.test(pwd),
+            notDefault: pwd.length > 0 && pwd.replace(/\s+/g, '') !== defaultPassword.replace(/\s+/g, ''),
+            hintPresent: reminder.length >= 3,
+            hintNotPassword: reminder.length > 0 && reminder.toLocaleLowerCase('tr') !== pwd.toLocaleLowerCase('tr'),
+            hintNotReverse: reminder.length > 0 && reminder.toLocaleLowerCase('tr') !== reverseString(pwd).toLocaleLowerCase('tr')
+        };
+    },
+
     async changePassword(newPassword, hint) {
-        const currentUser = this.getCurrentUser() || this.getPendingPasswordChange();
+        // pendingPasswordChange öncelikli (stale auth_user karışmasın)
+        const currentUser = this.getPendingPasswordChange() || this.getCurrentUser();
         if (!currentUser) {
             return { success: false, error: 'Kullanıcı bulunamadı.' };
         }
@@ -375,7 +422,7 @@ const Auth = {
     },
 
     updateProfile: function(updates) {
-        const user = this.getCurrentUser();
+        const user = this.getCurrentUser() || this.getPendingPasswordChange();
         if (!user) return { success: false, error: 'Oturum bulunamadı.' };
         const email = String(user.username || user.email || '').toLowerCase();
         const next = Object.assign({}, user);
@@ -387,13 +434,16 @@ const Auth = {
             localStorage.setItem(getDisplayNameKey(email), name);
         }
 
-        if (updates && typeof updates.avatar === 'string') {
-            next.avatar = updates.avatar;
+        if (updates && Object.prototype.hasOwnProperty.call(updates, 'avatar')) {
+            next.avatar = updates.avatar || null;
             if (updates.avatar) localStorage.setItem(getAvatarKey(email), updates.avatar);
             else localStorage.removeItem(getAvatarKey(email));
         }
 
         localStorage.setItem('auth_user', JSON.stringify(next));
+        if (localStorage.getItem('pendingPasswordChange')) {
+            localStorage.setItem('pendingPasswordChange', JSON.stringify(next));
+        }
         return { success: true, user: next };
     },
 
@@ -409,15 +459,20 @@ const Auth = {
     },
 
     logout: async function(options = { redirect: true }) {
-        if (supabaseClient) {
-            await supabaseClient.auth.signOut();
-        }
+        try {
+            if (supabaseClient) {
+                await Promise.race([
+                    supabaseClient.auth.signOut(),
+                    new Promise(function (resolve) { setTimeout(resolve, 1200); })
+                ]);
+            }
+        } catch (e) { /* ignore */ }
         clearSessionLocally();
         localStorage.removeItem('loginPortal');
         localStorage.removeItem('auditorUser');
         this.clearPendingPasswordChange();
         if (options.redirect !== false) {
-            window.location.href = 'login.html';
+            window.location.replace('login.html');
         }
     },
 
@@ -448,17 +503,36 @@ if (supabaseClient) {
     supabaseClient.auth.onAuthStateChange((event, session) => {
         currentSupabaseSession = session;
         if (session) {
+            const token = localStorage.getItem('auth_token') || '';
+            const isLocalFallbackToken = token.indexOf('token_') === 0;
+            if (isLocalFallbackToken) {
+                try {
+                    const local = JSON.parse(localStorage.getItem('auth_user') || 'null');
+                    if (local && local.username &&
+                        String(local.username).toLowerCase() !== String(session.user.email || '').toLowerCase()) {
+                        supabaseClient.auth.signOut().catch(function () {});
+                        return;
+                    }
+                } catch (e) { /* ignore */ }
+            }
             const supUser = session.user;
+            const email = String(supUser.email || '').toLowerCase();
+            const savedName = localStorage.getItem(getDisplayNameKey(email));
+            const savedAvatar = localStorage.getItem(getAvatarKey(email));
             const payload = {
                 username: supUser.email,
-                fullName: supUser.user_metadata?.full_name || supUser.email,
+                fullName: savedName || supUser.user_metadata?.full_name || supUser.email,
                 role: supUser.app_metadata?.role || supUser.user_metadata?.role || 'admin',
+                avatar: savedAvatar || null,
                 loginTime: new Date().toISOString()
             };
             const requiresPasswordChange = supUser.user_metadata?.requires_password_change === true;
             storeSessionLocally(payload, session.access_token, { requiresPasswordChange });
         } else if (event === 'SIGNED_OUT') {
-            // Yalnızca gerçek çıkışta temizle; INITIAL_SESSION(null) fallback login'i silmesin
+            const token = localStorage.getItem('auth_token') || '';
+            if (token.indexOf('token_') === 0) {
+                return;
+            }
             clearSessionLocally();
         }
     });
