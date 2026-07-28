@@ -8,6 +8,43 @@
       "runtime": "vercel-php@0.9.0"
     }
   },
+  "redirects": [
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/home.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/html/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/html/home.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/html/index.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/generate_b10_excel",
@@ -15,7 +52,7 @@
     },
     {
       "source": "/",
-      "destination": "/html/index.html"
+      "destination": "/html/home.html"
     },
     {
       "source": "/((?!api/).*)",
