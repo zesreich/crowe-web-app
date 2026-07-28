@@ -14,12 +14,11 @@ const authFallbackDefaultPassword = (typeof window !== 'undefined' && window.FAL
 const authFallbackAdmins = (typeof window !== 'undefined' && window.FALLBACK_ADMINS)
     ? window.FALLBACK_ADMINS
     : (authAppEnv === 'production' ? {} : {
-        'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
-        'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
         'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
-        'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
+        'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
+        'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sarıad', role: 'admin' },
         'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
-        'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' }
+        'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' }
     });
 
 if (authAppEnv === 'production' && (authFallbackDefaultPassword || Object.keys(authFallbackAdmins).length > 0)) {
@@ -92,11 +91,7 @@ function storeSessionLocally(userPayload, token, metadata) {
     localStorage.setItem('auth_user', JSON.stringify(userPayload));
     localStorage.setItem('auth_token', token || generateToken());
 
-    const requiresPasswordChange =
-        metadata &&
-        metadata.requiresPasswordChange === true &&
-        userPayload &&
-        userPayload.role !== 'admin';
+    const requiresPasswordChange = !!(metadata && metadata.requiresPasswordChange === true);
 
     if (requiresPasswordChange) {
         localStorage.setItem('pendingPasswordChange', JSON.stringify(userPayload));
@@ -129,6 +124,61 @@ function hasPasswordChanged(email) {
 
 function markPasswordChanged(email, state) {
     localStorage.setItem('passwordChanged_' + email.toLowerCase(), state ? 'true' : 'false');
+}
+
+function getHintKey(email) {
+    return 'passwordHint_' + String(email || '').toLowerCase();
+}
+
+function getDisplayNameKey(email) {
+    return 'userDisplayName_' + String(email || '').toLowerCase();
+}
+
+function getAvatarKey(email) {
+    return 'userAvatar_' + String(email || '').toLowerCase();
+}
+
+function reverseString(value) {
+    return String(value || '').split('').reverse().join('');
+}
+
+function validateNewPassword(password, hint, options) {
+    options = options || {};
+    const pwd = String(password || '');
+    const reminder = String(hint || '').trim();
+    const defaultPassword = String(options.defaultPassword || authFallbackDefaultPassword || 'Crowe2022!');
+
+    if (pwd.length < 8) {
+        return { ok: false, error: 'Şifre en az 8 karakter olmalıdır.' };
+    }
+    if (!/[A-ZÇĞİÖŞÜ]/.test(pwd)) {
+        return { ok: false, error: 'Şifrede en az 1 büyük harf olmalıdır.' };
+    }
+    if (!/[a-zçğıöşü]/.test(pwd)) {
+        return { ok: false, error: 'Şifrede en az 1 küçük harf olmalıdır.' };
+    }
+    if (!/[0-9]/.test(pwd)) {
+        return { ok: false, error: 'Şifrede en az 1 rakam olmalıdır.' };
+    }
+    if (!/[^A-Za-z0-9ÇĞİÖŞÜçğıöşü]/.test(pwd)) {
+        return { ok: false, error: 'Şifrede en az 1 özel işaret olmalıdır (!@# vb.).' };
+    }
+    if (pwd.replace(/\s+/g, '') === defaultPassword.replace(/\s+/g, '')) {
+        return { ok: false, error: 'Yeni şifre varsayılan şifreyle aynı olamaz.' };
+    }
+    if (!reminder) {
+        return { ok: false, error: 'Hatırlatıcı kelime zorunludur.' };
+    }
+    if (reminder.length < 3) {
+        return { ok: false, error: 'Hatırlatıcı kelime en az 3 karakter olmalıdır.' };
+    }
+    if (reminder.toLocaleLowerCase('tr') === pwd.toLocaleLowerCase('tr')) {
+        return { ok: false, error: 'Hatırlatıcı kelime şifre ile aynı olamaz.' };
+    }
+    if (reminder.toLocaleLowerCase('tr') === reverseString(pwd).toLocaleLowerCase('tr')) {
+        return { ok: false, error: 'Hatırlatıcı kelime şifrenin tersten yazılışı olamaz.' };
+    }
+    return { ok: true };
 }
 
 async function syncSupabaseSession() {
@@ -255,48 +305,106 @@ const Auth = {
         const normalizedInputPassword = String(password || '').replace(/\s+/g, '');
         const normalizedStoredPassword = String(storedPassword || '').replace(/\s+/g, '');
         if (!storedPassword || normalizedInputPassword !== normalizedStoredPassword) {
-            return { success: false, error: 'Şifre hatalı. Doğru format: Crowe2022! (boşluksuz)' };
+            return { success: false, error: 'Şifre hatalı.' };
         }
 
+        const savedName = localStorage.getItem(getDisplayNameKey(normalizedEmail));
+        const savedAvatar = localStorage.getItem(getAvatarKey(normalizedEmail));
         const payload = {
             username: normalizedEmail,
-            fullName: adminInfo.fullName,
+            fullName: savedName || adminInfo.fullName,
             role: adminInfo.role,
+            avatar: savedAvatar || null,
             loginTime: new Date().toISOString()
         };
 
-        markPasswordChanged(normalizedEmail, true);
-        storeSessionLocally(payload, null, { requiresPasswordChange: false });
+        const needsPasswordChange = !hasPasswordChanged(normalizedEmail) ||
+            normalizedStoredPassword === String(authFallbackDefaultPassword || '').replace(/\s+/g, '');
 
-        return { success: true, user: payload, requiresPasswordChange: false };
+        storeSessionLocally(payload, null, { requiresPasswordChange: needsPasswordChange });
+
+        return { success: true, user: payload, requiresPasswordChange: needsPasswordChange };
     },
 
-    async changePassword(newPassword) {
-        const currentUser = this.getCurrentUser();
+    validatePasswordRules: function(password, hint) {
+        return validateNewPassword(password, hint);
+    },
+
+    async changePassword(newPassword, hint) {
+        const currentUser = this.getCurrentUser() || this.getPendingPasswordChange();
         if (!currentUser) {
             return { success: false, error: 'Kullanıcı bulunamadı.' };
         }
 
-        const normalizedEmail = currentUser.username.toLowerCase();
+        const normalizedEmail = String(currentUser.username || currentUser.email || '').toLowerCase();
+        const check = validateNewPassword(newPassword, hint);
+        if (!check.ok) {
+            return { success: false, error: check.error };
+        }
 
         if (supabaseClient) {
             const { error } = await supabaseClient.auth.updateUser({
                 password: newPassword,
-                data: { requires_password_change: false }
+                data: {
+                    requires_password_change: false,
+                    password_hint: String(hint || '').trim()
+                }
             });
 
             if (error) {
                 return { success: false, error: error.message };
             }
-
-            markPasswordChanged(normalizedEmail, true);
-            this.clearPendingPasswordChange();
-            await syncSupabaseSession();
-            return { success: true };
         }
 
         setStoredPassword(normalizedEmail, newPassword);
+        localStorage.setItem(getHintKey(normalizedEmail), String(hint || '').trim());
         this.clearPendingPasswordChange();
+
+        if (!this.getCurrentUser() && currentUser) {
+            storeSessionLocally(currentUser, null, { requiresPasswordChange: false });
+        }
+
+        return { success: true };
+    },
+
+    getPasswordHint: function(email) {
+        const user = this.getCurrentUser();
+        const key = email || (user && (user.username || user.email));
+        if (!key) return '';
+        return localStorage.getItem(getHintKey(key)) || '';
+    },
+
+    updateProfile: function(updates) {
+        const user = this.getCurrentUser();
+        if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+        const email = String(user.username || user.email || '').toLowerCase();
+        const next = Object.assign({}, user);
+
+        if (updates && typeof updates.fullName === 'string') {
+            const name = updates.fullName.trim();
+            if (name.length < 2) return { success: false, error: 'İsim en az 2 karakter olmalıdır.' };
+            next.fullName = name;
+            localStorage.setItem(getDisplayNameKey(email), name);
+        }
+
+        if (updates && typeof updates.avatar === 'string') {
+            next.avatar = updates.avatar;
+            if (updates.avatar) localStorage.setItem(getAvatarKey(email), updates.avatar);
+            else localStorage.removeItem(getAvatarKey(email));
+        }
+
+        localStorage.setItem('auth_user', JSON.stringify(next));
+        return { success: true, user: next };
+    },
+
+    resetPasswordWithDefault: function() {
+        const user = this.getCurrentUser();
+        if (!user) return { success: false, error: 'Oturum bulunamadı.' };
+        const email = String(user.username || user.email || '').toLowerCase();
+        localStorage.setItem(getStoredPasswordKey(email), authFallbackDefaultPassword || 'Crowe2022!');
+        markPasswordChanged(email, false);
+        localStorage.removeItem(getHintKey(email));
+        storeSessionLocally(user, localStorage.getItem('auth_token'), { requiresPasswordChange: true });
         return { success: true };
     },
 

@@ -28,13 +28,11 @@ const fallbackPassword = allowFallback
 
 const fallbackAdmins = allowFallback
   ? {
-      'admin.test@crowehsy.net': { fullName: 'Admin Test', role: 'admin' },
-      'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sariad', role: 'admin' },
-      'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
       'mert.cengiz@crowehsy.net': { fullName: 'Mert Cengiz', role: 'admin' },
-      'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
+      'ozkan.cengiz@crowehsy.net': { fullName: 'Özkan Cengiz', role: 'admin' },
+      'mehmetali.sariad@crowehsy.net': { fullName: 'Mehmet Ali Sarıad', role: 'admin' },
       'eda.sefer@crowehsy.net': { fullName: 'Eda Sefer', role: 'admin' },
-      'irem.gulmez@crowehsy.net': { fullName: 'İrem Gülmez', role: 'admin' },
+      'hakan.kilic@crowehsy.net': { fullName: 'Hakan Kılıç', role: 'admin' },
     }
   : {};
 
