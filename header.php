@@ -128,7 +128,7 @@ function menuYukle($mns, $ust,$pr,$program,$kat){
   <div id="wrapper">
 <!--     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion li-sil" id="accordionSidebar"> -->
     <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion li-sil" id="accordionSidebar">
-      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?=PREPATH.'index.php' ?>">
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?=PREPATH.'legacy-index.php' ?>">
         Crowe HSY
       </a>
       <hr class="sidebar-divider my-0">

@@ -60,7 +60,7 @@ if (file_exists(__DIR__.'/helpers/SecurityHelper.php')) {
     function hata($sonuc,$pre){
         $_SESSION['mesaj']['tur']   ='hata';
         $_SESSION['mesaj']['mesaj'] =$sonuc;
-        header('Location:'.$pre.'index.php');
+        header('Location:'.$pre.'legacy-index.php');
         exit();
     }
     
