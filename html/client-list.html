@@ -640,7 +640,18 @@
 
             // RLS authenticated ister — JWT yoksa 401 olur
             if (window.Auth && typeof Auth.ensureSupabaseSession === 'function') {
-                const sessionCheck = await Auth.ensureSupabaseSession();
+                let sessionCheck = await Auth.ensureSupabaseSession();
+                if (!sessionCheck.ok && sessionCheck.needsPassword) {
+                    const pwd = window.prompt(
+                        'Müşteri kaydı için Supabase oturumu gerekli.\nLütfen giriş şifrenizi yazın:'
+                    );
+                    if (!pwd) {
+                        const err = new Error('İşlem iptal edildi. Şifre girilmedi.');
+                        err.code = 'NO_SUPABASE_SESSION';
+                        throw err;
+                    }
+                    sessionCheck = await Auth.ensureSupabaseSession({ password: pwd });
+                }
                 if (!sessionCheck.ok) {
                     const err = new Error(sessionCheck.error || 'Supabase oturumu yok');
                     err.code = 'NO_SUPABASE_SESSION';

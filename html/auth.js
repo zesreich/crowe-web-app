@@ -292,7 +292,8 @@ const Auth = {
     },
 
     /** Supabase REST (clients vb.) için geçerli JWT oturumu garanti et */
-    ensureSupabaseSession: async function() {
+    ensureSupabaseSession: async function(options) {
+        options = options || {};
         if (!supabaseClient) {
             return { ok: false, error: 'Supabase bağlantısı yok.' };
         }
@@ -305,40 +306,66 @@ const Auth = {
         } catch (e) { /* continue */ }
 
         const user = this.getCurrentUser() || this.getPendingPasswordChange();
-        const email = String((user && (user.username || user.email)) || '').toLowerCase();
-        const stored = email ? getStoredPassword(email) : null;
-        if (!email || !stored) {
+        const email = String(
+            options.email ||
+            (user && (user.username || user.email)) ||
+            ''
+        ).toLowerCase();
+
+        if (!email) {
             return {
                 ok: false,
-                error: 'Supabase oturumu yok. Çıkış yapıp e-posta ve şifrenizle tekrar giriş yapın.'
+                error: 'Oturum e-postası bulunamadı. Çıkış yapıp tekrar giriş yapın.'
             };
         }
 
-        try {
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: stored
-            });
-            if (error || !data || !data.session) {
-                return {
-                    ok: false,
-                    error: 'Supabase oturumu yenilenemedi. Çıkış yapıp tekrar giriş yapın.'
-                };
+        const defaultPassword = authFallbackDefaultPassword || 'Crowe2022!';
+        const candidates = [];
+        if (options.password) candidates.push(String(options.password));
+        const stored = getStoredPassword(email);
+        if (stored) candidates.push(stored);
+        // Son çare: varsayılan (sunucu henüz güncellenmemiş olabilir)
+        if (defaultPassword) candidates.push(defaultPassword);
+
+        const tried = {};
+        let lastError = null;
+        for (let i = 0; i < candidates.length; i++) {
+            const pwd = candidates[i];
+            const key = String(pwd || '');
+            if (!key || tried[key]) continue;
+            tried[key] = true;
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: pwd
+                });
+                if (!error && data && data.session) {
+                    currentSupabaseSession = data.session;
+                    setStoredPassword(email, pwd);
+                    if (pwd.replace(/\s+/g, '') !== String(defaultPassword).replace(/\s+/g, '')) {
+                        markPasswordChanged(email, true);
+                    }
+                    const payload = Object.assign({}, user || {}, {
+                        username: email,
+                        loginTime: new Date().toISOString()
+                    });
+                    storeSessionLocally(payload, data.session.access_token, {
+                        requiresPasswordChange: false
+                    });
+                    return { ok: true, session: data.session };
+                }
+                lastError = error;
+            } catch (err) {
+                lastError = err;
             }
-            currentSupabaseSession = data.session;
-            const token = data.session.access_token;
-            storeSessionLocally(
-                Object.assign({}, user, { username: email }),
-                token,
-                { requiresPasswordChange: false }
-            );
-            return { ok: true, session: data.session };
-        } catch (err) {
-            return {
-                ok: false,
-                error: 'Supabase oturumu açılamadı: ' + (err && err.message ? err.message : 'bilinmeyen hata')
-            };
         }
+
+        return {
+            ok: false,
+            error: 'Supabase oturumu açılamadı. Lütfen şifrenizi girin veya çıkış yapıp yeniden giriş yapın.',
+            needsPassword: true,
+            detail: lastError && lastError.message ? lastError.message : null
+        };
     },
 
     async login(username, password) {
@@ -444,26 +471,75 @@ const Auth = {
             }
         }
 
-        // Supabase "şifre hatalı" dediysa fallback asla Crowe2022! ile içeri almasın
+        // Supabase "şifre hatalı" — yerel/sunucu şifresi ayrışmış olabilir; onar
         if (supabaseUserExistsWrongPassword) {
-            if (passwordAlreadyChanged && localStoredNorm && normalizedInputPassword === localStoredNorm) {
-                // Sunucu güncellenememiş olabilir; yerel yeni şifre ile sınırlı oturum
-                const adminInfo = authFallbackAdmins[normalizedEmail] || { fullName: normalizedEmail, role: 'admin' };
-                const payload = buildPayload(adminInfo);
-                storeSessionLocally(payload, null, { requiresPasswordChange: false });
-                return { success: true, user: payload, requiresPasswordChange: false };
+            if (
+                passwordAlreadyChanged &&
+                localStoredNorm &&
+                normalizedInputPassword === localStoredNorm &&
+                supabaseClient
+            ) {
+                try {
+                    // Sunucuda hâlâ varsayılan olabilir → giriş + yeni şifreye yükselt
+                    const { data: oldLogin, error: oldErr } = await supabaseClient.auth.signInWithPassword({
+                        email: normalizedEmail,
+                        password: authFallbackDefaultPassword || 'Crowe2022!'
+                    });
+                    if (!oldErr && oldLogin && oldLogin.session) {
+                        const { error: upErr } = await supabaseClient.auth.updateUser({
+                            password: password,
+                            data: {
+                                requires_password_change: false,
+                                password_changed: true
+                            }
+                        });
+                        if (!upErr) {
+                            try { await supabaseClient.auth.signOut(); } catch (e) { /* ignore */ }
+                            const { data: newLogin, error: newErr } = await supabaseClient.auth.signInWithPassword({
+                                email: normalizedEmail,
+                                password: password
+                            });
+                            if (!newErr && newLogin && newLogin.session) {
+                                currentSupabaseSession = newLogin.session;
+                                setStoredPassword(normalizedEmail, password);
+                                markPasswordChanged(normalizedEmail, true);
+                                const adminInfo = authFallbackAdmins[normalizedEmail] || {
+                                    fullName: normalizedEmail.split('@')[0],
+                                    role: 'admin'
+                                };
+                                const payload = buildPayload(adminInfo);
+                                storeSessionLocally(payload, newLogin.session.access_token, {
+                                    requiresPasswordChange: false
+                                });
+                                return { success: true, user: payload, requiresPasswordChange: false };
+                            }
+                        }
+                    }
+                } catch (migrateErr) {
+                    console.warn('Şifre senkron onarımı başarısız:', migrateErr && migrateErr.message);
+                }
             }
             return { success: false, error: 'Şifre hatalı.' };
         }
 
-        // 2) Fallback — yalnızca Supabase'e ulaşılamadıysa veya kullanıcı yoksa
+        // 2) Fallback — yalnızca Supabase yoksa veya ağ hatası varsa
+        if (supabaseClient && !supabaseAuthError) {
+            // Supabase cevap verdi ama kullanıcı yok / beklenmeyen durum
+            return { success: false, error: 'Kullanıcı bulunamadı veya şifre hatalı.' };
+        }
+
+        if (supabaseClient && supabaseAuthError) {
+            // Ağ / servis hatası — kontrollü fallback
+            console.warn('Supabase erişilemedi, fallback deneniyor:', supabaseAuthError && supabaseAuthError.message);
+        }
+
         if (authAppEnv === 'production' && supabaseClient && Object.keys(authFallbackAdmins).length === 0) {
             return { success: false, error: 'Kullanıcı bulunamadı veya şifre hatalı.' };
         }
 
         const adminInfo = authFallbackAdmins[normalizedEmail];
         if (!adminInfo) {
-            return { success: false, error: supabaseAuthError ? 'Şifre hatalı.' : 'Kullanıcı bulunamadı.' };
+            return { success: false, error: 'Kullanıcı bulunamadı veya şifre hatalı.' };
         }
 
         if (authAppEnv === 'production' && !authFallbackDefaultPassword) {
@@ -480,19 +556,16 @@ const Auth = {
             return { success: false, error: 'Şifre hatalı.' };
         }
 
+        // Supabase varken mümkünse yine de gerçek oturum açmayı dene (yukarıda başarısız oldu)
+        // Fallback oturumu yalnız acil durum — DB yazmaları için sonra şifre sorulacak
         const payload = buildPayload(adminInfo);
         const usingDefault = normalizedInputPassword === defaultPasswordNorm;
         const needsPasswordChange = userNeedsPasswordChange(normalizedEmail, {
             usingDefaultPassword: usingDefault
         });
 
-        if (supabaseClient) {
-            try {
-                await Promise.race([
-                    supabaseClient.auth.signOut(),
-                    new Promise(function (resolve) { setTimeout(resolve, 800); })
-                ]);
-            } catch (e) { /* ignore */ }
+        if (!usingDefault) {
+            setStoredPassword(normalizedEmail, password);
         }
 
         storeSessionLocally(payload, null, { requiresPasswordChange: needsPasswordChange });
