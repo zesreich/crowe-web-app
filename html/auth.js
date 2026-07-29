@@ -248,7 +248,18 @@ const Auth = {
                 password: password
             });
             if (error || !data || !data.session) {
-                return { success: false, error: 'E-posta veya şifre hatalı.' };
+                console.warn('Supabase login failed:', error && (error.message || error.code || error));
+                const code = String((error && (error.code || error.error_code)) || '');
+                if (code === 'email_not_confirmed') {
+                    return { success: false, error: 'E-posta henüz onaylanmamış. Supabase’de kullanıcıyı onaylayın.' };
+                }
+                if (code === 'invalid_credentials' || (error && error.status === 400)) {
+                    return {
+                        success: false,
+                        error: 'E-posta veya şifre hatalı (Supabase). Şifreyi bilmiyorsanız SQL Editor’da supabase-reset-admin-passwords.sql çalıştırıp Crowe2022! ile girin.'
+                    };
+                }
+                return { success: false, error: (error && error.message) || 'E-posta veya şifre hatalı.' };
             }
 
             currentSupabaseSession = data.session;
