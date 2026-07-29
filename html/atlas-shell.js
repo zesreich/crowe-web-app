@@ -287,6 +287,7 @@
       } catch (e3) {}
     }
     applyAvatarToEl(document.getElementById("userAvatarInitial"), user, displayName || email);
+    applyAvatarToEl(document.querySelector(".top-persona .avatar"), user, displayName || email);
     applyAvatarToEl(document.querySelector(".rail-foot .avatar"), user, displayName || email);
     var nameEl = document.getElementById("personaName");
     if (nameEl) nameEl.textContent = displayName;
@@ -297,7 +298,7 @@
   }
 
   function bindProfileTrigger() {
-    var persona = document.querySelector(".rail-foot .persona");
+    var persona = document.querySelector(".top-persona.persona") || document.querySelector(".rail-foot .persona");
     if (!persona || persona.dataset.profileBound) return;
     if (document.body.getAttribute("data-atlas-page") === "auditor") return;
     persona.dataset.profileBound = "1";
