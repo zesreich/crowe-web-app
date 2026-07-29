@@ -15,6 +15,8 @@
                     window.__supabaseClientInstance = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
                         auth: {
                             persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: true,
                             storage: window.localStorage
                         }
                     });
@@ -56,6 +58,8 @@ window.getSupabaseClient = function() {
             window.__supabaseClientInstance = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY, {
                 auth: {
                     persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true,
                     storage: window.localStorage
                 }
             });

@@ -17,10 +17,8 @@ const apiBase =
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || '';
 
-// ALLOW_FALLBACK_ADMINS=true ise production'da da fallback açılır (açıkça istenmişse).
-const allowFallback =
-  process.env.ALLOW_FALLBACK_ADMINS === 'true' ||
-  (appEnv !== 'production' && process.env.ALLOW_FALLBACK_ADMINS !== 'false');
+// ALLOW_FALLBACK_ADMINS=true yalnızca açıkça istenirse (artık auth.js kullanmıyor; UI listeleri için).
+const allowFallback = process.env.ALLOW_FALLBACK_ADMINS === 'true';
 
 const fallbackPassword = allowFallback
   ? process.env.FALLBACK_DEFAULT_PASSWORD || 'Crowe2022!'

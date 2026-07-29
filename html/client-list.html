@@ -597,67 +597,47 @@
             return query.eq('vergi_no', clientId);
         }
 
-        // Client Management Functions with Supabase
+        async function requireLiveSupabaseSession() {
+            if (!window.Auth || typeof Auth.ensureSupabaseSession !== 'function') {
+                const err = new Error('Kimlik doğrulama yüklenemedi. Sayfayı yenileyin.');
+                err.code = 'NO_AUTH';
+                throw err;
+            }
+            const sessionCheck = await Auth.ensureSupabaseSession();
+            if (!sessionCheck.ok) {
+                const err = new Error(sessionCheck.error || 'Supabase oturumu yok. Çıkış yapıp tekrar giriş yapın.');
+                err.code = 'NO_SUPABASE_SESSION';
+                err.redirectLogin = !!sessionCheck.redirectLogin;
+                throw err;
+            }
+            return sessionCheck.session;
+        }
+
+        // Client Management Functions with Supabase (localStorage client verisi yok)
         async function getClientsFromSupabase() {
             const supabase = resolveSupabaseClient();
             if (!supabase) {
-                // Fallback to localStorage if Supabase not available
-                const clients = localStorage.getItem('clients');
-                return clients ? JSON.parse(clients) : [];
+                throw new Error('Supabase bağlantısı yok. Sayfayı yenileyip tekrar deneyin.');
             }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('clients')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-                
-                if (error) {
-                    console.error('Supabase error:', error);
-                    // Fallback to localStorage
-                    const clients = localStorage.getItem('clients');
-                    return clients ? JSON.parse(clients) : [];
-                }
-                
-                return data || [];
-            } catch (error) {
-                console.error('Error fetching clients:', error);
-                // Fallback to localStorage
-                const clients = localStorage.getItem('clients');
-                return clients ? JSON.parse(clients) : [];
+            await requireLiveSupabaseSession();
+            const { data, error } = await supabase
+                .from('clients')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) {
+                console.error('Supabase error:', error);
+                throw new Error(error.message || 'Müşteriler yüklenemedi.');
             }
+            return data || [];
         }
         
         async function addClientToSupabase(client) {
             const supabase = resolveSupabaseClient();
             if (!supabase) {
-                // Fallback to localStorage
-                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                clients.push(client);
-                localStorage.setItem('clients', JSON.stringify(clients));
-                return { success: true, data: client };
+                throw new Error('Supabase bağlantısı yok. Sayfayı yenileyip tekrar deneyin.');
             }
 
-            // RLS authenticated ister — JWT yoksa 401 olur
-            if (window.Auth && typeof Auth.ensureSupabaseSession === 'function') {
-                let sessionCheck = await Auth.ensureSupabaseSession();
-                if (!sessionCheck.ok && sessionCheck.needsPassword) {
-                    const pwd = window.prompt(
-                        'Müşteri kaydı için Supabase oturumu gerekli.\nLütfen giriş şifrenizi yazın:'
-                    );
-                    if (!pwd) {
-                        const err = new Error('İşlem iptal edildi. Şifre girilmedi.');
-                        err.code = 'NO_SUPABASE_SESSION';
-                        throw err;
-                    }
-                    sessionCheck = await Auth.ensureSupabaseSession({ password: pwd });
-                }
-                if (!sessionCheck.ok) {
-                    const err = new Error(sessionCheck.error || 'Supabase oturumu yok');
-                    err.code = 'NO_SUPABASE_SESSION';
-                    throw err;
-                }
-            }
+            await requireLiveSupabaseSession();
             
             try {
                 const { data, error } = await supabase
@@ -688,98 +668,35 @@
         async function updateClientInSupabase(clientId, client) {
             const supabase = resolveSupabaseClient();
             if (!supabase) {
-                // Fallback to localStorage
-                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                const index = clients.findIndex(c => (c.id || c.vergi_no || `local_${clients.indexOf(c)}`) === clientId);
-                if (index !== -1) {
-                    clients[index] = Object.assign({}, clients[index], {
-                        vergiNo: client.vergiNo,
-                        vergi_no: client.vergiNo,
-                        unvan: client.unvan,
-                        vergiDairesi: client.vergiDairesi,
-                        vergi_dairesi: client.vergiDairesi,
-                        ekip: client.ekip,
-                        isBlacklisted: client.isBlacklisted,
-                        is_blacklisted: client.isBlacklisted,
-                        blacklistReason: client.blacklistReason,
-                        blacklist_reason: client.blacklistReason,
-                        uygulamaci: client.uygulamaci,
-                        partner: client.partner,
-                        ekipLideri: client.ekipLideri,
-                        ekip_lideri: client.ekipLideri
-                    });
-                    localStorage.setItem('clients', JSON.stringify(clients));
-                }
-                return { success: true };
+                throw new Error('Supabase bağlantısı yok. Sayfayı yenileyip tekrar deneyin.');
             }
-            
-            try {
-                const isUUID = isClientUUID(clientId);
-
-                if (!isUUID && clientId.startsWith('local_')) {
-                    // localStorage fallback
-                    const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                    const index = parseInt(clientId.replace('local_', ''));
-                    if (clients[index]) {
-                        clients[index] = { ...clients[index], ...client };
-                        localStorage.setItem('clients', JSON.stringify(clients));
-                    }
-                    return { success: true };
-                }
-
-                const { error } = await applyClientIdFilter(
-                    supabase.from('clients').update(buildClientPayload(client)),
-                    clientId
-                );
-                
-                if (error) throw error;
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error updating client:', error);
-                throw error;
+            await requireLiveSupabaseSession();
+            if (!isClientUUID(clientId) && String(clientId).indexOf('local_') === 0) {
+                throw new Error('Bu kayıt yalnızca yerel kopyada. Supabase üzerinden yeniden ekleyin.');
             }
+            const { error } = await applyClientIdFilter(
+                supabase.from('clients').update(buildClientPayload(client)),
+                clientId
+            );
+            if (error) throw error;
+            return { success: true };
         }
         
         async function deleteClientFromSupabase(clientId) {
             const supabase = resolveSupabaseClient();
             if (!supabase) {
-                // Fallback to localStorage
-                const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                const index = clients.findIndex(c => (c.id || c.vergi_no || `local_${clients.indexOf(c)}`) === clientId);
-                if (index !== -1) {
-                    clients.splice(index, 1);
-                    localStorage.setItem('clients', JSON.stringify(clients));
-                }
-                return { success: true };
+                throw new Error('Supabase bağlantısı yok. Sayfayı yenileyip tekrar deneyin.');
             }
-            
-            try {
-                const isUUID = isClientUUID(clientId);
-
-                if (!isUUID && clientId.startsWith('local_')) {
-                    // localStorage fallback
-                    const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-                    const index = parseInt(clientId.replace('local_', ''));
-                    if (clients[index]) {
-                        clients.splice(index, 1);
-                        localStorage.setItem('clients', JSON.stringify(clients));
-                    }
-                    return { success: true };
-                }
-
-                const { error } = await applyClientIdFilter(
-                    supabase.from('clients').delete(),
-                    clientId
-                );
-                
-                if (error) throw error;
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error deleting client:', error);
-                throw error;
+            await requireLiveSupabaseSession();
+            if (!isClientUUID(clientId) && String(clientId).indexOf('local_') === 0) {
+                throw new Error('Bu kayıt yalnızca yerel kopyada. Sayfayı yenileyip tekrar deneyin.');
             }
+            const { error } = await applyClientIdFilter(
+                supabase.from('clients').delete(),
+                clientId
+            );
+            if (error) throw error;
+            return { success: true };
         }
         
         // XSS koruması için HTML escape fonksiyonu
@@ -795,16 +712,17 @@
         }
         
         async function renderClientsFromSupabase() {
-            const clients = await getClientsFromSupabase();
-            if (typeof AuditorWorkspace !== 'undefined') {
-                AuditorWorkspace.syncWorkspacesFromClients(clients);
-            }
             const tbody = document.querySelector('#tablebot tbody');
-            tbody.innerHTML = '';
-            
-            clients.forEach((client, index) => {
-                const normalized = normalizeClientFromDb(client);
-                const displayId = index + 1;
+            try {
+                const clients = await getClientsFromSupabase();
+                if (typeof AuditorWorkspace !== 'undefined') {
+                    AuditorWorkspace.syncWorkspacesFromClients(clients);
+                }
+                tbody.innerHTML = '';
+                
+                clients.forEach((client, index) => {
+                    const normalized = normalizeClientFromDb(client);
+                    const displayId = index + 1;
                 const clientId = client.id || client.vergi_no || client.vergiNo || `local_${index}`;
                 const tr = document.createElement('tr');
                 tr.className = 'listeEleman' + (normalized.isBlacklisted ? ' is-blacklisted-row' : '');
@@ -929,6 +847,14 @@
             // Reset select all checkbox
             document.getElementById('selectAllCheckbox').checked = false;
             updateDeleteButtonState();
+            } catch (error) {
+                console.error('renderClientsFromSupabase:', error);
+                if (tbody) tbody.innerHTML = '';
+                showToast((error && error.message) || 'Müşteri listesi yüklenemedi.', 'error');
+                if (error && (error.code === 'NO_SUPABASE_SESSION' || error.redirectLogin)) {
+                    setTimeout(function () { window.location.href = 'login.html'; }, 1200);
+                }
+            }
         }
         
         // Toplu seçim/silme fonksiyonları
@@ -991,53 +917,41 @@
             }
             
             try {
+                await requireLiveSupabaseSession();
                 const supabase = resolveSupabaseClient();
+                if (!supabase) throw new Error('Supabase bağlantısı yok.');
                 const clients = await getClientsFromSupabase();
                 const selectedIndices = Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-index')));
-                
-                // Seçili client'ları sil
-                if (supabase) {
-                    // Supabase'den toplu silme
-                    const selectedClients = selectedIndices
-                        .map(index => clients[index])
-                        .filter(client => client && client.id);
-                    
-                    if (selectedClients.length > 0) {
-                        const uuidIds = selectedClients
-                            .map(client => client.id)
-                            .filter(id => isClientUUID(id));
-                        const vergiNos = selectedClients
-                            .map(client => client.vergi_no || client.vergiNo)
-                            .filter(vn => vn && !isClientUUID(vn));
+                const selectedClients = selectedIndices
+                    .map(index => clients[index])
+                    .filter(client => client && client.id);
 
-                        if (uuidIds.length > 0) {
-                            const { error } = await supabase.from('clients').delete().in('id', uuidIds);
-                            if (error) throw error;
-                        }
-                        for (const vergiNo of vergiNos) {
-                            const { error } = await supabase.from('clients').delete().eq('vergi_no', vergiNo);
-                            if (error) throw error;
-                        }
+                if (selectedClients.length > 0) {
+                    const uuidIds = selectedClients
+                        .map(client => client.id)
+                        .filter(id => isClientUUID(id));
+                    const vergiNos = selectedClients
+                        .map(client => client.vergi_no || client.vergiNo)
+                        .filter(vn => vn && !isClientUUID(vn));
+
+                    if (uuidIds.length > 0) {
+                        const { error } = await supabase.from('clients').delete().in('id', uuidIds);
+                        if (error) throw error;
                     }
-                    
-                    // localStorage fallback için de sil
-                    const localStorageClients = JSON.parse(localStorage.getItem('clients') || '[]');
-                    const filteredClients = localStorageClients.filter((_, index) => !selectedIndices.includes(index));
-                    localStorage.setItem('clients', JSON.stringify(filteredClients));
-                } else {
-                    // Sadece localStorage
-                    const localStorageClients = JSON.parse(localStorage.getItem('clients') || '[]');
-                    const filteredClients = localStorageClients.filter((_, index) => !selectedIndices.includes(index));
-                    localStorage.setItem('clients', JSON.stringify(filteredClients));
+                    for (const vergiNo of vergiNos) {
+                        const { error } = await supabase.from('clients').delete().eq('vergi_no', vergiNo);
+                        if (error) throw error;
+                    }
                 }
-                
-                // Tabloyu yeniden render et
+
                 await renderClientsFromSupabase();
-                
                 showToast(`${checkboxes.length} müşteri başarıyla silindi!`, 'success');
             } catch (error) {
                 console.error('Error deleting clients:', error);
-                showToast('Müşteriler silinirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                showToast((error && error.message) || 'Müşteriler silinirken bir hata oluştu.', 'error');
+                if (error && (error.code === 'NO_SUPABASE_SESSION' || error.redirectLogin)) {
+                    setTimeout(function () { window.location.href = 'login.html'; }, 1200);
+                }
             }
         }
         
@@ -1195,49 +1109,34 @@
                     
                     // Supabase'e ekle
                     const supabase = resolveSupabaseClient();
-                    if (supabase) {
-                        try {
-                            // Batch insert to Supabase
-                            const clientsToInsert = newClients.map(client => buildClientPayload(client));
-                            
-                            const { data, error } = await supabase
-                                .from('clients')
-                                .insert(clientsToInsert)
-                                .select();
-                            
-                            if (error) {
-                                console.error('Supabase batch insert error:', error);
-                                throw error;
-                            }
-                            
-                            // Tabloyu yeniden render et
-                            await renderClientsFromSupabase();
-                            
-                            let message = `${newClients.length} müşteri başarıyla içe aktarıldı ve Supabase'e kaydedildi!`;
-                            if (skippedClients.length > 0) {
-                                message += `\n\n${skippedClients.length} müşteri atlandı (zaten mevcut): ${skippedClients.slice(0, 5).join(', ')}${skippedClients.length > 5 ? '...' : ''}`;
-                            }
-                            showToast(message.replace(/\n/g, '<br>'), 'success');
-                        } catch (error) {
-                            console.error('Error importing to Supabase:', error);
-                            showToast('Supabase\'e kaydedilirken bir hata oluştu. Veriler localStorage\'a kaydedildi.', 'error');
-                            // Fallback to localStorage
-                            const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
-                            const allClients = [...existingClients, ...newClients];
-                            localStorage.setItem('clients', JSON.stringify(allClients));
-                            await renderClientsFromSupabase();
+                    if (!supabase) {
+                        showToast('Supabase bağlantısı yok. İçe aktarma yapılamadı.', 'error');
+                        e.target.value = '';
+                        return;
+                    }
+                    try {
+                        await requireLiveSupabaseSession();
+                        const clientsToInsert = newClients.map(client => buildClientPayload(client));
+                        const { error } = await supabase
+                            .from('clients')
+                            .insert(clientsToInsert)
+                            .select();
+                        if (error) {
+                            console.error('Supabase batch insert error:', error);
+                            throw error;
                         }
-                    } else {
-                        // Fallback to localStorage
-                        const existingClients = JSON.parse(localStorage.getItem('clients') || '[]');
-                        const allClients = [...existingClients, ...newClients];
-                        localStorage.setItem('clients', JSON.stringify(allClients));
                         await renderClientsFromSupabase();
-                        let message = `${newClients.length} müşteri başarıyla içe aktarıldı ve localStorage'a kaydedildi!`;
+                        let message = `${newClients.length} müşteri başarıyla içe aktarıldı!`;
                         if (skippedClients.length > 0) {
                             message += `\n\n${skippedClients.length} müşteri atlandı (zaten mevcut): ${skippedClients.slice(0, 5).join(', ')}${skippedClients.length > 5 ? '...' : ''}`;
                         }
-                        alert(message);
+                        showToast(message.replace(/\n/g, '<br>'), 'success');
+                    } catch (error) {
+                        console.error('Error importing to Supabase:', error);
+                        showToast((error && error.message) || 'Supabase\'e kaydedilirken bir hata oluştu.', 'error');
+                        if (error && (error.code === 'NO_SUPABASE_SESSION' || error.redirectLogin)) {
+                            setTimeout(function () { window.location.href = 'login.html'; }, 1200);
+                        }
                     }
                     
                     // Input'u sıfırla
@@ -1386,6 +1285,9 @@
                     (error && error.message) ? error.message : 'Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.',
                     'error'
                 );
+                if (error && (error.code === 'NO_SUPABASE_SESSION' || error.redirectLogin)) {
+                    setTimeout(function () { window.location.href = 'login.html'; }, 1200);
+                }
             }
         }
     </script>
