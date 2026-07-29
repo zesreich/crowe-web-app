@@ -291,6 +291,56 @@ const Auth = {
         localStorage.removeItem('pendingPasswordChange');
     },
 
+    /** Supabase REST (clients vb.) için geçerli JWT oturumu garanti et */
+    ensureSupabaseSession: async function() {
+        if (!supabaseClient) {
+            return { ok: false, error: 'Supabase bağlantısı yok.' };
+        }
+        try {
+            const { data: sessionWrap } = await supabaseClient.auth.getSession();
+            if (sessionWrap && sessionWrap.session) {
+                currentSupabaseSession = sessionWrap.session;
+                return { ok: true, session: sessionWrap.session };
+            }
+        } catch (e) { /* continue */ }
+
+        const user = this.getCurrentUser() || this.getPendingPasswordChange();
+        const email = String((user && (user.username || user.email)) || '').toLowerCase();
+        const stored = email ? getStoredPassword(email) : null;
+        if (!email || !stored) {
+            return {
+                ok: false,
+                error: 'Supabase oturumu yok. Çıkış yapıp e-posta ve şifrenizle tekrar giriş yapın.'
+            };
+        }
+
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: stored
+            });
+            if (error || !data || !data.session) {
+                return {
+                    ok: false,
+                    error: 'Supabase oturumu yenilenemedi. Çıkış yapıp tekrar giriş yapın.'
+                };
+            }
+            currentSupabaseSession = data.session;
+            const token = data.session.access_token;
+            storeSessionLocally(
+                Object.assign({}, user, { username: email }),
+                token,
+                { requiresPasswordChange: false }
+            );
+            return { ok: true, session: data.session };
+        } catch (err) {
+            return {
+                ok: false,
+                error: 'Supabase oturumu açılamadı: ' + (err && err.message ? err.message : 'bilinmeyen hata')
+            };
+        }
+    },
+
     async login(username, password) {
         const normalizedEmail = username ? username.toLowerCase().trim() : '';
         const normalizedInputPassword = String(password || '').replace(/\s+/g, '');

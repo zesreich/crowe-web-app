@@ -387,13 +387,24 @@
     <script>
         // Check authentication on page load (DOMContentLoaded ile geciktir)
         document.addEventListener('DOMContentLoaded', function() {
+            // Modal çarpı butonları (ikon tıklanınca da kapansın)
+            document.querySelectorAll('.atlas-modal .close[data-dismiss="modal"]').forEach(function (btn) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var modal = btn.closest('.modal');
+                    if (modal && window.jQuery) {
+                        jQuery(modal).modal('hide');
+                    }
+                });
+            });
             setTimeout(function() {
                 if (typeof Auth !== 'undefined' && !Auth.isAuthenticated()) {
-            window.location.href = 'login.html';
-        }
+                    window.location.href = 'login.html';
+                }
             }, 100);
         });
-        
+
         // Update user info in topbar (same as other pages)
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
@@ -461,7 +472,7 @@
                 <div class="toast-header ${bgColor} text-white border-0" style="padding: 12px 16px;">
                     <i class="fas ${icon} mr-2"></i>
                     <strong class="mr-auto">${type === 'success' ? 'Başarılı' : type === 'error' ? 'Hata' : 'Bilgi'}</strong>
-                    <button type="button" class="ml-2 mb-1 close text-white" data-dismiss="toast" aria-label="Close" style="opacity: 0.8;">
+                    <button type="button" class="ml-2 mb-1 close text-white toast-close-btn" aria-label="Close" style="opacity: 0.8;">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -471,6 +482,12 @@
             `;
             
             container.appendChild(toast);
+
+            toast.querySelector('.toast-close-btn').addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                try { $(toast).toast('hide'); } catch (err) { toast.remove(); }
+            });
             
             // Bootstrap 4 toast initialization
             $(toast).toast({
@@ -620,6 +637,16 @@
                 localStorage.setItem('clients', JSON.stringify(clients));
                 return { success: true, data: client };
             }
+
+            // RLS authenticated ister — JWT yoksa 401 olur
+            if (window.Auth && typeof Auth.ensureSupabaseSession === 'function') {
+                const sessionCheck = await Auth.ensureSupabaseSession();
+                if (!sessionCheck.ok) {
+                    const err = new Error(sessionCheck.error || 'Supabase oturumu yok');
+                    err.code = 'NO_SUPABASE_SESSION';
+                    throw err;
+                }
+            }
             
             try {
                 const { data, error } = await supabase
@@ -630,7 +657,14 @@
                 
                 if (error) {
                     console.error('Supabase insert error:', error);
-                    throw error;
+                    const msg = error.message || error.hint || 'Kayıt başarısız';
+                    const enriched = new Error(
+                        (error.code === '42501' || String(error.message || '').includes('401') || error.status === 401)
+                            ? 'Yetki hatası (401). Çıkış yapıp tekrar giriş yapın; ardından müşteriyi ekleyin.'
+                            : msg
+                    );
+                    enriched.cause = error;
+                    throw enriched;
                 }
                 
                 return { success: true, data: data };
@@ -1337,7 +1371,10 @@
                 showToast('Müşteri eklendi ve denetim workspace şablonu oluşturuldu.', 'success');
             } catch (error) {
                 console.error('Error adding client:', error);
-                showToast('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.', 'error');
+                showToast(
+                    (error && error.message) ? error.message : 'Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.',
+                    'error'
+                );
             }
         }
     </script>

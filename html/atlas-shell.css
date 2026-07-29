@@ -1281,6 +1281,11 @@ body.atlas-page-leave .page-content {
   letter-spacing: -0.02em;
 }
 
+.atlas-profile-head .icon-btn i,
+.atlas-modal .close span {
+  pointer-events: none;
+}
+
 .atlas-profile-body {
   padding: 1rem;
 }

@@ -120,7 +120,16 @@
     document.body.appendChild(wrap);
 
     wrap.addEventListener("click", function (e) {
-      if (e.target && e.target.getAttribute("data-close") === "1") closeProfile();
+      if (e.target && e.target.closest && e.target.closest("[data-close='1']")) {
+        e.preventDefault();
+        e.stopPropagation();
+        closeProfile();
+      }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      var modal = document.getElementById("atlasProfileModal");
+      if (modal && !modal.hidden) closeProfile();
     });
 
     document.getElementById("atlasProfileSaveName").addEventListener("click", function (e) {
