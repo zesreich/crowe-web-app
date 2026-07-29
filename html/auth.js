@@ -289,6 +289,63 @@ const Auth = {
 
     async login(username, password) {
         const normalizedEmail = username ? username.toLowerCase().trim() : '';
+        const normalizedInputPassword = String(password || '').replace(/\s+/g, '');
+        const defaultPasswordNorm = String(authFallbackDefaultPassword || 'Crowe2022!').replace(/\s+/g, '');
+        const localStoredPassword = getStoredPassword(normalizedEmail);
+        const localStoredNorm = localStoredPassword
+            ? String(localStoredPassword).replace(/\s+/g, '')
+            : '';
+        const passwordAlreadyChanged = hasPasswordChanged(normalizedEmail) && !!localStoredNorm;
+
+        // Şifre bir kez değiştirildiyse yalnızca yerel yeni şifre geçerlidir.
+        // Crowe2022! (veya başka eski şifre) ile giriş / şifre ekranı yok.
+        if (passwordAlreadyChanged) {
+            if (normalizedInputPassword !== localStoredNorm) {
+                return { success: false, error: 'Şifre hatalı.' };
+            }
+
+            const adminInfo = authFallbackAdmins[normalizedEmail] || {
+                fullName: normalizedEmail.split('@')[0],
+                role: 'admin'
+            };
+            const savedName = localStorage.getItem(getDisplayNameKey(normalizedEmail));
+            const savedAvatar = localStorage.getItem(getAvatarKey(normalizedEmail));
+            const payload = {
+                username: normalizedEmail,
+                fullName: savedName || adminInfo.fullName,
+                role: adminInfo.role || 'admin',
+                avatar: savedAvatar || null,
+                loginTime: new Date().toISOString()
+            };
+
+            // Yeni şifreyle Supabase oturumu açmayı dene; olmazsa yerel oturum
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: normalizedEmail,
+                        password: password
+                    });
+                    if (!error && data && data.session) {
+                        currentSupabaseSession = data.session;
+                        storeSessionLocally(payload, data.session.access_token, {
+                            requiresPasswordChange: false
+                        });
+                        return { success: true, user: payload, requiresPasswordChange: false };
+                    }
+                } catch (err) {
+                    console.log('Supabase login with changed password skipped:', err && err.message);
+                }
+                try {
+                    await Promise.race([
+                        supabaseClient.auth.signOut(),
+                        new Promise(function (resolve) { setTimeout(resolve, 800); })
+                    ]);
+                } catch (e) { /* ignore */ }
+            }
+
+            storeSessionLocally(payload, null, { requiresPasswordChange: false });
+            return { success: true, user: payload, requiresPasswordChange: false };
+        }
 
         // Önce Supabase'i dene, hata olursa fallback'e geç
         if (supabaseClient) {
@@ -312,8 +369,18 @@ const Auth = {
                         loginTime: new Date().toISOString()
                     };
 
+                    // Varsayılan şifre ile girildiyse yerel olarak da işaretle ve şifre değiştir zorunlu olsun
+                    const usingDefault = normalizedInputPassword === defaultPasswordNorm;
+                    if (usingDefault) {
+                        // Henüz değiştirilmemiş — varsayılanı yerelde tut
+                        if (!getStoredPassword(email)) {
+                            localStorage.setItem(getStoredPasswordKey(email), authFallbackDefaultPassword || 'Crowe2022!');
+                        }
+                    }
+
                     const requiresPasswordChange = userNeedsPasswordChange(email, {
-                        metaRequires: supUser.user_metadata?.requires_password_change
+                        metaRequires: usingDefault ? true : supUser.user_metadata?.requires_password_change,
+                        usingDefaultPassword: usingDefault
                     });
                     storeSessionLocally(payload, data.session?.access_token, { requiresPasswordChange });
 
@@ -344,8 +411,7 @@ const Auth = {
             return { success: false, error: 'Şifre değiştirilmelidir. Lütfen yönetici ile iletişime geçin.' };
         }
 
-        const storedPassword = getStoredPassword(normalizedEmail) || authFallbackDefaultPassword;
-        const normalizedInputPassword = String(password || '').replace(/\s+/g, '');
+        const storedPassword = localStoredPassword || authFallbackDefaultPassword;
         const normalizedStoredPassword = String(storedPassword || '').replace(/\s+/g, '');
         if (!storedPassword || normalizedInputPassword !== normalizedStoredPassword) {
             return { success: false, error: 'Şifre hatalı.' };
@@ -361,8 +427,7 @@ const Auth = {
             loginTime: new Date().toISOString()
         };
 
-        const usingDefault = normalizedStoredPassword ===
-            String(authFallbackDefaultPassword || '').replace(/\s+/g, '');
+        const usingDefault = normalizedStoredPassword === defaultPasswordNorm;
         const needsPasswordChange = userNeedsPasswordChange(normalizedEmail, {
             usingDefaultPassword: usingDefault
         });
@@ -416,11 +481,33 @@ const Auth = {
             return { success: false, error: check.error };
         }
 
-        // Supabase oturumu varsa metadata + şifreyi güncelle; yoksa (fallback) lokal kayda devam et
+        // Önce yerel hafızaya yaz — sonraki girişlerde Crowe2022! geçersiz olsun
+        setStoredPassword(normalizedEmail, newPassword);
+        markPasswordChanged(normalizedEmail, true);
+        localStorage.setItem(getHintKey(normalizedEmail), String(hint || '').trim());
+        this.clearPendingPasswordChange();
+
+        // Supabase tarafını da güncelle (varsa)
         if (supabaseClient) {
             try {
+                let session = null;
                 const { data: sessionWrap } = await supabaseClient.auth.getSession();
-                if (sessionWrap && sessionWrap.session) {
+                session = sessionWrap && sessionWrap.session;
+
+                // Oturum yoksa varsayılan şifreyle kısa giriş dene, sonra güncelle
+                if (!session) {
+                    const oldPassword = authFallbackDefaultPassword || 'Crowe2022!';
+                    const { data: signData, error: signErr } = await supabaseClient.auth.signInWithPassword({
+                        email: normalizedEmail,
+                        password: oldPassword
+                    });
+                    if (!signErr && signData && signData.session) {
+                        session = signData.session;
+                        currentSupabaseSession = session;
+                    }
+                }
+
+                if (session) {
                     const { error } = await supabaseClient.auth.updateUser({
                         password: newPassword,
                         data: {
@@ -429,21 +516,17 @@ const Auth = {
                         }
                     });
                     if (error) {
-                        return { success: false, error: error.message };
+                        console.warn('Supabase şifre güncellemesi başarısız (yerel kayıt korundu):', error.message);
+                    } else {
+                        try {
+                            await supabaseClient.auth.refreshSession();
+                        } catch (refreshErr) { /* ignore */ }
                     }
-                    try {
-                        await supabaseClient.auth.refreshSession();
-                    } catch (refreshErr) { /* ignore */ }
                 }
             } catch (err) {
                 console.warn('Supabase şifre güncellemesi atlandı:', err && err.message);
             }
         }
-
-        setStoredPassword(normalizedEmail, newPassword);
-        markPasswordChanged(normalizedEmail, true);
-        localStorage.setItem(getHintKey(normalizedEmail), String(hint || '').trim());
-        this.clearPendingPasswordChange();
 
         const token = localStorage.getItem('auth_token');
         storeSessionLocally(currentUser, token, { requiresPasswordChange: false });
