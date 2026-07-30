@@ -58,10 +58,21 @@
         <a class="nav-btn" href="payments.html">
           <i class="ph ph-money"></i><span>Ödeme Listesi</span>
         </a>
-        <a class="nav-btn" href="reports.html" aria-current="page">
-          <i class="ph ph-chart-line"></i><span>Raporlar</span>
-        </a>
-        <a class="nav-btn" href="users.html">
+        <div class="nav-group is-open" data-nav-group="raporlar">
+          <div class="nav-group-label">
+            <i class="ph ph-chart-line" aria-hidden="true"></i>
+            <span>Raporlar</span>
+          </div>
+          <div class="nav-sub" id="navRaporlar">
+            <a class="nav-btn nav-sub-btn" href="reports.html" aria-current="page">
+              <i class="ph ph-list-bullets"></i><span>Rapor Listesi</span>
+            </a>
+            <a class="nav-btn nav-sub-btn" href="rotasyon.html">
+              <i class="ph ph-arrows-clockwise"></i><span>Rotasyon</span>
+            </a>
+          </div>
+        </div>
+<a class="nav-btn" href="users.html">
           <i class="ph ph-users-three"></i><span>Kullanıcılar</span>
         </a>
         <a class="nav-btn" href="online-users.html">
@@ -108,8 +119,8 @@
 <!-- Main Content -->
             <div class="container-fluid">
                 <div class="page-header-admin">
-                    <h1>Raporlar</h1>
-                    <p class="page-header-meta">Engagement raporları ve durum takibi</p>
+                    <h1>Rapor Listesi</h1>
+                    <p class="page-header-meta">Engagement raporları — eklenen kayıtlar Rotasyon’da da listelenir</p>
                 </div>
 
                 <section class="atlas-compose" aria-labelledby="report-compose-title">
@@ -246,6 +257,7 @@
     <script src="supabase-config.js"></script>
     <!-- Authentication -->
     <script src="auth.js"></script>
+    <script src="reports-store.js"></script>
     <!-- Prevent Active Link Reload -->
     <script src="prevent-active-link-reload.js"></script>
     <script>
@@ -420,107 +432,22 @@
             return 0;
         }
         
-        // Supabase CRUD functions for reports
+        // Supabase CRUD — ReportsStore (Rotasyon ile aynı kaynak)
         async function getReportsFromSupabase() {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                const reports = localStorage.getItem('reports');
-                return reports ? JSON.parse(reports) : [];
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('reports')
-                    .select('*')
-                    .order('start_date', { ascending: false });
-                
-                if (error) {
-                    console.error('Supabase error:', error);
-                    const reports = localStorage.getItem('reports');
-                    return reports ? JSON.parse(reports) : [];
-                }
-                
-                // Convert Supabase format to local format
-                return (data || []).map(r => ({
-                    id: r.id,
-                    company: r.company,
-                    service: r.service,
-                    reportType: r.report_type,
-                    startDate: r.start_date,
-                    endDate: r.end_date,
-                    team: r.team,
-                    status: r.status,
-                    createdAt: r.created_at
-                }));
-            } catch (error) {
-                console.error('Error fetching reports:', error);
-                const reports = localStorage.getItem('reports');
-                return reports ? JSON.parse(reports) : [];
-            }
+            return ReportsStore.listReports();
         }
         
         async function addReportToSupabase(report) {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports.push(report);
-                localStorage.setItem('reports', JSON.stringify(reports));
-                return { success: true, data: report };
-            }
-            
-            try {
-                const { data, error } = await supabase
-                    .from('reports')
-                    .insert([{
-                        company: report.company,
-                        service: report.service,
-                        report_type: report.reportType,
-                        start_date: report.startDate,
-                        end_date: report.endDate,
-                        team: report.team,
-                        status: report.status
-                    }])
-                    .select()
-                    .single();
-                
-                if (error) {
-                    console.error('Supabase insert error:', error);
-                    throw error;
-                }
-                
-                // Also save to localStorage as backup
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports.push({
-                    id: data.id,
-                    company: data.company,
-                    service: data.service,
-                    reportType: data.report_type,
-                    startDate: data.start_date,
-                    endDate: data.end_date,
-                    team: data.team,
-                    status: data.status,
-                    createdAt: data.created_at
-                });
-                localStorage.setItem('reports', JSON.stringify(reports));
-                
-                return { success: true, data: data };
-            } catch (error) {
-                console.error('Error adding report:', error);
-                // Fallback to localStorage
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports.push(report);
-                localStorage.setItem('reports', JSON.stringify(reports));
-                return { success: true, data: report };
-            }
+            return ReportsStore.addReport(report);
         }
         
         async function updateReportInSupabase(id, report) {
-            const supabase = resolveSupabaseClient();
+            const supabase = ReportsStore.resolveSupabaseClient();
             if (!supabase) {
                 const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                const index = reports.findIndex(r => r.id === id);
+                const index = reports.findIndex(r => String(r.id) === String(id));
                 if (index !== -1) {
-                    reports[index] = report;
+                    reports[index] = Object.assign({}, reports[index], report, { id: reports[index].id });
                     localStorage.setItem('reports', JSON.stringify(reports));
                 }
                 return { success: true };
@@ -541,63 +468,18 @@
                     .eq('id', id);
                 
                 if (error) throw error;
-                
-                // Also update localStorage
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                const index = reports.findIndex(r => r.id === id);
-                if (index !== -1) {
-                    reports[index] = report;
-                    localStorage.setItem('reports', JSON.stringify(reports));
-                }
-                
                 return { success: true };
             } catch (error) {
                 console.error('Error updating report:', error);
-                // Fallback to localStorage
-                const reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                const index = reports.findIndex(r => r.id === id);
-                if (index !== -1) {
-                    reports[index] = report;
-                    localStorage.setItem('reports', JSON.stringify(reports));
-                }
-                return { success: true };
+                return { success: false, error: error.message };
             }
         }
         
         async function deleteReportFromSupabase(id) {
-            const supabase = resolveSupabaseClient();
-            if (!supabase) {
-                let reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports = reports.filter(report => report.id !== id);
-                localStorage.setItem('reports', JSON.stringify(reports));
-                return { success: true };
-            }
-            
-            try {
-                const { error } = await supabase
-                    .from('reports')
-                    .delete()
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                // Also update localStorage
-                let reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports = reports.filter(report => report.id !== id);
-                localStorage.setItem('reports', JSON.stringify(reports));
-                
-                return { success: true };
-            } catch (error) {
-                console.error('Error deleting report:', error);
-                // Fallback to localStorage
-                let reports = JSON.parse(localStorage.getItem('reports') || '[]');
-                reports = reports.filter(report => report.id !== id);
-                localStorage.setItem('reports', JSON.stringify(reports));
-                return { success: true };
-            }
+            return ReportsStore.deleteReport(id);
         }
         
-        // Load reports from localStorage
+        // Load reports from shared store
         async function loadReports() {
             const reports = await getReportsFromSupabase();
             const tbody = document.getElementById('reportsTableBody');
@@ -622,10 +504,11 @@
                 }
                 
                 let typeBadge = report.reportType === 'SPK' ? 'badge-spk' : 'badge-kgk';
+                const idAttr = JSON.stringify(String(report.id));
                 
                 const downloadBtn = report.status === 'Tamamlandı' 
-                    ? '<button class="btn btn-sm btn-primary ml-1" title="İndir"><i class="fas fa-download"></i></button>'
-                    : '<button class="btn btn-sm btn-secondary disabled ml-1" title="Henüz hazır değil"><i class="fas fa-download"></i></button>';
+                    ? '<button class="btn btn-sm btn-primary ml-1" title="İndir"><i class="ph ph-download-simple"></i></button>'
+                    : '<button class="btn btn-sm btn-secondary disabled ml-1" title="Henüz hazır değil"><i class="ph ph-download-simple"></i></button>';
                 
                 const row = `
                     <tr>
@@ -638,11 +521,11 @@
                         <td>${report.team}</td>
                         <td class="text-center"><span class="badge ${statusBadge}">${report.status}</span></td>
                         <td class="text-center">
-                            <button class="btn btn-sm btn-warning" onclick="editReport(${report.id})" title="Düzenle">
-                                <i class="fas fa-edit"></i>
+                            <button class="btn btn-sm btn-warning" onclick='editReport(${idAttr})' title="Düzenle">
+                                <i class="ph ph-pencil-simple"></i>
                             </button>
-                            <button class="btn btn-sm btn-danger ml-1" onclick="deleteReport(${report.id})" title="Sil">
-                                <i class="fas fa-trash"></i>
+                            <button class="btn btn-sm btn-danger ml-1" onclick='deleteReport(${idAttr})' title="Sil">
+                                <i class="ph ph-trash"></i>
                             </button>
                             ${downloadBtn}
                         </td>
@@ -725,7 +608,7 @@
         // Edit report (placeholder for future)
         async function editReport(id) {
             const reports = await getReportsFromSupabase();
-            const report = reports.find(r => r.id === id);
+            const report = reports.find(r => String(r.id) === String(id));
             
             if (!report) {
                 alert('Rapor bulunamadı!');
@@ -742,7 +625,5 @@
         });
     </script>
 <script src="atlas-shell.js"></script>
-</body>
-</html>
 </body>
 </html>

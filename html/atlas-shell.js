@@ -342,6 +342,7 @@
       { k: ["sözleşme", "sozlesme", "contract"], href: "contracts.html" },
       { k: ["ödeme", "odeme", "payment"], href: "payments.html" },
       { k: ["rapor", "report"], href: "reports.html" },
+      { k: ["rotasyon", "rotation"], href: "rotasyon.html" },
       { k: ["kullanıcı", "kullanici", "user"], href: "users.html" },
       { k: ["çevrim", "cevrim", "online"], href: "online-users.html" },
       { k: ["panel", "dashboard", "kontrol"], href: "dashboard.html" },
@@ -458,8 +459,75 @@
     }
   }
 
+  function ensureRaporlarNav() {
+    var nav = document.querySelector(".rail > .nav");
+    if (!nav) return;
+
+    var existing = nav.querySelector('[data-nav-group="raporlar"]');
+    var flatReports = nav.querySelector('a.nav-btn[href="reports.html"]:not(.nav-sub-btn)');
+
+    function buildGroup() {
+      var group = document.createElement("div");
+      group.className = "nav-group is-open";
+      group.setAttribute("data-nav-group", "raporlar");
+      group.innerHTML =
+        '<div class="nav-group-label"><i class="ph ph-chart-line" aria-hidden="true"></i><span>Raporlar</span></div>' +
+        '<div class="nav-sub" id="navRaporlar">' +
+        '<a class="nav-btn nav-sub-btn" href="reports.html"><i class="ph ph-list-bullets"></i><span>Rapor Listesi</span></a>' +
+        '<a class="nav-btn nav-sub-btn" href="rotasyon.html"><i class="ph ph-arrows-clockwise"></i><span>Rotasyon</span></a>' +
+        "</div>";
+      return group;
+    }
+
+    if (existing) {
+      var sub = existing.querySelector(".nav-sub");
+      if (sub) {
+        sub.hidden = false;
+        sub.removeAttribute("hidden");
+        if (!sub.querySelector('a[href="rotasyon.html"]')) {
+          var rot = document.createElement("a");
+          rot.className = "nav-btn nav-sub-btn";
+          rot.href = "rotasyon.html";
+          rot.innerHTML = '<i class="ph ph-arrows-clockwise"></i><span>Rotasyon</span>';
+          sub.appendChild(rot);
+        }
+        if (!sub.querySelector('a[href="reports.html"]')) {
+          var list = document.createElement("a");
+          list.className = "nav-btn nav-sub-btn";
+          list.href = "reports.html";
+          list.innerHTML = '<i class="ph ph-list-bullets"></i><span>Rapor Listesi</span>';
+          sub.insertBefore(list, sub.firstChild);
+        }
+      }
+      existing.classList.add("is-open");
+      var users = nav.querySelector('a.nav-btn[href="users.html"]');
+      var payments = nav.querySelector('a.nav-btn[href="payments.html"]');
+      if (users && existing.nextElementSibling !== users) {
+        nav.insertBefore(existing, users);
+      } else if (payments && payments.nextSibling && existing.previousElementSibling !== payments) {
+        nav.insertBefore(existing, payments.nextSibling);
+      }
+      if (flatReports && flatReports.parentElement === nav) flatReports.remove();
+      return;
+    }
+
+    var group = buildGroup();
+    if (flatReports) {
+      flatReports.replaceWith(group);
+      return;
+    }
+    var usersLink = nav.querySelector('a.nav-btn[href="users.html"]');
+    if (usersLink) nav.insertBefore(group, usersLink);
+    else {
+      var logout = nav.querySelector(".nav-logout");
+      if (logout) nav.insertBefore(group, logout);
+      else nav.appendChild(group);
+    }
+  }
+
   function bindNavGroups() {
     ensureGenelKurulNav();
+    ensureRaporlarNav();
     var path = String(window.location.pathname || "").split("/").pop() || "";
     document.querySelectorAll(".nav-group[data-nav-group] .nav-sub-btn").forEach(function (link) {
       var href = link.getAttribute("href") || "";

@@ -456,7 +456,7 @@ const Auth = {
 window.Auth = Auth;
 
 if (typeof window !== 'undefined' && !String(window.location.pathname || '').includes('login.html')) {
-    const protectedPages = ['dashboard.html', 'client-list.html', 'client-detail.html', 'contracts.html', 'reports.html', 'payments.html', 'offers.html', 'users.html', 'online-users.html', 'genel-kurul-beyan.html', 'genel-kurul-yetki.html'];
+    const protectedPages = ['dashboard.html', 'client-list.html', 'client-detail.html', 'contracts.html', 'reports.html', 'rotasyon.html', 'payments.html', 'offers.html', 'users.html', 'online-users.html', 'genel-kurul-beyan.html', 'genel-kurul-yetki.html'];
     const currentPage = window.location.pathname.split('/').pop();
     if (protectedPages.indexOf(currentPage) !== -1) {
         function checkAdminAccess() {
