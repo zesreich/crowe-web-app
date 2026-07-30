@@ -183,7 +183,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="editVergiDairesi"><i class="ph ph-map-pin"></i> Vergi dairesi <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="editVergiDairesi" placeholder="Vergi dairesi" required>
+                                <input type="text" class="form-control" id="editVergiDairesi" list="turkiyeVergiDairesiList" placeholder="İl veya vergi dairesi yazın…" autocomplete="off" required>
+                                <small class="form-text text-muted">Türkiye’deki tüm vergi dairelerinden seçin</small>
                             </div>
                             <div class="form-group">
                                 <label for="editEkip"><i class="ph ph-users-three"></i> Ekip <span class="text-danger">*</span></label>
@@ -267,8 +268,10 @@
                             </div>
                             <div class="form-group">
                                 <label for="newVergiDairesi"><i class="ph ph-map-pin"></i> Vergi dairesi <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="newVergiDairesi" placeholder="Vergi dairesi" required>
+                                <input type="text" class="form-control" id="newVergiDairesi" list="turkiyeVergiDairesiList" placeholder="İl veya vergi dairesi yazın…" autocomplete="off" required>
+                                <small class="form-text text-muted">Türkiye’deki tüm vergi dairelerinden seçin</small>
                             </div>
+                            <datalist id="turkiyeVergiDairesiList"></datalist>
                             <div class="form-group">
                                 <label for="newEkip"><i class="ph ph-users-three"></i> Ekip <span class="text-danger">*</span></label>
                                 <select class="form-control" id="newEkip" required>
@@ -337,6 +340,7 @@
     <script src="supabase-config.js"></script>
     <!-- Authentication System -->
     <script src="auth.js"></script>
+    <script src="vergi-daireleri.js"></script>
     <script src="auditor-workspace-schema.js"></script>
     <script src="auditor-workspace.js"></script>
     <!-- Prevent Active Link Reload -->
@@ -385,8 +389,47 @@
         })();
     </script>
     <script>
+        function populateVergiDairesiList() {
+            const list = document.getElementById('turkiyeVergiDairesiList');
+            const offices = window.TURKIYE_VERGI_DAIRELERI;
+            if (!list || !Array.isArray(offices) || list.dataset.ready === '1') return;
+            const frag = document.createDocumentFragment();
+            offices.forEach(function (item) {
+                const opt = document.createElement('option');
+                opt.value = item.label || item.daire;
+                frag.appendChild(opt);
+            });
+            list.appendChild(frag);
+            list.dataset.ready = '1';
+        }
+
+        function resolveVergiDairesiValue(raw) {
+            const value = String(raw || '').trim();
+            if (!value) return '';
+            const offices = window.TURKIYE_VERGI_DAIRELERI;
+            if (!Array.isArray(offices) || !offices.length) return value;
+            const lower = value.toLocaleLowerCase('tr');
+            // Exact label or daire name
+            for (let i = 0; i < offices.length; i++) {
+                const label = String(offices[i].label || '').trim();
+                const daire = String(offices[i].daire || '').trim();
+                if (label.toLocaleLowerCase('tr') === lower || daire.toLocaleLowerCase('tr') === lower) {
+                    return label;
+                }
+            }
+            // Unique partial match (e.g. "Kadıköy")
+            const hits = offices.filter(function (item) {
+                const label = String(item.label || '').toLocaleLowerCase('tr');
+                const daire = String(item.daire || '').toLocaleLowerCase('tr');
+                return label.indexOf(lower) !== -1 || daire.indexOf(lower) !== -1;
+            });
+            if (hits.length === 1) return hits[0].label;
+            return value;
+        }
+
         // Check authentication on page load (DOMContentLoaded ile geciktir)
         document.addEventListener('DOMContentLoaded', function() {
+            populateVergiDairesiList();
             // Modal çarpı butonları (ikon tıklanınca da kapansın)
             document.querySelectorAll('.atlas-modal .close[data-dismiss="modal"]').forEach(function (btn) {
                 btn.addEventListener('click', function (e) {
@@ -1173,13 +1216,14 @@
             const clientId = document.getElementById('editClientId').value;
             const vergiNo = document.getElementById('editVergiNo').value.trim();
             const unvan = document.getElementById('editUnvan').value.trim();
-            const vergiDairesi = document.getElementById('editVergiDairesi').value.trim();
+            const vergiDairesi = resolveVergiDairesiValue(document.getElementById('editVergiDairesi').value);
             const ekip = document.getElementById('editEkip').value.trim();
             
             if (!vergiNo || !unvan || !vergiDairesi || !ekip) {
                 alert('Lütfen tüm alanları doldurun!');
                 return;
             }
+            document.getElementById('editVergiDairesi').value = vergiDairesi;
             
             const client = {
                 vergiNo: vergiNo,
@@ -1237,13 +1281,14 @@
         async function saveNewClient() {
             const vergiNo = document.getElementById('newVergiNo').value.trim();
             const unvan = document.getElementById('newUnvan').value.trim();
-            const vergiDairesi = document.getElementById('newVergiDairesi').value.trim();
+            const vergiDairesi = resolveVergiDairesiValue(document.getElementById('newVergiDairesi').value);
             const ekip = document.getElementById('newEkip').value.trim();
             
             if (!vergiNo || !unvan || !vergiDairesi || !ekip) {
                 alert('Lütfen tüm alanları doldurun!');
                 return;
             }
+            document.getElementById('newVergiDairesi').value = vergiDairesi;
             
             const client = {
                 vergiNo: vergiNo,
