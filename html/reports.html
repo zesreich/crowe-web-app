@@ -571,17 +571,15 @@
                 createdAt: new Date().toISOString()
             };
             
-            // Add report to Supabase (with fallback to localStorage)
+            // Add report to shared store (also appears in Rotasyon)
             try {
                 const result = await addReportToSupabase(report);
                 if (result.success) {
-            // Reload table
                     await loadReports();
-            
-            // Reset form
-            this.reset();
-            
-            alert('Rapor başarıyla eklendi!');
+                    this.reset();
+                    alert('Rapor eklendi. Rotasyon listesinde de görünecek.');
+                } else {
+                    alert(result.error || 'Rapor eklenemedi.');
                 }
             } catch (error) {
                 console.error('Error saving report:', error);
