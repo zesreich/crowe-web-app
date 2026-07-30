@@ -56,3 +56,5 @@ if (CONFIG_APP_ENV === 'production' && (CONFIG_FALLBACK_DEFAULT_PASSWORD || Obje
 const outPath = path.join(__dirname, '..', 'html', 'config.js');
 fs.writeFileSync(outPath, content, 'utf8');
 console.log(`✓ config.js oluşturuldu (${appEnv}, API: ${apiBase})`);
+
+// redeploy 2026-07-30T10:22:28Z
