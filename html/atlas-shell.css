@@ -219,6 +219,55 @@ textarea {
   color: #b42318;
 }
 
+.nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.nav-group-toggle {
+  position: relative;
+  padding-right: 1.6rem;
+}
+
+.nav-group-caret {
+  position: absolute;
+  right: 0.55rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.85rem;
+  opacity: 0.7;
+  transition: transform var(--dur) var(--ease);
+}
+
+.nav-group.is-open > .nav-group-toggle .nav-group-caret {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.nav-group.is-open > .nav-group-toggle,
+.nav-group:has(.nav-sub-btn[aria-current="page"]) > .nav-group-toggle {
+  color: var(--rail-ink, var(--ink));
+  background: var(--rail-hover, var(--surface-2));
+}
+
+.nav-sub {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-left: 0.55rem;
+  margin-left: 0.55rem;
+  border-left: 1px solid var(--rail-line, var(--line));
+}
+
+.nav-sub[hidden] {
+  display: none !important;
+}
+
+.nav-sub-btn {
+  padding-left: 0.55rem;
+  font-size: 0.92em;
+}
+
 .rail-foot {
   display: none;
 }
@@ -1140,6 +1189,18 @@ textarea {
   .rail > .nav {
     flex-direction: row;
     flex: 1;
+  }
+
+  .nav-group {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .nav-sub {
+    flex-direction: row;
+    margin-left: 0;
+    padding-left: 0;
+    border-left: 0;
   }
 
   .nav-btn span {

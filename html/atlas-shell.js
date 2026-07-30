@@ -346,6 +346,8 @@
       { k: ["çevrim", "cevrim", "online"], href: "online-users.html" },
       { k: ["panel", "dashboard", "kontrol"], href: "dashboard.html" },
       { k: ["ekosistem", "atlas", "dosya", "senkron"], href: "ecosystem-mockup/" },
+      { k: ["genel kurul", "beyan"], href: "genel-kurul-beyan.html" },
+      { k: ["yetki yazı", "yetki yazi", "yetki"], href: "genel-kurul-yetki.html" },
       { k: ["denetçi", "denetci", "auditor"], href: "auditor-dashboard.html" },
       { k: ["şifre", "sifre", "password"], href: "password-change.html" },
     ];
@@ -405,6 +407,36 @@
     });
   }
 
+  function bindNavGroups() {
+    var groups = document.querySelectorAll(".nav-group[data-nav-group]");
+    if (!groups.length) return;
+    var path = String(window.location.pathname || "").split("/").pop() || "";
+
+    groups.forEach(function (group) {
+      var toggle = group.querySelector(".nav-group-toggle");
+      var sub = group.querySelector(".nav-sub");
+      if (!toggle || !sub) return;
+
+      var activeChild = sub.querySelector('.nav-sub-btn[aria-current="page"], .nav-sub-btn[href="' + path + '"]');
+      if (activeChild) {
+        activeChild.setAttribute("aria-current", "page");
+        group.classList.add("is-open");
+        toggle.setAttribute("aria-expanded", "true");
+        sub.hidden = false;
+      }
+
+      if (toggle.dataset.bound) return;
+      toggle.dataset.bound = "1";
+      toggle.addEventListener("click", function (e) {
+        e.preventDefault();
+        var open = !group.classList.contains("is-open");
+        group.classList.toggle("is-open", open);
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        sub.hidden = !open;
+      });
+    });
+  }
+
   function init() {
     bindTheme();
     bindSoftTransitions();
@@ -413,6 +445,7 @@
     bindEnv();
     bindSearch();
     bindLogout();
+    bindNavGroups();
     setTimeout(bindUser, 200);
   }
 
