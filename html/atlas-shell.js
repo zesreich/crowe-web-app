@@ -407,33 +407,37 @@
     });
   }
 
+  function ensureGenelKurulNav() {
+    var nav = document.querySelector(".rail > .nav");
+    if (!nav || nav.querySelector('[data-nav-group="genel-kurul"]')) return;
+
+    var group = document.createElement("div");
+    group.className = "nav-group is-open";
+    group.setAttribute("data-nav-group", "genel-kurul");
+    group.innerHTML =
+      '<div class="nav-group-label"><i class="ph ph-gavel" aria-hidden="true"></i><span>Genel Kurul İşlemleri</span></div>' +
+      '<div class="nav-sub" id="navGenelKurul">' +
+      '<a class="nav-btn nav-sub-btn" href="genel-kurul-beyan.html"><i class="ph ph-article"></i><span>Beyan Yazıları</span></a>' +
+      '<a class="nav-btn nav-sub-btn" href="genel-kurul-yetki.html"><i class="ph ph-certificate"></i><span>Yetki Yazıları</span></a>' +
+      "</div>";
+
+    var payments = nav.querySelector('a.nav-btn[href="payments.html"]');
+    var contracts = nav.querySelector('a.nav-btn[href="contracts.html"]');
+    var anchor = payments || (contracts && contracts.nextSibling);
+    if (anchor) nav.insertBefore(group, payments || contracts.nextSibling);
+    else {
+      var logout = nav.querySelector(".nav-logout");
+      if (logout) nav.insertBefore(group, logout);
+      else nav.appendChild(group);
+    }
+  }
+
   function bindNavGroups() {
-    var groups = document.querySelectorAll(".nav-group[data-nav-group]");
-    if (!groups.length) return;
+    ensureGenelKurulNav();
     var path = String(window.location.pathname || "").split("/").pop() || "";
-
-    groups.forEach(function (group) {
-      var toggle = group.querySelector(".nav-group-toggle");
-      var sub = group.querySelector(".nav-sub");
-      if (!toggle || !sub) return;
-
-      var activeChild = sub.querySelector('.nav-sub-btn[aria-current="page"], .nav-sub-btn[href="' + path + '"]');
-      if (activeChild) {
-        activeChild.setAttribute("aria-current", "page");
-        group.classList.add("is-open");
-        toggle.setAttribute("aria-expanded", "true");
-        sub.hidden = false;
-      }
-
-      if (toggle.dataset.bound) return;
-      toggle.dataset.bound = "1";
-      toggle.addEventListener("click", function (e) {
-        e.preventDefault();
-        var open = !group.classList.contains("is-open");
-        group.classList.toggle("is-open", open);
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        sub.hidden = !open;
-      });
+    document.querySelectorAll(".nav-group[data-nav-group] .nav-sub-btn").forEach(function (link) {
+      var href = link.getAttribute("href") || "";
+      if (href === path) link.setAttribute("aria-current", "page");
     });
   }
 
