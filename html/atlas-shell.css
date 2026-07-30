@@ -30,7 +30,7 @@
   --brand-mark-bg: #fdb913;
   --brand-mark-ink: #000000;
 
-  --rail: 13.5rem;
+  --rail: 15rem;
   --top: 3.25rem;
   --radius: 0.5rem;
   --radius-lg: 0.75rem;
@@ -128,11 +128,17 @@ textarea {
   grid-row: 1 / -1;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   padding: 1rem 0.75rem;
   background: var(--rail-bg, var(--surface));
   border-right: 1px solid var(--rail-line, var(--line));
   color: var(--rail-ink, var(--ink));
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 0;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
 }
 
 .brand {

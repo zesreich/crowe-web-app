@@ -409,7 +409,33 @@
 
   function ensureGenelKurulNav() {
     var nav = document.querySelector(".rail > .nav");
-    if (!nav || nav.querySelector('[data-nav-group="genel-kurul"]')) return;
+    if (!nav) return;
+
+    var existing = nav.querySelector('[data-nav-group="genel-kurul"]');
+    if (existing) {
+      // Eski/kapalı toggle versiyonunu açık listeye çevir
+      var toggle = existing.querySelector(".nav-group-toggle");
+      var sub = existing.querySelector(".nav-sub");
+      if (toggle) {
+        var label = document.createElement("div");
+        label.className = "nav-group-label";
+        label.innerHTML = '<i class="ph ph-gavel" aria-hidden="true"></i><span>Genel Kurul İşlemleri</span>';
+        toggle.replaceWith(label);
+      }
+      if (sub) {
+        sub.hidden = false;
+        sub.removeAttribute("hidden");
+      }
+      existing.classList.add("is-open");
+
+      // Sözleşmeler altına taşı (daha görünür)
+      var contracts = nav.querySelector('a.nav-btn[href="contracts.html"]');
+      var payments = nav.querySelector('a.nav-btn[href="payments.html"]');
+      if (contracts && payments && existing.previousElementSibling !== contracts) {
+        nav.insertBefore(existing, payments);
+      }
+      return;
+    }
 
     var group = document.createElement("div");
     group.className = "nav-group is-open";
@@ -423,8 +449,8 @@
 
     var payments = nav.querySelector('a.nav-btn[href="payments.html"]');
     var contracts = nav.querySelector('a.nav-btn[href="contracts.html"]');
-    var anchor = payments || (contracts && contracts.nextSibling);
-    if (anchor) nav.insertBefore(group, payments || contracts.nextSibling);
+    if (payments) nav.insertBefore(group, payments);
+    else if (contracts && contracts.nextSibling) nav.insertBefore(group, contracts.nextSibling);
     else {
       var logout = nav.querySelector(".nav-logout");
       if (logout) nav.insertBefore(group, logout);
