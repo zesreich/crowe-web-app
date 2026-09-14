@@ -154,26 +154,49 @@
       <div class="container-fluid">
         <div class="page-header-admin">
           <h1>Ödeme Listesi</h1>
-          <p class="page-header-meta">Muhasebe sisteminden alınan 120 Alacak listesini Excel ile yükleyin</p>
+          <p class="page-header-meta">Muhasebe sisteminden alınan hesap listesini Excel ile yükleyin — hesap kodu, hesap adı, borç, alacak, borç bakiyesi, alacak bakiyesi</p>
         </div>
 
-        <section class="atlas-module" aria-label="120 Alacak listesi">
+        <section class="atlas-module" aria-label="Ödeme listesi">
           <div class="atlas-toolbar">
-            <label class="atlas-search-field" for="receivableSearch">
-              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-              <input type="search" id="receivableSearch" placeholder="Cari, hesap veya açıklama ara…" autocomplete="off">
-            </label>
+            <strong style="font-size:0.8125rem;font-weight:600;">Hesap listesi</strong>
             <div class="atlas-toolbar-actions">
-              <button type="button" class="btn btn-secondary" onclick="downloadReceivableTemplate()">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="downloadReceivableTemplate()">
                 <i class="ph ph-download-simple"></i> Taslak indir
               </button>
-              <label for="receivableExcel" class="btn btn-info mb-0" style="cursor:pointer;margin:0;">
+              <label for="receivableExcel" class="btn btn-info btn-sm mb-0" style="cursor:pointer;margin:0;">
                 <i class="ph ph-file-xls"></i> Excel yükle
                 <input type="file" id="receivableExcel" accept=".xlsx,.xls" style="display:none;">
               </label>
-              <button type="button" class="btn btn-outline-dark" id="clearReceivablesBtn" onclick="clearReceivables()" disabled>
+              <button type="button" class="btn btn-outline-dark btn-sm" id="clearReceivablesBtn" onclick="clearReceivables()" disabled>
                 <i class="ph ph-trash"></i> Listeyi temizle
               </button>
+            </div>
+          </div>
+
+          <div class="atlas-filter-panel" aria-label="Filtrele ve sırala">
+            <div>
+              <label for="receivableSearch">Ara</label>
+              <input type="search" id="receivableSearch" placeholder="Hesap kodu veya adı…" autocomplete="off">
+            </div>
+            <div>
+              <label for="paymentFilterAccount">Hesap kodu</label>
+              <select id="paymentFilterAccount"><option value="">Tümü</option></select>
+            </div>
+            <div>
+              <label for="paymentSortBy">Sırala</label>
+              <select id="paymentSortBy">
+                <option value="hesapKodu:asc">Hesap kodu (A→Z)</option>
+                <option value="hesapKodu:desc">Hesap kodu (Z→A)</option>
+                <option value="hesapAdi:asc">Hesap adı (A→Z)</option>
+                <option value="borc:desc">Borç (yüksek→düşük)</option>
+                <option value="alacak:desc">Alacak (yüksek→düşük)</option>
+                <option value="borcBakiyesi:desc">Borç bakiyesi (yüksek→düşük)</option>
+                <option value="alacakBakiyesi:desc">Alacak bakiyesi (yüksek→düşük)</option>
+              </select>
+            </div>
+            <div class="atlas-filter-actions">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="paymentResetFilters">Filtreleri temizle</button>
             </div>
           </div>
 
@@ -181,19 +204,30 @@
             <div class="payment-stat"><label>Kayıt</label><strong id="statCount">0</strong></div>
             <div class="payment-stat"><label>Toplam borç</label><strong id="statDebit">₺0,00</strong></div>
             <div class="payment-stat"><label>Toplam alacak</label><strong id="statCredit">₺0,00</strong></div>
-            <div class="payment-stat"><label>Net bakiye</label><strong id="statBalance">₺0,00</strong></div>
+            <div class="payment-stat"><label>Toplam borç bakiyesi</label><strong id="statDebitBalance">₺0,00</strong></div>
+            <div class="payment-stat"><label>Toplam alacak bakiyesi</label><strong id="statCreditBalance">₺0,00</strong></div>
             <div class="payment-stat"><label>Son yükleme</label><strong id="statUpdated" style="font-size:0.9rem;">—</strong></div>
           </div>
 
           <div id="receivableEmpty" class="payment-empty">
             <i class="ph ph-upload-simple"></i>
             Henüz liste yüklenmedi.<br>
-            Muhasebeden aldığınız <strong>120 Alacak</strong> Excel dosyasını buraya yükleyin.
+            Excel dosyanızda şu sütunlar olmalı: <strong>Hesap Kodu, Hesap Adı, Borç, Alacak, Borç Bakiyesi, Alacak Bakiyesi</strong>
           </div>
 
-          <div class="payment-list-table-wrap" id="receivableTableWrap" style="display:none;">
-            <table class="table atlas-table" id="receivablesTable">
-              <thead id="receivablesHead"></thead>
+          <div class="atlas-table-wrap payment-list-table-wrap" id="receivableTableWrap" style="display:none;">
+            <table class="table atlas-table table-hover" id="receivablesTable">
+              <thead>
+                <tr>
+                  <th width="4%">#</th>
+                  <th class="sortable-th" data-sort="hesapKodu">Hesap Kodu</th>
+                  <th class="sortable-th" data-sort="hesapAdi">Hesap Adı</th>
+                  <th class="sortable-th num-cell" data-sort="borc">Borç</th>
+                  <th class="sortable-th num-cell" data-sort="alacak">Alacak</th>
+                  <th class="sortable-th num-cell" data-sort="borcBakiyesi">Borç Bakiyesi</th>
+                  <th class="sortable-th num-cell" data-sort="alacakBakiyesi">Alacak Bakiyesi</th>
+                </tr>
+              </thead>
               <tbody id="receivablesBody"></tbody>
             </table>
           </div>
@@ -212,18 +246,21 @@
   <script src="supabase-config.js"></script>
   <script src="auth.js"></script>
   <script src="prevent-active-link-reload.js"></script>
+  <script src="atlas-table-tools.js"></script>
   <script src="atlas-shell.js"></script>
   <script>
     var STORAGE_KEY = 'receivables120';
     var DEFAULT_HEADERS = [
-      'Cari Kod', 'Cari Unvan', 'Hesap Kodu', 'Hesap Adı',
-      'Belge No', 'Belge Tarihi', 'Vade', 'Borç', 'Alacak', 'Bakiye', 'Açıklama'
+      'Hesap Kodu', 'Hesap Adı', 'Borç', 'Alacak', 'Borç Bakiyesi', 'Alacak Bakiyesi'
     ];
 
+    var COLUMN_KEYS = ['hesapKodu', 'hesapAdi', 'borc', 'alacak', 'borcBakiyesi', 'alacakBakiyesi'];
+
     var state = {
-      headers: [],
       rows: [],
-      updatedAt: null
+      updatedAt: null,
+      sortKey: 'hesapKodu',
+      sortDir: 'asc'
     };
 
     function showToast(message, type) {
@@ -265,19 +302,86 @@
       return '₺' + Number(n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function isMoneyHeader(header) {
-      var h = String(header || '').toLocaleLowerCase('tr');
-      return /borç|borc|alacak|bakiye|tutar|meblağ|meblag|amount|balance|debit|credit/.test(h);
+    function normalizeText(value) {
+      if (value == null || value === '') return '';
+      return String(value).trim();
     }
 
-    function findHeaderIndex(headers, patterns) {
-      for (var i = 0; i < headers.length; i++) {
-        var h = String(headers[i] || '').toLocaleLowerCase('tr');
-        for (var j = 0; j < patterns.length; j++) {
-          if (h.indexOf(patterns[j]) !== -1) return i;
+    function mapHeaderIndices(headerRow) {
+      var map = {};
+      (headerRow || []).forEach(function (cell, idx) {
+        var key = AtlasTableTools.normalizeKey(cell);
+        if (key) map[key] = idx;
+      });
+      function find() {
+        var aliases = Array.prototype.slice.call(arguments);
+        for (var i = 0; i < aliases.length; i++) {
+          if (Object.prototype.hasOwnProperty.call(map, aliases[i])) return map[aliases[i]];
         }
+        return -1;
       }
-      return -1;
+      return {
+        hesapKodu: find('hesap kodu', 'hesap kod', 'hesap no', 'kod'),
+        hesapAdi: find('hesap adi', 'hesap ad', 'hesap ismi', 'unvan'),
+        borc: find('borc', 'debit'),
+        alacak: find('alacak', 'credit'),
+        borcBakiyesi: find('borc bakiyesi', 'borc bakiye', 'debit balance'),
+        alacakBakiyesi: find('alacak bakiyesi', 'alacak bakiye', 'credit balance')
+      };
+    }
+
+    function findPaymentHeaderRow(aoa) {
+      for (var i = 0; i < Math.min(aoa.length, 15); i++) {
+        var cols = mapHeaderIndices(aoa[i]);
+        if (cols.hesapKodu >= 0 || cols.hesapAdi >= 0) return i;
+      }
+      return 0;
+    }
+
+    function rowFromArray(raw, cols) {
+      return {
+        hesapKodu: normalizeText(raw[cols.hesapKodu >= 0 ? cols.hesapKodu : 0]),
+        hesapAdi: normalizeText(raw[cols.hesapAdi >= 0 ? cols.hesapAdi : 1]),
+        borc: parseNumber(raw[cols.borc >= 0 ? cols.borc : 2]),
+        alacak: parseNumber(raw[cols.alacak >= 0 ? cols.alacak : 3]),
+        borcBakiyesi: parseNumber(raw[cols.borcBakiyesi >= 0 ? cols.borcBakiyesi : 4]),
+        alacakBakiyesi: parseNumber(raw[cols.alacakBakiyesi >= 0 ? cols.alacakBakiyesi : 5])
+      };
+    }
+
+    function migrateLegacyRow(row) {
+      if (row && typeof row === 'object' && !Array.isArray(row) && row.hesapKodu != null) {
+        return {
+          hesapKodu: normalizeText(row.hesapKodu),
+          hesapAdi: normalizeText(row.hesapAdi),
+          borc: parseNumber(row.borc),
+          alacak: parseNumber(row.alacak),
+          borcBakiyesi: parseNumber(row.borcBakiyesi),
+          alacakBakiyesi: parseNumber(row.alacakBakiyesi)
+        };
+      }
+      if (!Array.isArray(row)) return null;
+      var headers = state._legacyHeaders || [];
+      var idx = {};
+      headers.forEach(function (h, i) {
+        idx[AtlasTableTools.normalizeKey(h)] = i;
+      });
+      function col() {
+        var aliases = Array.prototype.slice.call(arguments);
+        for (var i = 0; i < aliases.length; i++) {
+          if (idx[aliases[i]] != null) return idx[aliases[i]];
+        }
+        return -1;
+      }
+      var cols = {
+        hesapKodu: col('hesap kodu', 'hesap kod', 'cari kod'),
+        hesapAdi: col('hesap adi', 'hesap ad', 'cari unvan'),
+        borc: col('borc'),
+        alacak: col('alacak'),
+        borcBakiyesi: col('borc bakiyesi', 'borc bakiye'),
+        alacakBakiyesi: col('alacak bakiyesi', 'alacak bakiye', 'bakiye')
+      };
+      return rowFromArray(row, cols);
     }
 
     function loadState() {
@@ -285,49 +389,95 @@
         var raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return;
         var parsed = JSON.parse(raw);
-        state.headers = parsed.headers || [];
-        state.rows = parsed.rows || [];
         state.updatedAt = parsed.updatedAt || null;
+        state.sortKey = parsed.sortKey || 'hesapKodu';
+        state.sortDir = parsed.sortDir || 'asc';
+        if (parsed.rows && parsed.rows.length && typeof parsed.rows[0] === 'object' && !Array.isArray(parsed.rows[0])) {
+          state.rows = parsed.rows.map(migrateLegacyRow).filter(Boolean);
+          return;
+        }
+        state._legacyHeaders = parsed.headers || [];
+        state.rows = (parsed.rows || []).map(migrateLegacyRow).filter(function (r) {
+          return r && (r.hesapKodu || r.hesapAdi);
+        });
       } catch (e) {
-        state = { headers: [], rows: [], updatedAt: null };
+        state.rows = [];
+        state.updatedAt = null;
       }
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        rows: state.rows,
+        updatedAt: state.updatedAt,
+        sortKey: state.sortKey,
+        sortDir: state.sortDir
+      }));
+    }
+
+    function fillAccountFilter() {
+      var el = document.getElementById('paymentFilterAccount');
+      if (!el) return;
+      var current = el.value;
+      var codes = AtlasTableTools.uniqueValues(state.rows, function (r) { return r.hesapKodu; });
+      el.innerHTML = '<option value="">Tümü</option>' + codes.map(function (v) {
+        return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>';
+      }).join('');
+      if (current && codes.indexOf(current) !== -1) el.value = current;
+    }
+
+    function getVisibleRows() {
+      var q = document.getElementById('receivableSearch').value;
+      var account = document.getElementById('paymentFilterAccount').value;
+      var rows = AtlasTableTools.filterRows(state.rows, q, [
+        function (r) { return r.hesapKodu; },
+        function (r) { return r.hesapAdi; }
+      ]);
+      if (account) rows = rows.filter(function (r) { return r.hesapKodu === account; });
+      return AtlasTableTools.sortRows(rows, function (r) {
+        var key = state.sortKey;
+        if (key === 'borc' || key === 'alacak' || key === 'borcBakiyesi' || key === 'alacakBakiyesi') {
+          return r[key];
+        }
+        return r[key] || '';
+      }, state.sortDir);
+    }
+
+    function updateSortHeaders() {
+      $('#receivablesTable thead th.sortable-th').each(function () {
+        var key = $(this).data('sort');
+        $(this).toggleClass('is-sorted', key === state.sortKey);
+        $(this).toggleClass('is-desc', key === state.sortKey && state.sortDir === 'desc');
+      });
     }
 
     function updateStats(visibleRows) {
       var rows = visibleRows || state.rows;
-      var debitIdx = findHeaderIndex(state.headers, ['borç', 'borc', 'debit']);
-      var creditIdx = findHeaderIndex(state.headers, ['alacak', 'credit']);
-      var balanceIdx = findHeaderIndex(state.headers, ['bakiye', 'balance']);
-
-      var debit = 0, credit = 0, balance = 0;
+      var debit = 0, credit = 0, debitBal = 0, creditBal = 0;
       rows.forEach(function (row) {
-        if (debitIdx >= 0) debit += parseNumber(row[debitIdx]);
-        if (creditIdx >= 0) credit += parseNumber(row[creditIdx]);
-        if (balanceIdx >= 0) balance += parseNumber(row[balanceIdx]);
+        debit += parseNumber(row.borc);
+        credit += parseNumber(row.alacak);
+        debitBal += parseNumber(row.borcBakiyesi);
+        creditBal += parseNumber(row.alacakBakiyesi);
       });
-      if (balanceIdx < 0) balance = debit - credit;
 
       document.getElementById('statCount').textContent = String(rows.length);
       document.getElementById('statDebit').textContent = formatMoney(debit);
       document.getElementById('statCredit').textContent = formatMoney(credit);
-      document.getElementById('statBalance').textContent = formatMoney(balance);
+      document.getElementById('statDebitBalance').textContent = formatMoney(debitBal);
+      document.getElementById('statCreditBalance').textContent = formatMoney(creditBal);
       document.getElementById('statUpdated').textContent = state.updatedAt
         ? new Date(state.updatedAt).toLocaleString('tr-TR')
         : '—';
       document.getElementById('clearReceivablesBtn').disabled = !state.rows.length;
     }
 
-    function renderTable(filterText) {
+    function renderTable() {
       var empty = document.getElementById('receivableEmpty');
       var wrap = document.getElementById('receivableTableWrap');
-      var head = document.getElementById('receivablesHead');
       var body = document.getElementById('receivablesBody');
 
-      if (!state.rows.length || !state.headers.length) {
+      if (!state.rows.length) {
         empty.style.display = 'block';
         wrap.style.display = 'none';
         updateStats([]);
@@ -337,35 +487,29 @@
       empty.style.display = 'none';
       wrap.style.display = 'block';
 
-      var q = String(filterText || '').trim().toLocaleLowerCase('tr');
-      var visible = state.rows.filter(function (row) {
-        if (!q) return true;
-        return row.some(function (cell) {
-          return String(cell == null ? '' : cell).toLocaleLowerCase('tr').indexOf(q) !== -1;
-        });
-      });
-
-      head.innerHTML = '<tr><th>#</th>' + state.headers.map(function (h) {
-        return '<th>' + escapeHtml(h) + '</th>';
-      }).join('') + '</tr>';
+      var visible = getVisibleRows();
 
       if (!visible.length) {
-        body.innerHTML = '<tr><td colspan="' + (state.headers.length + 1) + '" class="text-muted text-center">Aramaya uygun kayıt yok.</td></tr>';
+        body.innerHTML = '<tr><td colspan="7" class="text-muted text-center">Filtreye uygun kayıt yok.</td></tr>';
         updateStats([]);
+        updateSortHeaders();
         return;
       }
 
       body.innerHTML = visible.map(function (row, idx) {
-        var cells = state.headers.map(function (h, col) {
-          var val = row[col] == null ? '' : row[col];
-          var cls = isMoneyHeader(h) ? ' class="num-cell"' : '';
-          var text = isMoneyHeader(h) && val !== '' ? formatMoney(parseNumber(val)).replace('₺', '') : String(val);
-          return '<td' + cls + '>' + escapeHtml(text) + '</td>';
-        }).join('');
-        return '<tr><td class="num-cell">' + (idx + 1) + '</td>' + cells + '</tr>';
+        return '<tr>' +
+          '<td class="num-cell">' + (idx + 1) + '</td>' +
+          '<td class="mono-cell">' + escapeHtml(row.hesapKodu || '—') + '</td>' +
+          '<td>' + escapeHtml(row.hesapAdi || '—') + '</td>' +
+          '<td class="num-cell">' + escapeHtml(formatMoney(row.borc).replace('₺', '')) + '</td>' +
+          '<td class="num-cell">' + escapeHtml(formatMoney(row.alacak).replace('₺', '')) + '</td>' +
+          '<td class="num-cell">' + escapeHtml(formatMoney(row.borcBakiyesi).replace('₺', '')) + '</td>' +
+          '<td class="num-cell">' + escapeHtml(formatMoney(row.alacakBakiyesi).replace('₺', '')) + '</td>' +
+          '</tr>';
       }).join('');
 
       updateStats(visible);
+      updateSortHeaders();
     }
 
     function downloadReceivableTemplate() {
@@ -373,65 +517,40 @@
         showToast('Excel kütüphanesi yüklenemedi.', 'error');
         return;
       }
-      var example = [
-        '120.01.001', 'Örnek Müşteri A.Ş.', '120', 'Alıcılar',
-        'FTR-2024-001', '01.01.2024', '31.01.2024', 15000, 0, 15000, 'Denetim faturası'
-      ];
+      var example = ['120.01.001', 'Alıcılar', 15000, 5000, 10000, 0];
       var ws = XLSX.utils.aoa_to_sheet([DEFAULT_HEADERS, example]);
       ws['!cols'] = DEFAULT_HEADERS.map(function (h) { return { wch: Math.max(12, h.length + 2) }; });
       var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, '120 Alacak');
-      XLSX.writeFile(wb, '120-alacak-taslak.xlsx');
+      XLSX.utils.book_append_sheet(wb, ws, 'Odeme Listesi');
+      XLSX.writeFile(wb, 'odeme-listesi-taslak.xlsx');
       showToast('Taslak indirildi.');
     }
 
     function clearReceivables() {
       if (!state.rows.length) return;
-      if (!confirm('Yüklü 120 Alacak listesi silinsin mi?')) return;
-      state = { headers: [], rows: [], updatedAt: null };
+      if (!confirm('Yüklü ödeme listesi silinsin mi?')) return;
+      state.rows = [];
+      state.updatedAt = null;
       saveState();
       document.getElementById('receivableSearch').value = '';
-      renderTable('');
+      document.getElementById('paymentFilterAccount').value = '';
+      renderTable();
+      fillAccountFilter();
       showToast('Liste temizlendi.');
     }
 
-    function normalizeSheetRows(aoa) {
-      if (!aoa || !aoa.length) return null;
-      var headerRowIdx = 0;
-      for (var i = 0; i < Math.min(aoa.length, 10); i++) {
-        var nonEmpty = (aoa[i] || []).filter(function (c) { return c != null && String(c).trim() !== ''; }).length;
-        if (nonEmpty >= 2) { headerRowIdx = i; break; }
-      }
-      var headers = (aoa[headerRowIdx] || []).map(function (h, idx) {
-        var t = String(h == null ? '' : h).trim();
-        return t || ('Sütun ' + (idx + 1));
-      });
-      while (headers.length && headers[headers.length - 1].indexOf('Sütun ') === 0) {
-        var lastUsed = false;
-        for (var r = headerRowIdx + 1; r < aoa.length; r++) {
-          if (aoa[r] && aoa[r][headers.length - 1] != null && String(aoa[r][headers.length - 1]).trim() !== '') {
-            lastUsed = true;
-            break;
-          }
-        }
-        if (lastUsed) break;
-        headers.pop();
-      }
-      if (!headers.length) return null;
-
+    function parsePaymentExcel(aoa) {
+      if (!aoa || !aoa.length) return [];
+      var headerIdx = findPaymentHeaderRow(aoa);
+      var cols = mapHeaderIndices(aoa[headerIdx]);
       var rows = [];
-      for (var r = headerRowIdx + 1; r < aoa.length; r++) {
+      for (var r = headerIdx + 1; r < aoa.length; r++) {
         var raw = aoa[r] || [];
-        var empty = true;
-        var row = [];
-        for (var c = 0; c < headers.length; c++) {
-          var cell = raw[c];
-          if (cell != null && String(cell).trim() !== '') empty = false;
-          row.push(cell == null ? '' : cell);
-        }
-        if (!empty) rows.push(row);
+        var item = rowFromArray(raw, cols);
+        if (!item.hesapKodu && !item.hesapAdi) continue;
+        rows.push(item);
       }
-      return { headers: headers, rows: rows };
+      return rows;
     }
 
     document.getElementById('receivableExcel').addEventListener('change', function (e) {
@@ -444,18 +563,19 @@
           var workbook = XLSX.read(data, { type: 'array' });
           var sheet = workbook.Sheets[workbook.SheetNames[0]];
           var aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-          var parsed = normalizeSheetRows(aoa);
-          if (!parsed || !parsed.rows.length) {
+          var parsed = parsePaymentExcel(aoa);
+          if (!parsed.length) {
             showToast('Excel dosyasında okunabilir satır bulunamadı.', 'error');
             return;
           }
-          state.headers = parsed.headers;
-          state.rows = parsed.rows;
+          state.rows = parsed;
           state.updatedAt = new Date().toISOString();
           saveState();
           document.getElementById('receivableSearch').value = '';
-          renderTable('');
-          showToast(parsed.rows.length + ' satır yüklendi.');
+          document.getElementById('paymentFilterAccount').value = '';
+          fillAccountFilter();
+          renderTable();
+          showToast(parsed.length + ' satır yüklendi.');
         } catch (err) {
           console.error(err);
           showToast('Excel okunamadı. Dosya formatını kontrol edin.', 'error');
@@ -466,8 +586,32 @@
       reader.readAsArrayBuffer(file);
     });
 
-    document.getElementById('receivableSearch').addEventListener('input', function (e) {
-      renderTable(e.target.value);
+    document.getElementById('receivableSearch').addEventListener('input', renderTable);
+    document.getElementById('paymentFilterAccount').addEventListener('change', renderTable);
+    document.getElementById('paymentSortBy').addEventListener('change', function (e) {
+      var parts = String(e.target.value || 'hesapKodu:asc').split(':');
+      state.sortKey = parts[0] || 'hesapKodu';
+      state.sortDir = parts[1] || 'asc';
+      renderTable();
+    });
+    document.getElementById('paymentResetFilters').addEventListener('click', function () {
+      document.getElementById('receivableSearch').value = '';
+      document.getElementById('paymentFilterAccount').value = '';
+      state.sortKey = 'hesapKodu';
+      state.sortDir = 'asc';
+      document.getElementById('paymentSortBy').value = 'hesapKodu:asc';
+      renderTable();
+    });
+    $('#receivablesTable thead').on('click', 'th.sortable-th', function () {
+      var key = $(this).data('sort');
+      if (state.sortKey === key) {
+        state.sortDir = state.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.sortKey = key;
+        state.sortDir = (key === 'borc' || key === 'alacak' || key === 'borcBakiyesi' || key === 'alacakBakiyesi') ? 'desc' : 'asc';
+      }
+      document.getElementById('paymentSortBy').value = state.sortKey + ':' + state.sortDir;
+      renderTable();
     });
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -477,7 +621,8 @@
         }
       }, 100);
       loadState();
-      renderTable('');
+      fillAccountFilter();
+      renderTable();
     });
   </script>
 </body>

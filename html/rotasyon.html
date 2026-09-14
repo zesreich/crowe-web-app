@@ -144,12 +144,44 @@
 
         <section class="atlas-module" aria-label="Rotasyon listesi">
           <div class="atlas-toolbar">
-            <label class="atlas-search-field" for="rotationSearch">
-              <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-              <input type="search" id="rotationSearch" placeholder="Sözleşme, şirket veya kapsam ara…" autocomplete="off">
-            </label>
+            <strong style="font-size:0.8125rem;font-weight:600;">Rotasyon listesi</strong>
             <div class="atlas-toolbar-actions">
+              <button type="button" class="btn btn-outline-dark btn-sm" id="clearRotationBtn" title="Excel kayıtlarını temizle">
+                <i class="ph ph-trash"></i> Excel verisini temizle
+              </button>
               <span class="text-muted" style="font-size:0.75rem;" id="rotationCount">0 kayıt</span>
+            </div>
+          </div>
+          <div class="atlas-filter-panel" aria-label="Filtrele ve sırala">
+            <div>
+              <label for="rotationSearch">Ara</label>
+              <input type="search" id="rotationSearch" placeholder="Sözleşme, şirket, kapsam…" autocomplete="off">
+            </div>
+            <div>
+              <label for="rotationFilterCompany">Denetlenen şirket</label>
+              <select id="rotationFilterCompany"><option value="">Tümü</option></select>
+            </div>
+            <div>
+              <label for="rotationFilterReason">Denetime tabi olma nedeni</label>
+              <select id="rotationFilterReason"><option value="">Tümü</option></select>
+            </div>
+            <div>
+              <label for="rotationFilterScope">Denetim kapsamı</label>
+              <select id="rotationFilterScope"><option value="">Tümü</option></select>
+            </div>
+            <div>
+              <label for="rotationSortBy">Sırala</label>
+              <select id="rotationSortBy">
+                <option value="denetlenenSirket:asc">Şirket (A→Z)</option>
+                <option value="denetlenenSirket:desc">Şirket (Z→A)</option>
+                <option value="sozlesmeId:asc">Sözleşme ID (A→Z)</option>
+                <option value="denetimBaslangicDonemi:desc">Başlangıç dönemi (yeni→eski)</option>
+                <option value="denetimBaslangicDonemi:asc">Başlangıç dönemi (eski→yeni)</option>
+                <option value="denetimBitisDonemi:desc">Bitiş dönemi (yeni→eski)</option>
+              </select>
+            </div>
+            <div class="atlas-filter-actions">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="rotationResetFilters">Filtreleri temizle</button>
             </div>
           </div>
           <div class="atlas-table-wrap">
@@ -157,12 +189,12 @@
               <thead>
                 <tr>
                   <th width="4%">#</th>
-                  <th width="12%">Sozlesme ID</th>
-                  <th width="18%">Denetlenen Sirket</th>
-                  <th width="16%">Denetime Tabi Olma Nedeni</th>
-                  <th width="16%">Denetim Kapsamı</th>
-                  <th width="14%">Denetim Baslangic Donemi</th>
-                  <th width="14%">Denetim Bitis Donemi</th>
+                  <th width="11%" class="sortable-th" data-sort="sozlesmeId">Sozlesme ID</th>
+                  <th width="20%" class="sortable-th" data-sort="denetlenenSirket">Denetlenen Sirket</th>
+                  <th width="16%" class="sortable-th" data-sort="denetimeTabiOlmaNedeni">Denetime Tabi Olma Nedeni</th>
+                  <th width="16%" class="sortable-th" data-sort="denetimKapsami">Denetim Kapsamı</th>
+                  <th width="14%" class="sortable-th" data-sort="denetimBaslangicDonemi">Denetim Baslangic Donemi</th>
+                  <th width="14%" class="sortable-th" data-sort="denetimBitisDonemi">Denetim Bitis Donemi</th>
                 </tr>
               </thead>
               <tbody id="rotationTableBody"></tbody>
@@ -184,6 +216,7 @@
   <script src="auth.js"></script>
   <script src="reports-store.js"></script>
   <script src="rotasyon-store.js"></script>
+  <script src="atlas-table-tools.js"></script>
   <script src="prevent-active-link-reload.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -204,6 +237,12 @@
           'Denetim Baslangic Donemi',
           'Denetim Bitis Donemi'
         ];
+
+    var rotationState = {
+      allRows: [],
+      sortKey: 'denetlenenSirket',
+      sortDir: 'asc'
+    };
 
     function showToast(message, type) {
       type = type || 'success';
@@ -228,30 +267,89 @@
       return escapeHtml(RotasyonStore.formatPeriodDisplay(value));
     }
 
-    async function loadRotation() {
+    function fillSelect(id, values) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var current = el.value;
+      el.innerHTML = '<option value="">Tümü</option>' + values.map(function (v) {
+        return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>';
+      }).join('');
+      if (current && values.indexOf(current) !== -1) el.value = current;
+    }
+
+    function getFilteredRows() {
+      var q = document.getElementById('rotationSearch').value;
+      var company = document.getElementById('rotationFilterCompany').value;
+      var reason = document.getElementById('rotationFilterReason').value;
+      var scope = document.getElementById('rotationFilterScope').value;
+
+      var rows = AtlasTableTools.filterRows(rotationState.allRows, q, [
+        function (r) { return r.sozlesmeId; },
+        function (r) { return r.denetlenenSirket; },
+        function (r) { return r.denetimeTabiOlmaNedeni; },
+        function (r) { return r.denetimKapsami; },
+        function (r) { return RotasyonStore.formatPeriodDisplay(r.denetimBaslangicDonemi); },
+        function (r) { return RotasyonStore.formatPeriodDisplay(r.denetimBitisDonemi); }
+      ]);
+
+      if (company) rows = rows.filter(function (r) { return r.denetlenenSirket === company; });
+      if (reason) rows = rows.filter(function (r) { return r.denetimeTabiOlmaNedeni === reason; });
+      if (scope) rows = rows.filter(function (r) { return r.denetimKapsami === scope; });
+
+      return AtlasTableTools.sortRows(rows, function (r) {
+        return r[rotationState.sortKey] || '';
+      }, rotationState.sortDir);
+    }
+
+    function updateSortHeaders() {
+      $('#rotationTable thead th.sortable-th').each(function () {
+        var key = $(this).data('sort');
+        $(this).toggleClass('is-sorted', key === rotationState.sortKey);
+        $(this).toggleClass('is-desc', key === rotationState.sortKey && rotationState.sortDir === 'desc');
+      });
+    }
+
+    function renderRotationTable() {
       var tbody = document.getElementById('rotationTableBody');
       var countEl = document.getElementById('rotationCount');
+      var rows = getFilteredRows();
+
+      if (countEl) {
+        countEl.textContent = rows.length + ' / ' + rotationState.allRows.length + ' kayıt';
+      }
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">' +
+          (rotationState.allRows.length ? 'Filtreye uygun kayıt yok.' : 'Henüz rotasyon kaydı yok. Excel yükleyin veya Rapor Listesi’nden kayıt ekleyin.') +
+          '</td></tr>';
+        updateSortHeaders();
+        return;
+      }
+
+      tbody.innerHTML = rows.map(function (row, index) {
+        return '<tr>' +
+          '<td class="text-center num-cell">' + (index + 1) + '</td>' +
+          '<td class="mono-cell">' + escapeHtml(row.sozlesmeId || '—') + '</td>' +
+          '<td>' + escapeHtml(row.denetlenenSirket || '—') + '</td>' +
+          '<td>' + escapeHtml(row.denetimeTabiOlmaNedeni || '—') + '</td>' +
+          '<td>' + escapeHtml(row.denetimKapsami || '—') + '</td>' +
+          '<td class="text-center num-cell">' + cellPeriod(row.denetimBaslangicDonemi) + '</td>' +
+          '<td class="text-center num-cell">' + cellPeriod(row.denetimBitisDonemi) + '</td>' +
+          '</tr>';
+      }).join('');
+      updateSortHeaders();
+    }
+
+    async function loadRotation() {
       try {
-        var rows = await RotasyonStore.listRotation();
-        if (countEl) countEl.textContent = rows.length + ' kayıt';
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Henüz rotasyon kaydı yok. Excel yükleyin veya Rapor Listesi’nden kayıt ekleyin.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = rows.map(function (row, index) {
-          return '<tr>' +
-            '<td class="text-center">' + (index + 1) + '</td>' +
-            '<td class="mono-cell">' + escapeHtml(row.sozlesmeId || '—') + '</td>' +
-            '<td>' + escapeHtml(row.denetlenenSirket || '—') + '</td>' +
-            '<td>' + escapeHtml(row.denetimeTabiOlmaNedeni || '—') + '</td>' +
-            '<td>' + escapeHtml(row.denetimKapsami || '—') + '</td>' +
-            '<td class="text-center">' + cellPeriod(row.denetimBaslangicDonemi) + '</td>' +
-            '<td class="text-center">' + cellPeriod(row.denetimBitisDonemi) + '</td>' +
-            '</tr>';
-        }).join('');
+        rotationState.allRows = await RotasyonStore.listRotation();
+        fillSelect('rotationFilterCompany', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetlenenSirket; }));
+        fillSelect('rotationFilterReason', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetimeTabiOlmaNedeni; }));
+        fillSelect('rotationFilterScope', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetimKapsami; }));
+        renderRotationTable();
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Liste yüklenemedi.</td></tr>';
+        document.getElementById('rotationTableBody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Liste yüklenemedi.</td></tr>';
         showToast((err && err.message) || 'Liste yüklenemedi', 'error');
       }
     }
@@ -274,17 +372,8 @@
     function headerIndexMap(headerRow) {
       var map = {};
       (headerRow || []).forEach(function (cell, idx) {
-        var key = String(cell || '')
-          .toLocaleLowerCase('tr')
-          .replace(/ı/g, 'i')
-          .replace(/ş/g, 's')
-          .replace(/ğ/g, 'g')
-          .replace(/ü/g, 'u')
-          .replace(/ö/g, 'o')
-          .replace(/ç/g, 'c')
-          .replace(/[^a-z0-9]+/g, ' ')
-          .trim();
-        map[key] = idx;
+        var key = AtlasTableTools.normalizeKey(cell);
+        if (key) map[key] = idx;
       });
       function find() {
         var aliases = Array.prototype.slice.call(arguments);
@@ -294,13 +383,21 @@
         return -1;
       }
       return {
-        sozlesmeId: find('sozlesme id', 'sozlesmeid', 'sozlesme'),
-        denetlenenSirket: find('denetlenen sirket', 'denetlenen sirketi', 'sirket'),
-        denetimeTabiOlmaNedeni: find('denetime tabi olma nedeni', 'denetime tabi olma', 'neden'),
-        denetimKapsami: find('denetim kapsami', 'kapsam'),
-        denetimBaslangicDonemi: find('denetim baslangic donemi', 'baslangic donemi', 'baslangic'),
-        denetimBitisDonemi: find('denetim bitis donemi', 'bitis donemi', 'bitis')
+        sozlesmeId: find('sozlesme id', 'sozlesmeid', 'sozlesme no', 'sozlesme'),
+        denetlenenSirket: find('denetlenen sirket', 'denetlenen sirketi', 'sirket', 'musteri'),
+        denetimeTabiOlmaNedeni: find('denetime tabi olma nedeni', 'denetime tabi olma', 'tabi olma nedeni', 'neden'),
+        denetimKapsami: find('denetim kapsami', 'kapsam', 'denetim kapsam'),
+        denetimBaslangicDonemi: find('denetim baslangic donemi', 'baslangic donemi', 'baslangic', 'donem baslangic'),
+        denetimBitisDonemi: find('denetim bitis donemi', 'bitis donemi', 'bitis', 'donem bitis')
       };
+    }
+
+    function findHeaderRow(rows) {
+      for (var i = 0; i < Math.min(rows.length, 15); i++) {
+        var cols = headerIndexMap(rows[i]);
+        if (cols.denetlenenSirket >= 0 || cols.sozlesmeId >= 0) return i;
+      }
+      return 0;
     }
 
     async function importRotationExcel(file) {
@@ -319,8 +416,8 @@
           return;
         }
 
-        var cols = headerIndexMap(rows[0]);
-        // Başlık eşleşmezse sabit sıra: 0..5
+        var headerIdx = findHeaderRow(rows);
+        var cols = headerIndexMap(rows[headerIdx]);
         if (cols.sozlesmeId < 0) cols.sozlesmeId = 0;
         if (cols.denetlenenSirket < 0) cols.denetlenenSirket = 1;
         if (cols.denetimeTabiOlmaNedeni < 0) cols.denetimeTabiOlmaNedeni = 2;
@@ -330,15 +427,15 @@
 
         var toInsert = [];
         var skipped = 0;
-        for (var i = 1; i < rows.length; i++) {
+        for (var i = headerIdx + 1; i < rows.length; i++) {
           var row = rows[i] || [];
           var item = {
-            sozlesmeId: String(row[cols.sozlesmeId] || '').trim(),
-            denetlenenSirket: String(row[cols.denetlenenSirket] || '').trim(),
-            denetimeTabiOlmaNedeni: String(row[cols.denetimeTabiOlmaNedeni] || '').trim(),
-            denetimKapsami: String(row[cols.denetimKapsami] || '').trim(),
-            denetimBaslangicDonemi: row[cols.denetimBaslangicDonemi],
-            denetimBitisDonemi: row[cols.denetimBitisDonemi]
+            sozlesmeId: RotasyonStore.normalizeText(row[cols.sozlesmeId]),
+            denetlenenSirket: RotasyonStore.normalizeText(row[cols.denetlenenSirket]),
+            denetimeTabiOlmaNedeni: RotasyonStore.normalizeText(row[cols.denetimeTabiOlmaNedeni]),
+            denetimKapsami: RotasyonStore.normalizeText(row[cols.denetimKapsami]),
+            denetimBaslangicDonemi: RotasyonStore.normalizePeriod(row[cols.denetimBaslangicDonemi]),
+            denetimBitisDonemi: RotasyonStore.normalizePeriod(row[cols.denetimBitisDonemi])
           };
           if (!item.sozlesmeId && !item.denetlenenSirket && !item.denetimKapsami) continue;
           if (!item.denetlenenSirket) {
@@ -353,14 +450,18 @@
           return;
         }
 
-        var result = RotasyonStore.addRows(toInsert);
+        var replace = rotationState.allRows.length
+          ? confirm('Mevcut Excel kayıtları silinip yeni dosya ile değiştirilsin mi?\n\nİptal = mevcut kayıtlara ekle')
+          : true;
+
+        var result = RotasyonStore.addRows(toInsert, { replace: replace });
         if (!result.success) {
           showToast(result.error || 'Yükleme başarısız.', 'error');
           return;
         }
 
         await loadRotation();
-        var msg = result.count + ' rotasyon kaydı eklendi.';
+        var msg = result.count + ' rotasyon kaydı ' + (replace ? 'yüklendi' : 'eklendi') + '.';
         if (skipped) msg += ' ' + skipped + ' satır atlandı.';
         showToast(msg, 'success');
       } catch (err) {
@@ -376,11 +477,37 @@
         var file = e.target.files && e.target.files[0];
         importRotationExcel(file).finally(function () { e.target.value = ''; });
       });
-      $('#rotationSearch').on('keyup', function () {
-        var value = String($(this).val() || '').toLowerCase();
-        $('#rotationTable tbody tr').filter(function () {
-          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-        });
+      $('#rotationSearch, #rotationFilterCompany, #rotationFilterReason, #rotationFilterScope').on('input change', renderRotationTable);
+      $('#rotationSortBy').on('change', function () {
+        var parts = String($(this).val() || 'denetlenenSirket:asc').split(':');
+        rotationState.sortKey = parts[0] || 'denetlenenSirket';
+        rotationState.sortDir = parts[1] || 'asc';
+        renderRotationTable();
+      });
+      $('#rotationResetFilters').on('click', function () {
+        $('#rotationSearch').val('');
+        $('#rotationFilterCompany, #rotationFilterReason, #rotationFilterScope').val('');
+        rotationState.sortKey = 'denetlenenSirket';
+        rotationState.sortDir = 'asc';
+        $('#rotationSortBy').val('denetlenenSirket:asc');
+        renderRotationTable();
+      });
+      $('#rotationTable thead').on('click', 'th.sortable-th', function () {
+        var key = $(this).data('sort');
+        if (rotationState.sortKey === key) {
+          rotationState.sortDir = rotationState.sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          rotationState.sortKey = key;
+          rotationState.sortDir = 'asc';
+        }
+        $('#rotationSortBy').val(rotationState.sortKey + ':' + rotationState.sortDir);
+        renderRotationTable();
+      });
+      $('#clearRotationBtn').on('click', function () {
+        if (!confirm('Excel ile yüklenen rotasyon kayıtları silinsin mi? (Rapor Listesi kayıtları kalır)')) return;
+        RotasyonStore.clearExcelRows();
+        loadRotation();
+        showToast('Excel kayıtları temizlendi.', 'success');
       });
     });
   </script>

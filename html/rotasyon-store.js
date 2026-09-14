@@ -16,8 +16,18 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list || []));
   }
 
+  function isDateLike(value) {
+    return value instanceof Date || (typeof value === 'object' && value && typeof value.getTime === 'function');
+  }
+
   function normalizePeriod(value) {
     if (value == null || value === '') return '';
+    if (isDateLike(value)) {
+      var d = value instanceof Date ? value : new Date(value);
+      if (!isNaN(d.getTime())) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+    }
     if (typeof value === 'number' && isFinite(value) && global.XLSX && global.XLSX.SSF) {
       try {
         var parsed = global.XLSX.SSF.parse_date_code(value);
@@ -27,7 +37,15 @@
       } catch (e) {}
     }
     var raw = String(value).trim();
-    var iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    // JS Date string kalıntısı
+    if (/GMT|Standart Saati|Türkiye/.test(raw)) {
+      var dt = new Date(raw);
+      if (!isNaN(dt.getTime())) {
+        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+      }
+      return '';
+    }
+    var iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
     if (iso) {
       return iso[1] + '-' + iso[2].padStart(2, '0') + '-' + iso[3].padStart(2, '0');
     }
@@ -36,18 +54,63 @@
       var yy = tr[3].length === 2 ? ('20' + tr[3]) : tr[3];
       return yy + '-' + tr[2].padStart(2, '0') + '-' + tr[1].padStart(2, '0');
     }
-    // Dönem metni (ör. 2024 / 2024-Q1) olduğu gibi sakla
+    return raw;
+  }
+
+  function normalizeText(value) {
+    if (value == null || value === '') return '';
+    if (isDateLike(value)) return '';
+    var raw = String(value).trim();
+    if (/GMT|Standart Saati|Türkiye/.test(raw)) return '';
     return raw;
   }
 
   function formatPeriodDisplay(value) {
-    if (!value) return '—';
-    var s = String(value);
-    if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
-      var p = s.slice(0, 10).split('-');
+    if (value == null || value === '') return '—';
+    var normalized = normalizePeriod(value);
+    if (!normalized) return '—';
+    if (/^\d{4}-\d{2}-\d{2}/.test(normalized)) {
+      var p = normalized.slice(0, 10).split('-');
       return p[2] + '/' + p[1] + '/' + p[0];
     }
-    return s;
+    return normalized;
+  }
+
+  function repairRow(row) {
+    return {
+      id: row.id,
+      sozlesmeId: normalizeText(row.sozlesmeId),
+      denetlenenSirket: normalizeText(row.denetlenenSirket),
+      denetimeTabiOlmaNedeni: normalizeText(row.denetimeTabiOlmaNedeni),
+      denetimKapsami: normalizeText(row.denetimKapsami),
+      denetimBaslangicDonemi: normalizePeriod(row.denetimBaslangicDonemi),
+      denetimBitisDonemi: normalizePeriod(row.denetimBitisDonemi),
+      source: row.source || 'excel',
+      createdAt: row.createdAt || null
+    };
+  }
+
+  function rowKey(row) {
+    return [
+      row.sozlesmeId,
+      row.denetlenenSirket,
+      row.denetimeTabiOlmaNedeni,
+      row.denetimKapsami,
+      row.denetimBaslangicDonemi,
+      row.denetimBitisDonemi
+    ].join('|').toLocaleLowerCase('tr');
+  }
+
+  function dedupeRows(rows) {
+    var seen = {};
+    var out = [];
+    rows.forEach(function (row) {
+      var key = rowKey(row);
+      if (seen[key]) return;
+      seen[key] = true;
+      out.push(row);
+    });
+    return out;
   }
 
   function mapReportToRotation(report) {
@@ -57,16 +120,19 @@
       denetlenenSirket: report.company || '',
       denetimeTabiOlmaNedeni: report.reportType || '',
       denetimKapsami: report.service || '',
-      denetimBaslangicDonemi: report.startDate || '',
-      denetimBitisDonemi: report.endDate || '',
+      denetimBaslangicDonemi: normalizePeriod(report.startDate),
+      denetimBitisDonemi: normalizePeriod(report.endDate),
       source: 'report'
     };
   }
 
   async function listRotation() {
-    var excelRows = readLocal().map(function (row) {
-      return Object.assign({}, row, { source: row.source || 'excel' });
-    });
+    var excelRows = dedupeRows(readLocal().map(function (row) {
+      return repairRow(Object.assign({}, row, { source: row.source || 'excel' }));
+    }));
+
+    // Bozuk kayıtları düzeltip geri yaz
+    if (excelRows.length) writeLocal(excelRows);
 
     var reportRows = [];
     if (global.ReportsStore && typeof global.ReportsStore.listReports === 'function') {
@@ -78,39 +144,49 @@
       }
     }
 
-    // Excel önce, sonra raporlar; aynı şirket+dönem tekrarını basitçe göster (ayrı kaynaklar)
-    var all = excelRows.concat(reportRows);
+    var all = dedupeRows(excelRows.concat(reportRows));
     all.sort(function (a, b) {
       return String(b.denetimBaslangicDonemi || '').localeCompare(String(a.denetimBaslangicDonemi || ''));
     });
     return all;
   }
 
-  function addRows(rows) {
+  function addRows(rows, options) {
+    options = options || {};
     if (!rows || !rows.length) return { success: true, count: 0 };
-    var local = readLocal();
+
     var added = rows.map(function (r, i) {
-      return {
+      return repairRow({
         id: 'excel_' + Date.now() + '_' + i,
-        sozlesmeId: String(r.sozlesmeId || '').trim(),
-        denetlenenSirket: String(r.denetlenenSirket || '').trim(),
-        denetimeTabiOlmaNedeni: String(r.denetimeTabiOlmaNedeni || '').trim(),
-        denetimKapsami: String(r.denetimKapsami || '').trim(),
-        denetimBaslangicDonemi: normalizePeriod(r.denetimBaslangicDonemi),
-        denetimBitisDonemi: normalizePeriod(r.denetimBitisDonemi),
+        sozlesmeId: r.sozlesmeId,
+        denetlenenSirket: r.denetlenenSirket,
+        denetimeTabiOlmaNedeni: r.denetimeTabiOlmaNedeni,
+        denetimKapsami: r.denetimKapsami,
+        denetimBaslangicDonemi: r.denetimBaslangicDonemi,
+        denetimBitisDonemi: r.denetimBitisDonemi,
         source: 'excel',
         createdAt: new Date().toISOString()
-      };
+      });
     });
-    writeLocal(local.concat(added));
+
+    var base = options.replace ? [] : readLocal().map(repairRow);
+    writeLocal(dedupeRows(base.concat(added)));
     return { success: true, count: added.length, data: added };
+  }
+
+  function clearExcelRows() {
+    writeLocal([]);
+    return { success: true };
   }
 
   global.RotasyonStore = {
     listRotation: listRotation,
     addRows: addRows,
+    clearExcelRows: clearExcelRows,
     normalizePeriod: normalizePeriod,
+    normalizeText: normalizeText,
     formatPeriodDisplay: formatPeriodDisplay,
+    repairRow: repairRow,
     HEADERS: [
       'Sozlesme ID',
       'Denetlenen Sirket',
