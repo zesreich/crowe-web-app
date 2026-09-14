@@ -180,23 +180,32 @@
                 <option value="denetimBitisDonemi:desc">Bitiş dönemi (yeni→eski)</option>
               </select>
             </div>
+            <div>
+              <label for="hideThreePartRotationCodes">Ara kodlar</label>
+              <select id="hideThreePartRotationCodes">
+                <option value="1" selected>3 parçalı kodları gizle</option>
+                <option value="0">Tüm kodları göster</option>
+              </select>
+            </div>
             <div class="atlas-filter-actions">
               <button type="button" class="btn btn-outline-secondary btn-sm" id="rotationResetFilters">Filtreleri temizle</button>
             </div>
           </div>
+          <div class="atlas-column-toggle-panel" aria-label="Sütun görünürlüğü">
+            <strong>Sütunlar</strong>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="sozlesmeId" checked> Sozlesme ID</label>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="denetlenenSirket" checked> Denetlenen Sirket</label>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="denetimeTabiOlmaNedeni" checked> Denetime Tabi Olma Nedeni</label>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="denetimKapsami" checked> Denetim Kapsamı</label>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="denetimBaslangicDonemi" checked> Denetim Baslangic Donemi</label>
+            <label><input type="checkbox" class="rotation-col-toggle" data-col="denetimBitisDonemi" checked> Denetim Bitis Donemi</label>
+          </div>
+          <div id="rotationDataWarning" class="alert alert-warning mx-3 mt-3 mb-0" style="display:none;font-size:0.8125rem;">
+            Denetime tabi olma nedeni / denetim kapsamı boş görünüyor. <strong>Excel verisini temizle</strong> butonuna basıp dosyayı yeniden yükleyin.
+          </div>
           <div class="atlas-table-wrap">
             <table class="table atlas-table table-hover" id="rotationTable">
-              <thead>
-                <tr>
-                  <th width="4%">#</th>
-                  <th width="11%" class="sortable-th" data-sort="sozlesmeId">Sozlesme ID</th>
-                  <th width="20%" class="sortable-th" data-sort="denetlenenSirket">Denetlenen Sirket</th>
-                  <th width="16%" class="sortable-th" data-sort="denetimeTabiOlmaNedeni">Denetime Tabi Olma Nedeni</th>
-                  <th width="16%" class="sortable-th" data-sort="denetimKapsami">Denetim Kapsamı</th>
-                  <th width="14%" class="sortable-th" data-sort="denetimBaslangicDonemi">Denetim Baslangic Donemi</th>
-                  <th width="14%" class="sortable-th" data-sort="denetimBitisDonemi">Denetim Bitis Donemi</th>
-                </tr>
-              </thead>
+              <thead id="rotationTableHead"></thead>
               <tbody id="rotationTableBody"></tbody>
             </table>
           </div>
@@ -238,11 +247,78 @@
           'Denetim Bitis Donemi'
         ];
 
+    var ROTATION_UI_KEY = 'rotasyonUiPrefs';
+
+    var ROTATION_COLUMNS = [
+      { key: 'sozlesmeId', label: 'Sozlesme ID', sortable: true, cellClass: 'mono-cell' },
+      { key: 'denetlenenSirket', label: 'Denetlenen Sirket', sortable: true },
+      { key: 'denetimeTabiOlmaNedeni', label: 'Denetime Tabi Olma Nedeni', sortable: true },
+      { key: 'denetimKapsami', label: 'Denetim Kapsamı', sortable: true },
+      { key: 'denetimBaslangicDonemi', label: 'Denetim Baslangic Donemi', sortable: true, period: true, cellClass: 'text-center num-cell' },
+      { key: 'denetimBitisDonemi', label: 'Denetim Bitis Donemi', sortable: true, period: true, cellClass: 'text-center num-cell' }
+    ];
+
     var rotationState = {
       allRows: [],
       sortKey: 'denetlenenSirket',
-      sortDir: 'asc'
+      sortDir: 'asc',
+      hideThreePartCodes: true,
+      visibleColumns: {
+        sozlesmeId: true,
+        denetlenenSirket: true,
+        denetimeTabiOlmaNedeni: true,
+        denetimKapsami: true,
+        denetimBaslangicDonemi: true,
+        denetimBitisDonemi: true
+      }
     };
+
+    function loadRotationUiPrefs() {
+      try {
+        var raw = localStorage.getItem(ROTATION_UI_KEY);
+        if (!raw) return;
+        var parsed = JSON.parse(raw);
+        if (parsed.visibleColumns) rotationState.visibleColumns = parsed.visibleColumns;
+        if (typeof parsed.hideThreePartCodes === 'boolean') rotationState.hideThreePartCodes = parsed.hideThreePartCodes;
+      } catch (e) {}
+    }
+
+    function saveRotationUiPrefs() {
+      localStorage.setItem(ROTATION_UI_KEY, JSON.stringify({
+        visibleColumns: rotationState.visibleColumns,
+        hideThreePartCodes: rotationState.hideThreePartCodes
+      }));
+    }
+
+    function syncRotationUiControls() {
+      document.getElementById('hideThreePartRotationCodes').value = rotationState.hideThreePartCodes ? '1' : '0';
+      document.querySelectorAll('.rotation-col-toggle').forEach(function (input) {
+        var key = input.getAttribute('data-col');
+        input.checked = !!rotationState.visibleColumns[key];
+      });
+    }
+
+    function getVisibleRotationColumns() {
+      return ROTATION_COLUMNS.filter(function (col) {
+        return rotationState.visibleColumns[col.key] !== false;
+      });
+    }
+
+    function shouldHideRotationRow(row) {
+      return rotationState.hideThreePartCodes && AtlasTableTools.isThreePartAccountCode(row.sozlesmeId);
+    }
+
+    function getRotationBaseRows() {
+      return rotationState.allRows.filter(function (row) {
+        return !shouldHideRotationRow(row);
+      });
+    }
+
+    function renderCellValue(row, col) {
+      var value = row[col.key];
+      if (col.period) return cellPeriod(value);
+      return escapeHtml(value || '—');
+    }
 
     function showToast(message, type) {
       type = type || 'success';
@@ -283,7 +359,7 @@
       var reason = document.getElementById('rotationFilterReason').value;
       var scope = document.getElementById('rotationFilterScope').value;
 
-      var rows = AtlasTableTools.filterRows(rotationState.allRows, q, [
+      var rows = AtlasTableTools.filterRows(getRotationBaseRows(), q, [
         function (r) { return r.sozlesmeId; },
         function (r) { return r.denetlenenSirket; },
         function (r) { return r.denetimeTabiOlmaNedeni; },
@@ -309,43 +385,64 @@
       });
     }
 
+    function updateRotationDataWarning() {
+      var warning = document.getElementById('rotationDataWarning');
+      if (!warning) return;
+      var excelRows = rotationState.allRows.filter(function (row) { return row.source !== 'report'; });
+      if (!excelRows.length) {
+        warning.style.display = 'none';
+        return;
+      }
+      var empty = excelRows.filter(function (row) {
+        return !row.denetimeTabiOlmaNedeni && !row.denetimKapsami;
+      }).length;
+      warning.style.display = empty / excelRows.length >= 0.8 ? 'block' : 'none';
+    }
+
     function renderRotationTable() {
+      var thead = document.getElementById('rotationTableHead');
       var tbody = document.getElementById('rotationTableBody');
       var countEl = document.getElementById('rotationCount');
+      var columns = getVisibleRotationColumns();
       var rows = getFilteredRows();
+      var hidden = rotationState.allRows.length - getRotationBaseRows().length;
 
       if (countEl) {
-        countEl.textContent = rows.length + ' / ' + rotationState.allRows.length + ' kayıt';
+        var countText = rows.length + ' / ' + getRotationBaseRows().length + ' kayıt';
+        if (hidden > 0) countText += ' (' + hidden + ' ara kod gizli)';
+        countEl.textContent = countText;
       }
 
+      thead.innerHTML = '<tr><th width="4%">#</th>' + columns.map(function (col) {
+        var cls = 'sortable-th' + (col.cellClass && col.cellClass.indexOf('num-cell') >= 0 ? ' num-cell' : '');
+        return '<th class="' + cls + '" data-sort="' + col.key + '">' + escapeHtml(col.label) + '</th>';
+      }).join('') + '</tr>';
+
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">' +
+        tbody.innerHTML = '<tr><td colspan="' + (columns.length + 1) + '" class="text-center text-muted">' +
           (rotationState.allRows.length ? 'Filtreye uygun kayıt yok.' : 'Henüz rotasyon kaydı yok. Excel yükleyin veya Rapor Listesi’nden kayıt ekleyin.') +
           '</td></tr>';
         updateSortHeaders();
+        updateRotationDataWarning();
         return;
       }
 
       tbody.innerHTML = rows.map(function (row, index) {
-        return '<tr>' +
-          '<td class="text-center num-cell">' + (index + 1) + '</td>' +
-          '<td class="mono-cell">' + escapeHtml(row.sozlesmeId || '—') + '</td>' +
-          '<td>' + escapeHtml(row.denetlenenSirket || '—') + '</td>' +
-          '<td>' + escapeHtml(row.denetimeTabiOlmaNedeni || '—') + '</td>' +
-          '<td>' + escapeHtml(row.denetimKapsami || '—') + '</td>' +
-          '<td class="text-center num-cell">' + cellPeriod(row.denetimBaslangicDonemi) + '</td>' +
-          '<td class="text-center num-cell">' + cellPeriod(row.denetimBitisDonemi) + '</td>' +
-          '</tr>';
+        return '<tr><td class="text-center num-cell">' + (index + 1) + '</td>' + columns.map(function (col) {
+          var cls = col.cellClass ? ' class="' + col.cellClass + '"' : '';
+          return '<td' + cls + '>' + renderCellValue(row, col) + '</td>';
+        }).join('') + '</tr>';
       }).join('');
       updateSortHeaders();
+      updateRotationDataWarning();
     }
 
     async function loadRotation() {
       try {
         rotationState.allRows = await RotasyonStore.listRotation();
-        fillSelect('rotationFilterCompany', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetlenenSirket; }));
-        fillSelect('rotationFilterReason', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetimeTabiOlmaNedeni; }));
-        fillSelect('rotationFilterScope', AtlasTableTools.uniqueValues(rotationState.allRows, function (r) { return r.denetimKapsami; }));
+        fillSelect('rotationFilterCompany', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetlenenSirket; }));
+        fillSelect('rotationFilterReason', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetimeTabiOlmaNedeni; }));
+        fillSelect('rotationFilterScope', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetimKapsami; }));
         renderRotationTable();
       } catch (err) {
         console.error(err);
@@ -369,37 +466,6 @@
       showToast('Excel taslağı indirildi.', 'success');
     }
 
-    function headerIndexMap(headerRow) {
-      var map = {};
-      (headerRow || []).forEach(function (cell, idx) {
-        var key = AtlasTableTools.normalizeKey(cell);
-        if (key) map[key] = idx;
-      });
-      function find() {
-        var aliases = Array.prototype.slice.call(arguments);
-        for (var i = 0; i < aliases.length; i++) {
-          if (Object.prototype.hasOwnProperty.call(map, aliases[i])) return map[aliases[i]];
-        }
-        return -1;
-      }
-      return {
-        sozlesmeId: find('sozlesme id', 'sozlesmeid', 'sozlesme no', 'sozlesme'),
-        denetlenenSirket: find('denetlenen sirket', 'denetlenen sirketi', 'sirket', 'musteri'),
-        denetimeTabiOlmaNedeni: find('denetime tabi olma nedeni', 'denetime tabi olma', 'tabi olma nedeni', 'neden'),
-        denetimKapsami: find('denetim kapsami', 'kapsam', 'denetim kapsam'),
-        denetimBaslangicDonemi: find('denetim baslangic donemi', 'baslangic donemi', 'baslangic', 'donem baslangic'),
-        denetimBitisDonemi: find('denetim bitis donemi', 'bitis donemi', 'bitis', 'donem bitis')
-      };
-    }
-
-    function findHeaderRow(rows) {
-      for (var i = 0; i < Math.min(rows.length, 15); i++) {
-        var cols = headerIndexMap(rows[i]);
-        if (cols.denetlenenSirket >= 0 || cols.sozlesmeId >= 0) return i;
-      }
-      return 0;
-    }
-
     async function importRotationExcel(file) {
       if (!file) return;
       if (typeof XLSX === 'undefined') {
@@ -416,27 +482,16 @@
           return;
         }
 
-        var headerIdx = findHeaderRow(rows);
-        var cols = headerIndexMap(rows[headerIdx]);
-        if (cols.sozlesmeId < 0) cols.sozlesmeId = 0;
-        if (cols.denetlenenSirket < 0) cols.denetlenenSirket = 1;
-        if (cols.denetimeTabiOlmaNedeni < 0) cols.denetimeTabiOlmaNedeni = 2;
-        if (cols.denetimKapsami < 0) cols.denetimKapsami = 3;
-        if (cols.denetimBaslangicDonemi < 0) cols.denetimBaslangicDonemi = 4;
-        if (cols.denetimBitisDonemi < 0) cols.denetimBitisDonemi = 5;
+        RotasyonStore.saveRawExcel(rows);
+        var resolved = RotasyonStore.resolveRotationColumnsFromSheet(rows);
+        var headerIdx = resolved.headerIdx;
+        var cols = resolved.cols;
 
         var toInsert = [];
         var skipped = 0;
         for (var i = headerIdx + 1; i < rows.length; i++) {
           var row = rows[i] || [];
-          var item = {
-            sozlesmeId: RotasyonStore.normalizeText(row[cols.sozlesmeId]),
-            denetlenenSirket: RotasyonStore.normalizeText(row[cols.denetlenenSirket]),
-            denetimeTabiOlmaNedeni: RotasyonStore.normalizeText(row[cols.denetimeTabiOlmaNedeni]),
-            denetimKapsami: RotasyonStore.normalizeText(row[cols.denetimKapsami]),
-            denetimBaslangicDonemi: RotasyonStore.normalizePeriod(row[cols.denetimBaslangicDonemi]),
-            denetimBitisDonemi: RotasyonStore.normalizePeriod(row[cols.denetimBitisDonemi])
-          };
+          var item = RotasyonStore.parseRotationRow(row, cols);
           if (!item.sozlesmeId && !item.denetlenenSirket && !item.denetimKapsami) continue;
           if (!item.denetlenenSirket) {
             skipped += 1;
@@ -451,7 +506,7 @@
         }
 
         var replace = rotationState.allRows.length
-          ? confirm('Mevcut Excel kayıtları silinip yeni dosya ile değiştirilsin mi?\n\nİptal = mevcut kayıtlara ekle')
+          ? confirm('Mevcut Excel kayıtları silinip yeni dosya ile değiştirilsin mi?\n\nKapsam/neden sütunları için "Tamam" seçin.\nİptal = mevcut kayıtlara ekle')
           : true;
 
         var result = RotasyonStore.addRows(toInsert, { replace: replace });
@@ -471,8 +526,30 @@
     }
 
     $(function () {
+      loadRotationUiPrefs();
+      syncRotationUiControls();
       loadRotation();
       $('#downloadRotationTemplateBtn').on('click', downloadRotationTemplate);
+      $('#hideThreePartRotationCodes').on('change', function () {
+        rotationState.hideThreePartCodes = $(this).val() === '1';
+        saveRotationUiPrefs();
+        fillSelect('rotationFilterCompany', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetlenenSirket; }));
+        fillSelect('rotationFilterReason', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetimeTabiOlmaNedeni; }));
+        fillSelect('rotationFilterScope', AtlasTableTools.uniqueValues(getRotationBaseRows(), function (r) { return r.denetimKapsami; }));
+        renderRotationTable();
+      });
+      $('.rotation-col-toggle').on('change', function () {
+        var key = $(this).data('col');
+        rotationState.visibleColumns[key] = $(this).is(':checked');
+        if (!getVisibleRotationColumns().length) {
+          rotationState.visibleColumns[key] = true;
+          $(this).prop('checked', true);
+          showToast('En az bir sütun görünür olmalı.', 'error');
+          return;
+        }
+        saveRotationUiPrefs();
+        renderRotationTable();
+      });
       $('#rotationExcelInput').on('change', function (e) {
         var file = e.target.files && e.target.files[0];
         importRotationExcel(file).finally(function () { e.target.value = ''; });

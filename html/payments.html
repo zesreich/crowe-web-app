@@ -195,6 +195,13 @@
                 <option value="alacakBakiyesi:desc">Alacak bakiyesi (yüksek→düşük)</option>
               </select>
             </div>
+            <div>
+              <label for="hideThreePartAccounts">Ara hesaplar</label>
+              <select id="hideThreePartAccounts">
+                <option value="1" selected>3 parçalı hesapları gizle (120.01.02)</option>
+                <option value="0">Tüm hesapları göster</option>
+              </select>
+            </div>
             <div class="atlas-filter-actions">
               <button type="button" class="btn btn-outline-secondary btn-sm" id="paymentResetFilters">Filtreleri temizle</button>
             </div>
@@ -260,7 +267,8 @@
       rows: [],
       updatedAt: null,
       sortKey: 'hesapKodu',
-      sortDir: 'asc'
+      sortDir: 'asc',
+      hideThreePartAccounts: true
     };
 
     function showToast(message, type) {
@@ -307,45 +315,140 @@
       return String(value).trim();
     }
 
+    var PAYMENT_HEADER_ALIASES = [
+      ['hesap kodu', 'hesap kod', 'hesap no', 'cari kod'],
+      ['hesap adi', 'hesap ad', 'cari unvan', 'unvan'],
+      ['borc', 'debit'],
+      ['alacak', 'credit'],
+      ['borc bakiyesi', 'borc bakiye'],
+      ['alacak bakiyesi', 'alacak bakiye', 'bakiye']
+    ];
+
     function mapHeaderIndices(headerRow) {
-      var map = {};
-      (headerRow || []).forEach(function (cell, idx) {
-        var key = AtlasTableTools.normalizeKey(cell);
-        if (key) map[key] = idx;
-      });
-      function find() {
-        var aliases = Array.prototype.slice.call(arguments);
-        for (var i = 0; i < aliases.length; i++) {
-          if (Object.prototype.hasOwnProperty.call(map, aliases[i])) return map[aliases[i]];
-        }
-        return -1;
+      var entries = AtlasTableTools.buildHeaderEntries(headerRow);
+      var used = [];
+
+      function take(aliases, options) {
+        options = options || {};
+        var idx = AtlasTableTools.findColumn(entries, aliases, {
+          excludeIdx: used.concat(options.excludeIdx || []),
+          excludeKeyPattern: options.excludeKeyPattern || null,
+          keyFilter: options.keyFilter || null
+        });
+        if (idx >= 0) used.push(idx);
+        return idx;
       }
-      return {
-        hesapKodu: find('hesap kodu', 'hesap kod', 'hesap no', 'kod'),
-        hesapAdi: find('hesap adi', 'hesap ad', 'hesap ismi', 'unvan'),
-        borc: find('borc', 'debit'),
-        alacak: find('alacak', 'credit'),
-        borcBakiyesi: find('borc bakiyesi', 'borc bakiye', 'debit balance'),
-        alacakBakiyesi: find('alacak bakiyesi', 'alacak bakiye', 'credit balance')
+
+      var cols = {
+        hesapKodu: take(['hesap kodu', 'hesap kod', 'hesap no', 'cari kod']),
+        hesapAdi: take(['hesap adi', 'hesap ad', 'hesap ismi', 'cari unvan', 'unvan']),
+        borcBakiyesi: take(['borc bakiyesi', 'borc bakiye'], {
+          keyFilter: function (key) { return key.indexOf('borc') !== -1 && key.indexOf('bakiye') !== -1; }
+        }),
+        alacakBakiyesi: take(['alacak bakiyesi', 'alacak bakiye'], {
+          keyFilter: function (key) { return key.indexOf('alacak') !== -1 && key.indexOf('bakiye') !== -1; }
+        }),
+        borc: take(['borc tl', 'borc', 'debit'], {
+          excludeKeyPattern: /bakiye/,
+          keyFilter: function (key) { return key.indexOf('bakiye') === -1; }
+        }),
+        alacak: take(['alacak tl', 'alacak', 'credit'], {
+          excludeKeyPattern: /bakiye/,
+          keyFilter: function (key) { return key.indexOf('bakiye') === -1; }
+        })
       };
+
+      if (cols.alacakBakiyesi < 0) {
+        cols.alacakBakiyesi = take(['bakiye'], {
+          keyFilter: function (key) {
+            return key.indexOf('bakiye') !== -1 && key.indexOf('borc') === -1 && key.indexOf('alacak') === -1;
+          }
+        });
+      }
+
+      return cols;
     }
 
-    function findPaymentHeaderRow(aoa) {
-      for (var i = 0; i < Math.min(aoa.length, 15); i++) {
-        var cols = mapHeaderIndices(aoa[i]);
-        if (cols.hesapKodu >= 0 || cols.hesapAdi >= 0) return i;
+    function isCurrencyCell(value) {
+      return /^TL$|^TRY$|^₺$/i.test(String(value || '').trim());
+    }
+
+    function inferPaymentColumns(dataRows, cols) {
+      if (cols.borc >= 0 && cols.alacak >= 0) return cols;
+      var startCol = Math.max(cols.hesapAdi, cols.hesapKodu, 0) + 1;
+      var numericCols = [];
+      var c;
+      for (c = startCol; c < 12; c++) {
+        var hits = 0;
+        var total = 0;
+        dataRows.slice(0, 25).forEach(function (row) {
+          var v = row[c];
+          if (v == null || String(v).trim() === '') return;
+          if (isCurrencyCell(v)) return;
+          total += 1;
+          if (typeof v === 'number' || parseNumber(v) !== 0 || String(v).trim() === '0' || String(v).trim() === '0,00') {
+            hits += 1;
+          }
+        });
+        if (total >= 3 && hits / total >= 0.6) numericCols.push(c);
       }
-      return 0;
+      if (!numericCols.length) return cols;
+      if (cols.borc < 0) cols.borc = numericCols[0];
+      if (cols.alacak < 0) cols.alacak = numericCols[1] != null ? numericCols[1] : numericCols[0];
+      if (cols.borcBakiyesi < 0) cols.borcBakiyesi = numericCols[2] != null ? numericCols[2] : -1;
+      if (cols.alacakBakiyesi < 0) cols.alacakBakiyesi = numericCols[3] != null ? numericCols[3] : -1;
+      return cols;
+    }
+
+    function isHeaderLikePaymentRow(item) {
+      var kod = AtlasTableTools.normalizeKey(item.hesapKodu);
+      var ad = AtlasTableTools.normalizeKey(item.hesapAdi);
+      return kod === 'hesap kodu' || ad === 'hesap adi' || kod === 'cari kod' || ad === 'cari unvan';
+    }
+
+    function isExcelTotalRow(item) {
+      var kod = AtlasTableTools.normalizeKey(item.hesapKodu);
+      var ad = AtlasTableTools.normalizeKey(item.hesapAdi);
+      if (/^(genel )?toplam|total|sum|ara toplam|nett?$/.test(kod)) return true;
+      if (/^(genel )?toplam|total|sum|ara toplam|genel toplam/.test(ad)) return true;
+      if (!item.hesapKodu && !item.hesapAdi && (item.borc || item.alacak || item.borcBakiyesi || item.alacakBakiyesi)) {
+        return true;
+      }
+      return false;
+    }
+
+    function shouldImportPaymentRow(item) {
+      if (!item.hesapKodu && !item.hesapAdi) return false;
+      if (isHeaderLikePaymentRow(item)) return false;
+      if (isExcelTotalRow(item)) return false;
+      return true;
+    }
+
+    function shouldHidePaymentRow(item) {
+      return state.hideThreePartAccounts && AtlasTableTools.isThreePartAccountCode(item.hesapKodu);
+    }
+
+    function getDisplayRows(rows) {
+      return (rows || state.rows).filter(function (row) {
+        return !shouldHidePaymentRow(row);
+      });
+    }
+
+    function pickCell(raw, cols, key, fallbackIdx) {
+      var idx = cols[key];
+      if (idx >= 0) return raw[idx];
+      var hasAnyHeader = cols.hesapKodu >= 0 || cols.hesapAdi >= 0 || cols.borc >= 0 || cols.alacak >= 0;
+      return hasAnyHeader ? '' : raw[fallbackIdx];
     }
 
     function rowFromArray(raw, cols) {
       return {
-        hesapKodu: normalizeText(raw[cols.hesapKodu >= 0 ? cols.hesapKodu : 0]),
-        hesapAdi: normalizeText(raw[cols.hesapAdi >= 0 ? cols.hesapAdi : 1]),
-        borc: parseNumber(raw[cols.borc >= 0 ? cols.borc : 2]),
-        alacak: parseNumber(raw[cols.alacak >= 0 ? cols.alacak : 3]),
-        borcBakiyesi: parseNumber(raw[cols.borcBakiyesi >= 0 ? cols.borcBakiyesi : 4]),
-        alacakBakiyesi: parseNumber(raw[cols.alacakBakiyesi >= 0 ? cols.alacakBakiyesi : 5])
+        hesapKodu: normalizeText(pickCell(raw, cols, 'hesapKodu', 0)),
+        hesapAdi: normalizeText(pickCell(raw, cols, 'hesapAdi', 1)),
+        borc: parseNumber(pickCell(raw, cols, 'borc', 2)),
+        alacak: parseNumber(pickCell(raw, cols, 'alacak', 3)),
+        borcBakiyesi: parseNumber(pickCell(raw, cols, 'borcBakiyesi', 4)),
+        alacakBakiyesi: parseNumber(pickCell(raw, cols, 'alacakBakiyesi', 5))
       };
     }
 
@@ -361,27 +464,10 @@
         };
       }
       if (!Array.isArray(row)) return null;
-      var headers = state._legacyHeaders || [];
-      var idx = {};
-      headers.forEach(function (h, i) {
-        idx[AtlasTableTools.normalizeKey(h)] = i;
-      });
-      function col() {
-        var aliases = Array.prototype.slice.call(arguments);
-        for (var i = 0; i < aliases.length; i++) {
-          if (idx[aliases[i]] != null) return idx[aliases[i]];
-        }
-        return -1;
+      if (!state._legacyCols) {
+        state._legacyCols = mapHeaderIndices(state._legacyHeaders || []);
       }
-      var cols = {
-        hesapKodu: col('hesap kodu', 'hesap kod', 'cari kod'),
-        hesapAdi: col('hesap adi', 'hesap ad', 'cari unvan'),
-        borc: col('borc'),
-        alacak: col('alacak'),
-        borcBakiyesi: col('borc bakiyesi', 'borc bakiye'),
-        alacakBakiyesi: col('alacak bakiyesi', 'alacak bakiye', 'bakiye')
-      };
-      return rowFromArray(row, cols);
+      return rowFromArray(row, state._legacyCols);
     }
 
     function loadState() {
@@ -392,14 +478,15 @@
         state.updatedAt = parsed.updatedAt || null;
         state.sortKey = parsed.sortKey || 'hesapKodu';
         state.sortDir = parsed.sortDir || 'asc';
+        state.hideThreePartAccounts = parsed.hideThreePartAccounts !== false;
         if (parsed.rows && parsed.rows.length && typeof parsed.rows[0] === 'object' && !Array.isArray(parsed.rows[0])) {
-          state.rows = parsed.rows.map(migrateLegacyRow).filter(Boolean);
+          state.rows = parsed.rows.map(migrateLegacyRow).filter(shouldImportPaymentRow);
           return;
         }
         state._legacyHeaders = parsed.headers || [];
-        state.rows = (parsed.rows || []).map(migrateLegacyRow).filter(function (r) {
-          return r && (r.hesapKodu || r.hesapAdi);
-        });
+        state._legacyCols = null;
+        state.rows = (parsed.rows || []).map(migrateLegacyRow).filter(shouldImportPaymentRow);
+        if (state.rows.length) saveState();
       } catch (e) {
         state.rows = [];
         state.updatedAt = null;
@@ -411,7 +498,8 @@
         rows: state.rows,
         updatedAt: state.updatedAt,
         sortKey: state.sortKey,
-        sortDir: state.sortDir
+        sortDir: state.sortDir,
+        hideThreePartAccounts: state.hideThreePartAccounts
       }));
     }
 
@@ -419,7 +507,7 @@
       var el = document.getElementById('paymentFilterAccount');
       if (!el) return;
       var current = el.value;
-      var codes = AtlasTableTools.uniqueValues(state.rows, function (r) { return r.hesapKodu; });
+      var codes = AtlasTableTools.uniqueValues(getDisplayRows(), function (r) { return r.hesapKodu; });
       el.innerHTML = '<option value="">Tümü</option>' + codes.map(function (v) {
         return '<option value="' + escapeHtml(v) + '">' + escapeHtml(v) + '</option>';
       }).join('');
@@ -429,7 +517,8 @@
     function getVisibleRows() {
       var q = document.getElementById('receivableSearch').value;
       var account = document.getElementById('paymentFilterAccount').value;
-      var rows = AtlasTableTools.filterRows(state.rows, q, [
+      var rows = getDisplayRows();
+      rows = AtlasTableTools.filterRows(rows, q, [
         function (r) { return r.hesapKodu; },
         function (r) { return r.hesapAdi; }
       ]);
@@ -461,7 +550,10 @@
         creditBal += parseNumber(row.alacakBakiyesi);
       });
 
-      document.getElementById('statCount').textContent = String(rows.length);
+      var hidden = state.rows.length - getDisplayRows().length;
+      var countText = String(rows.length);
+      if (hidden > 0) countText += ' (' + hidden + ' ara hesap gizli)';
+      document.getElementById('statCount').textContent = countText;
       document.getElementById('statDebit').textContent = formatMoney(debit);
       document.getElementById('statCredit').textContent = formatMoney(credit);
       document.getElementById('statDebitBalance').textContent = formatMoney(debitBal);
@@ -541,15 +633,22 @@
 
     function parsePaymentExcel(aoa) {
       if (!aoa || !aoa.length) return [];
-      var headerIdx = findPaymentHeaderRow(aoa);
-      var cols = mapHeaderIndices(aoa[headerIdx]);
+      var headerMatch = AtlasTableTools.findBestHeaderRow(aoa, PAYMENT_HEADER_ALIASES, 25);
+      var headerIdx = headerMatch.score > 0 ? headerMatch.index : 0;
+      var dataSample = aoa.slice(headerIdx + 1, headerIdx + 31);
+      var cols = inferPaymentColumns(dataSample, mapHeaderIndices(aoa[headerIdx]));
       var rows = [];
+      var skippedTotal = 0;
       for (var r = headerIdx + 1; r < aoa.length; r++) {
         var raw = aoa[r] || [];
         var item = rowFromArray(raw, cols);
-        if (!item.hesapKodu && !item.hesapAdi) continue;
+        if (!shouldImportPaymentRow(item)) {
+          if (isExcelTotalRow(item)) skippedTotal += 1;
+          continue;
+        }
         rows.push(item);
       }
+      parsePaymentExcel.lastSkippedTotal = skippedTotal;
       return rows;
     }
 
@@ -575,7 +674,11 @@
           document.getElementById('paymentFilterAccount').value = '';
           fillAccountFilter();
           renderTable();
-          showToast(parsed.length + ' satır yüklendi.');
+          var msg = parsed.length + ' satır yüklendi.';
+          if (parsePaymentExcel.lastSkippedTotal) {
+            msg += ' ' + parsePaymentExcel.lastSkippedTotal + ' toplam satırı atlandı.';
+          }
+          showToast(msg);
         } catch (err) {
           console.error(err);
           showToast('Excel okunamadı. Dosya formatını kontrol edin.', 'error');
@@ -588,6 +691,12 @@
 
     document.getElementById('receivableSearch').addEventListener('input', renderTable);
     document.getElementById('paymentFilterAccount').addEventListener('change', renderTable);
+    document.getElementById('hideThreePartAccounts').addEventListener('change', function (e) {
+      state.hideThreePartAccounts = e.target.value === '1';
+      saveState();
+      fillAccountFilter();
+      renderTable();
+    });
     document.getElementById('paymentSortBy').addEventListener('change', function (e) {
       var parts = String(e.target.value || 'hesapKodu:asc').split(':');
       state.sortKey = parts[0] || 'hesapKodu';
@@ -621,6 +730,7 @@
         }
       }, 100);
       loadState();
+      document.getElementById('hideThreePartAccounts').value = state.hideThreePartAccounts ? '1' : '0';
       fillAccountFilter();
       renderTable();
     });
