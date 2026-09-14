@@ -5,6 +5,17 @@
   var STORAGE_KEY = 'rotasyon';
   var RAW_STORAGE_KEY = 'rotasyon_last_excel';
 
+  var ROTATION_HEADER_GROUPS = [
+    ['sozlesme id', 'sozlesmeid', 'sozlesme no', 'sozlesme'],
+    ['denetlenen sirket', 'denetlenen sirketi', 'denetlenen kurulus', 'sirket unvan', 'sirket'],
+    ['denetime tabi olma nedeni', 'denetime tabi olma', 'denetime tabi olmasi', 'tabi olma nedeni', 'tabi olma sebebi', 'mevzuat'],
+    ['denetim kapsami', 'denetim kapsam', 'kapsam'],
+    ['denetim baslangic donemi', 'denetim baslangic tarihi', 'denetim baslangic', 'baslangic donemi', 'baslangic tarihi'],
+    ['denetim bitis donemi', 'denetim bitis tarihi', 'denetim bitis', 'bitis donemi', 'bitis tarihi']
+  ];
+
+  var PAYMENT_HEADER_MARKERS = ['hesap kodu', 'hesap adi', 'cari kod', 'cari unvan', 'borc bakiyesi', 'alacak bakiyesi'];
+
   function readLocal() {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -17,44 +28,18 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list || []));
   }
 
-  function isDateLike(value) {
-    return value instanceof Date || (typeof value === 'object' && value && typeof value.getTime === 'function');
+  function trimDisplay(value) {
+    if (value == null || value === '') return '';
+    if (value instanceof Date) {
+      return String(value.getDate()).padStart(2, '0') + '/' +
+        String(value.getMonth() + 1).padStart(2, '0') + '/' +
+        value.getFullYear();
+    }
+    return String(value).trim();
   }
 
-  function normalizePeriod(value) {
-    if (value == null || value === '') return '';
-    if (isDateLike(value)) {
-      var d = value instanceof Date ? value : new Date(value);
-      if (!isNaN(d.getTime())) {
-        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-      }
-    }
-    if (isExcelSerialDate(value)) {
-      try {
-        var parsedPeriod = global.XLSX.SSF.parse_date_code(value);
-        if (parsedPeriod) {
-          return parsedPeriod.y + '-' + String(parsedPeriod.m).padStart(2, '0') + '-' + String(parsedPeriod.d).padStart(2, '0');
-        }
-      } catch (e) {}
-    }
-    var raw = String(value).trim();
-    if (/GMT|Standart Saati|Türkiye/.test(raw)) {
-      var dt = new Date(raw);
-      if (!isNaN(dt.getTime())) {
-        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-      }
-      return '';
-    }
-    var iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if (iso) {
-      return iso[1] + '-' + iso[2].padStart(2, '0') + '-' + iso[3].padStart(2, '0');
-    }
-    var tr = raw.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/);
-    if (tr) {
-      var yy = tr[3].length === 2 ? ('20' + tr[3]) : tr[3];
-      return yy + '-' + tr[2].padStart(2, '0') + '-' + tr[1].padStart(2, '0');
-    }
-    return raw;
+  function isDateLike(value) {
+    return value instanceof Date || (typeof value === 'object' && value && typeof value.getTime === 'function');
   }
 
   function isExcelSerialDate(value) {
@@ -69,38 +54,45 @@
     }
   }
 
-  function normalizeText(value) {
-    if (value == null || value === '') return '';
-    if (isDateLike(value)) return '';
-    if (typeof value === 'number' && isFinite(value)) {
-      if (isExcelSerialDate(value) || isCellDate(value)) return '';
-      return String(value);
-    }
-    var raw = String(value).trim();
-    if (/GMT|Standart Saati|Türkiye/.test(raw)) return '';
-    return raw;
-  }
-
   function formatPeriodDisplay(value) {
     if (value == null || value === '') return '—';
-    var normalized = normalizePeriod(value);
-    if (!normalized) return '—';
-    if (/^\d{4}-\d{2}-\d{2}/.test(normalized)) {
-      var p = normalized.slice(0, 10).split('-');
+    var raw = trimDisplay(value);
+    if (!raw) return '—';
+    if (/^\d{1,2}[./]\d{1,2}[./]\d{2,4}$/.test(raw)) return raw;
+    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+      var p = raw.slice(0, 10).split('-');
       return p[2] + '/' + p[1] + '/' + p[0];
     }
-    return normalized;
+    if (isDateLike(value)) {
+      var d = value instanceof Date ? value : new Date(value);
+      if (!isNaN(d.getTime())) {
+        return String(d.getDate()).padStart(2, '0') + '/' +
+          String(d.getMonth() + 1).padStart(2, '0') + '/' +
+          d.getFullYear();
+      }
+    }
+    if (isExcelSerialDate(value)) {
+      try {
+        var parsed = global.XLSX.SSF.parse_date_code(value);
+        if (parsed) {
+          return String(parsed.d).padStart(2, '0') + '/' +
+            String(parsed.m).padStart(2, '0') + '/' +
+            parsed.y;
+        }
+      } catch (e) {}
+    }
+    return raw;
   }
 
   function repairRow(row) {
     return {
       id: row.id,
-      sozlesmeId: normalizeText(row.sozlesmeId),
-      denetlenenSirket: normalizeText(row.denetlenenSirket),
-      denetimeTabiOlmaNedeni: normalizeText(row.denetimeTabiOlmaNedeni),
-      denetimKapsami: normalizeText(row.denetimKapsami),
-      denetimBaslangicDonemi: normalizePeriod(row.denetimBaslangicDonemi),
-      denetimBitisDonemi: normalizePeriod(row.denetimBitisDonemi),
+      sozlesmeId: trimDisplay(row.sozlesmeId),
+      denetlenenSirket: trimDisplay(row.denetlenenSirket),
+      denetimeTabiOlmaNedeni: trimDisplay(row.denetimeTabiOlmaNedeni),
+      denetimKapsami: trimDisplay(row.denetimKapsami),
+      denetimBaslangicDonemi: trimDisplay(row.denetimBaslangicDonemi),
+      denetimBitisDonemi: trimDisplay(row.denetimBitisDonemi),
       source: row.source || 'excel',
       createdAt: row.createdAt || null
     };
@@ -133,11 +125,11 @@
     return {
       id: 'report_' + String(report.id),
       sozlesmeId: '',
-      denetlenenSirket: report.company || '',
-      denetimeTabiOlmaNedeni: report.reportType || '',
-      denetimKapsami: report.service || '',
-      denetimBaslangicDonemi: normalizePeriod(report.startDate),
-      denetimBitisDonemi: normalizePeriod(report.endDate),
+      denetlenenSirket: trimDisplay(report.company),
+      denetimeTabiOlmaNedeni: trimDisplay(report.reportType),
+      denetimKapsami: trimDisplay(report.service),
+      denetimBaslangicDonemi: trimDisplay(report.startDate),
+      denetimBitisDonemi: trimDisplay(report.endDate),
       source: 'report'
     };
   }
@@ -158,12 +150,18 @@
     }
   }
 
-  function needsReasonScopeRepair(rows) {
+  function looksLikeAccountCode(value) {
+    return /^\d{3}\.\d{2}\.\d{2}(\.\d+)?$/.test(String(value || '').trim());
+  }
+
+  function isCorruptedRotationData(rows) {
     if (!rows || !rows.length) return false;
-    var empty = rows.filter(function (row) {
-      return !row.denetimeTabiOlmaNedeni && !row.denetimKapsami;
+    var excelRows = rows.filter(function (r) { return r.source !== 'report'; });
+    if (!excelRows.length) return false;
+    var bad = excelRows.filter(function (row) {
+      return looksLikeAccountCode(row.sozlesmeId) || looksLikeAccountCode(row.denetimeTabiOlmaNedeni);
     }).length;
-    return empty / rows.length >= 0.8;
+    return bad / excelRows.length >= 0.3;
   }
 
   async function listRotation() {
@@ -171,12 +169,12 @@
       return repairRow(Object.assign({}, row, { source: row.source || 'excel' }));
     }));
 
-    if (excelRows.length && needsReasonScopeRepair(excelRows)) {
+    if (excelRows.length && isCorruptedRotationData(excelRows)) {
       var raw = loadRawExcel();
       if (raw && raw.length) {
-        var remapped = remapStoredExcelRows(excelRows, raw);
-        if (!needsReasonScopeRepair(remapped)) {
-          excelRows = remapped;
+        var reparsed = importRotationRows(raw);
+        if (reparsed.success && reparsed.rows.length) {
+          excelRows = reparsed.rows;
         }
       }
     }
@@ -195,7 +193,7 @@
 
     var all = dedupeRows(excelRows.concat(reportRows));
     all.sort(function (a, b) {
-      return String(b.denetimBaslangicDonemi || '').localeCompare(String(a.denetimBaslangicDonemi || ''));
+      return String(b.denetimBaslangicDonemi || '').localeCompare(String(a.denetimBaslangicDonemi || ''), 'tr');
     });
     return all;
   }
@@ -229,67 +227,95 @@
     return { success: true };
   }
 
-  function isCellDate(value) {
-    if (value == null || value === '') return false;
-    if (isDateLike(value)) return true;
-    if (isExcelSerialDate(value)) return true;
-    var raw = String(value).trim();
-    if (/GMT|Standart Saati|Türkiye/.test(raw)) return true;
-    if (/^\d{1,2}[./]\d{1,2}[./]\d{2,4}$/.test(raw)) return true;
-    if (/^\d{4}-\d{2}-\d{2}/.test(raw)) return true;
-    return false;
-  }
-
-  function isTextColumn(dataRows, colIdx) {
-    if (colIdx < 0) return false;
-    var textHits = 0;
-    var dateHits = 0;
-    var total = 0;
-    dataRows.slice(0, 40).forEach(function (row) {
-      var v = row[colIdx];
-      if (v == null || String(v).trim() === '') return;
-      total += 1;
-      if (isCellDate(v)) dateHits += 1;
-      else textHits += 1;
-    });
-    return total >= 2 && textHits >= dateHits;
-  }
-
-  function getSampleWidth(dataRows) {
-    var width = 0;
-    dataRows.forEach(function (row) {
-      width = Math.max(width, (row || []).length);
-    });
-    return width;
-  }
-
-  function applyStandardSixColumnLayout(cols, dataRows) {
-    if (getSampleWidth(dataRows) < 6) return cols;
-    if (cols.sozlesmeId < 0) cols.sozlesmeId = 0;
-    if (cols.denetlenenSirket < 0) cols.denetlenenSirket = 1;
-    if (cols.denetimeTabiOlmaNedeni < 0 || cols.denetimeTabiOlmaNedeni === cols.denetimBaslangicDonemi || cols.denetimeTabiOlmaNedeni === cols.denetimBitisDonemi) {
-      cols.denetimeTabiOlmaNedeni = 2;
+  function sheetToDisplayGrid(sheet) {
+    if (!sheet || !sheet['!ref']) return [];
+    var range = global.XLSX.utils.decode_range(sheet['!ref']);
+    var rows = [];
+    var R;
+    var C;
+    for (R = range.s.r; R <= range.e.r; R++) {
+      var row = [];
+      for (C = range.s.c; C <= range.e.c; C++) {
+        var addr = global.XLSX.utils.encode_cell({ r: R, c: C });
+        var cell = sheet[addr];
+        if (!cell) {
+          row.push('');
+          continue;
+        }
+        if (cell.w != null && String(cell.w).trim() !== '') {
+          row.push(String(cell.w).trim());
+        } else if (cell.v instanceof Date) {
+          row.push(trimDisplay(cell.v));
+        } else if (cell.v == null) {
+          row.push('');
+        } else {
+          row.push(String(cell.v).trim());
+        }
+      }
+      rows.push(row);
     }
-    if (cols.denetimKapsami < 0 || cols.denetimKapsami === cols.denetimBaslangicDonemi || cols.denetimKapsami === cols.denetimBitisDonemi) {
-      cols.denetimKapsami = 3;
-    }
-    if (cols.denetimBaslangicDonemi < 0) cols.denetimBaslangicDonemi = 4;
-    if (cols.denetimBitisDonemi < 0) cols.denetimBitisDonemi = 5;
-    return cols;
+    return rows;
   }
 
-  function buildCombinedHeaderRow(rows, headerIdx) {
-    var width = 0;
-    var depth = Math.min(3, rows.length - headerIdx);
+  function normalizeHeaderKey(value) {
+    return global.AtlasTableTools
+      ? global.AtlasTableTools.normalizeKey(value)
+      : String(value || '').toLowerCase();
+  }
+
+  function buildHeaderEntries(headerRow) {
+    return global.AtlasTableTools
+      ? global.AtlasTableTools.buildHeaderEntries(headerRow)
+      : [];
+  }
+
+  function findColumn(entries, aliases, used) {
+    if (!global.AtlasTableTools) return -1;
+    return global.AtlasTableTools.findColumn(entries, aliases, {
+      excludeIdx: used || []
+    });
+  }
+
+  function isPaymentExcelHeader(headerRow) {
+    var joined = (headerRow || []).map(normalizeHeaderKey).join(' ');
+    return PAYMENT_HEADER_MARKERS.some(function (marker) {
+      return joined.indexOf(marker) !== -1;
+    });
+  }
+
+  function findRotationHeaderIndex(rows) {
+    var bestIdx = -1;
+    var bestScore = 0;
+    var limit = Math.min(rows.length, 30);
     var i;
-    for (i = headerIdx; i < headerIdx + depth; i++) {
+    for (i = 0; i < limit; i++) {
+      var headerRow = buildCombinedHeaderRow(rows, i, 1);
+      if (isPaymentExcelHeader(headerRow)) continue;
+      var entries = buildHeaderEntries(headerRow);
+      var score = 0;
+      ROTATION_HEADER_GROUPS.forEach(function (aliases) {
+        if (findColumn(entries, aliases, []) >= 0) score += 1;
+      });
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = i;
+      }
+    }
+    return { index: bestIdx >= 0 ? bestIdx : 0, score: bestScore };
+  }
+
+  function buildCombinedHeaderRow(rows, headerIdx, depth) {
+    var width = 0;
+    var maxDepth = Math.min(depth || 2, rows.length - headerIdx);
+    var i;
+    for (i = headerIdx; i < headerIdx + maxDepth; i++) {
       width = Math.max(width, (rows[i] || []).length);
     }
     var combined = [];
     var c;
     for (c = 0; c < width; c++) {
       var parts = [];
-      for (i = headerIdx; i < headerIdx + depth; i++) {
+      for (i = headerIdx; i < headerIdx + maxDepth; i++) {
         var part = String((rows[i] || [])[c] || '').trim();
         if (part) parts.push(part);
       }
@@ -298,141 +324,128 @@
     return combined;
   }
 
-  function findRotationHeaderIndex(rows) {
-    var aliasGroups = [
-      ['sozlesme id', 'sozlesmeid', 'sozlesme no'],
-      ['denetlenen sirket', 'denetlenen kurulus', 'sirket'],
-      ['denetime tabi olma', 'tabi olma nedeni', 'tabi olma sebebi'],
-      ['denetim kapsami', 'denetim kapsam', 'kapsam'],
-      ['denetim baslangic', 'baslangic donemi', 'baslangic tarihi'],
-      ['denetim bitis', 'bitis donemi', 'bitis tarihi']
-    ];
-    if (global.AtlasTableTools) {
-      return global.AtlasTableTools.findBestHeaderRow(rows, aliasGroups, 25).index;
-    }
-    return 0;
-  }
-
-  function resolveRotationColumns(headerRow, dataRows) {
-    var tools = global.AtlasTableTools;
-    var entries = tools ? tools.buildHeaderEntries(headerRow) : [];
+  function resolveRotationColumnsStrict(headerRow) {
+    var entries = buildHeaderEntries(headerRow);
     var used = [];
-
-    function take(aliases, options) {
-      if (!tools) return -1;
-      options = options || {};
-      var idx = tools.findColumn(entries, aliases, {
-        excludeIdx: used.concat(options.excludeIdx || []),
-        keyFilter: options.keyFilter || null
-      });
+    function take(aliases) {
+      var idx = findColumn(entries, aliases, used);
       if (idx >= 0) used.push(idx);
       return idx;
     }
-
-    var cols = {
+    return {
       sozlesmeId: take(['sozlesme id', 'sozlesmeid', 'sozlesme no', 'sozlesme']),
       denetlenenSirket: take(['denetlenen sirket', 'denetlenen sirketi', 'denetlenen kurulus', 'sirket unvan', 'sirket', 'musteri']),
       denetimeTabiOlmaNedeni: take(['denetime tabi olma nedeni', 'denetime tabi olma', 'denetime tabi olmasi', 'tabi olma nedeni', 'tabi olma sebebi', 'mevzuat']),
       denetimKapsami: take(['denetim kapsami', 'denetim kapsam', 'kapsam', 'denetim turu']),
-      denetimBaslangicDonemi: take(['denetim baslangic donemi', 'denetim baslangic tarihi', 'denetim baslangic', 'baslangic donemi', 'baslangic tarihi'], {
-        keyFilter: function (key) { return key.indexOf('bitis') === -1; }
-      }),
+      denetimBaslangicDonemi: take(['denetim baslangic donemi', 'denetim baslangic tarihi', 'denetim baslangic', 'baslangic donemi', 'baslangic tarihi']),
       denetimBitisDonemi: take(['denetim bitis donemi', 'denetim bitis tarihi', 'denetim bitis', 'bitis donemi', 'bitis tarihi'])
     };
-
-    var dateCols = [];
-    var c;
-    for (c = 0; c < 12; c++) {
-      if (!isTextColumn(dataRows, c) && dataRows.slice(0, 20).some(function (row) { return isCellDate(row[c]); })) {
-        dateCols.push(c);
-      }
-    }
-    dateCols.sort(function (a, b) { return a - b; });
-
-    if (cols.denetimBaslangicDonemi < 0 && dateCols.length) cols.denetimBaslangicDonemi = dateCols[0];
-    if (cols.denetimBitisDonemi < 0 && dateCols.length > 1) cols.denetimBitisDonemi = dateCols[1];
-
-    if (cols.denetimeTabiOlmaNedeni < 0 || !isTextColumn(dataRows, cols.denetimeTabiOlmaNedeni) || cols.denetimeTabiOlmaNedeni === cols.denetimBaslangicDonemi) {
-      if (cols.denetimBaslangicDonemi === 4 && cols.denetimBitisDonemi === 5) {
-        cols.denetimeTabiOlmaNedeni = 2;
-        cols.denetimKapsami = 3;
-      } else if (cols.denetimBaslangicDonemi === 2 && cols.denetimBitisDonemi === 3) {
-        cols.denetimeTabiOlmaNedeni = 4;
-        cols.denetimKapsami = 5;
-      }
-    }
-
-    if (cols.denetimKapsami < 0 || !isTextColumn(dataRows, cols.denetimKapsami) || cols.denetimKapsami === cols.denetimBaslangicDonemi || cols.denetimKapsami === cols.denetimBitisDonemi) {
-      var textCols = [];
-      for (c = 0; c < 12; c++) {
-        if ([cols.sozlesmeId, cols.denetlenenSirket, cols.denetimBaslangicDonemi, cols.denetimBitisDonemi, cols.denetimeTabiOlmaNedeni].indexOf(c) !== -1) continue;
-        if (isTextColumn(dataRows, c)) textCols.push(c);
-      }
-      textCols.sort(function (a, b) { return a - b; });
-      if (cols.denetimeTabiOlmaNedeni < 0 || !isTextColumn(dataRows, cols.denetimeTabiOlmaNedeni)) {
-        cols.denetimeTabiOlmaNedeni = textCols[0] != null ? textCols[0] : cols.denetimeTabiOlmaNedeni;
-      }
-      if (cols.denetimKapsami < 0 || !isTextColumn(dataRows, cols.denetimKapsami)) {
-        cols.denetimKapsami = textCols[1] != null ? textCols[1] : textCols[0];
-      }
-    }
-
-    cols = applyStandardSixColumnLayout(cols, dataRows);
-    if (cols.sozlesmeId < 0) cols.sozlesmeId = 0;
-    if (cols.denetlenenSirket < 0) cols.denetlenenSirket = 1;
-
-    return cols;
   }
 
-  function resolveRotationColumnsFromSheet(rows) {
-    var headerIdx = findRotationHeaderIndex(rows);
-    var headerRow = buildCombinedHeaderRow(rows, headerIdx);
-    var dataSample = rows.slice(headerIdx + 1, headerIdx + 41);
-    var cols = resolveRotationColumns(headerRow, dataSample);
-    return { headerIdx: headerIdx, cols: cols };
+  function countMatchedColumns(cols) {
+    return Object.keys(cols).filter(function (key) { return cols[key] >= 0; }).length;
+  }
+
+  function cellAt(raw, idx) {
+    if (idx < 0) return '';
+    return trimDisplay(raw[idx]);
   }
 
   function parseRotationRow(raw, cols) {
-    function textAt(idx) {
-      if (idx < 0) return '';
-      return normalizeText(raw[idx]);
-    }
-    function periodAt(idx) {
-      if (idx < 0) return '';
-      return normalizePeriod(raw[idx]);
-    }
     return {
-      sozlesmeId: textAt(cols.sozlesmeId),
-      denetlenenSirket: textAt(cols.denetlenenSirket),
-      denetimeTabiOlmaNedeni: textAt(cols.denetimeTabiOlmaNedeni),
-      denetimKapsami: textAt(cols.denetimKapsami),
-      denetimBaslangicDonemi: periodAt(cols.denetimBaslangicDonemi),
-      denetimBitisDonemi: periodAt(cols.denetimBitisDonemi)
+      sozlesmeId: cellAt(raw, cols.sozlesmeId),
+      denetlenenSirket: cellAt(raw, cols.denetlenenSirket),
+      denetimeTabiOlmaNedeni: cellAt(raw, cols.denetimeTabiOlmaNedeni),
+      denetimKapsami: cellAt(raw, cols.denetimKapsami),
+      denetimBaslangicDonemi: cellAt(raw, cols.denetimBaslangicDonemi),
+      denetimBitisDonemi: cellAt(raw, cols.denetimBitisDonemi)
     };
   }
 
-  function remapStoredExcelRows(rows, sheetRows) {
-    if (!sheetRows || sheetRows.length < 2 || !rows || !rows.length) return rows;
-    var resolved = resolveRotationColumnsFromSheet(sheetRows);
-    var headerIdx = resolved.headerIdx;
-    var cols = resolved.cols;
-    var mapped = [];
-    for (var i = headerIdx + 1; i < sheetRows.length; i++) {
-      var parsed = parseRotationRow(sheetRows[i] || [], cols);
-      if (!parsed.denetlenenSirket) continue;
-      mapped.push(repairRow({
-        id: 'excel_' + Date.now() + '_' + i,
-        sozlesmeId: parsed.sozlesmeId,
-        denetlenenSirket: parsed.denetlenenSirket,
-        denetimeTabiOlmaNedeni: parsed.denetimeTabiOlmaNedeni,
-        denetimKapsami: parsed.denetimKapsami,
-        denetimBaslangicDonemi: parsed.denetimBaslangicDonemi,
-        denetimBitisDonemi: parsed.denetimBitisDonemi,
-        source: 'excel',
-        createdAt: new Date().toISOString()
-      }));
+  function isJunkRotationRow(item, raw) {
+    var joined = (raw || []).map(function (v) { return String(v || '').trim(); }).join(' ').toLocaleLowerCase('tr');
+    if (/^d[oö]nem\s*:/.test(joined)) return true;
+    if (/^toplam|^genel toplam/.test(joined)) return true;
+    if (/sozlesme id/.test(joined) && /denetlenen sirket/.test(joined)) return true;
+    if (/hesap kodu/.test(joined) && /hesap adi|borc|alacak/.test(joined)) return true;
+    if (!item.denetlenenSirket && !item.sozlesmeId) return true;
+    if (looksLikeAccountCode(item.sozlesmeId)) return true;
+    return false;
+  }
+
+  function importRotationRows(rows) {
+    if (!rows || rows.length < 2) {
+      return { success: false, error: 'Excel dosyası boş veya geçersiz.' };
     }
-    return mapped.length ? mapped : rows;
+
+    var headerMatch = findRotationHeaderIndex(rows);
+    var headerIdx = headerMatch.index;
+    var headerRow = buildCombinedHeaderRow(rows, headerIdx, 2);
+
+    if (isPaymentExcelHeader(headerRow)) {
+      return {
+        success: false,
+        error: 'Bu dosya Ödeme Listesi formatında görünüyor. Rotasyon sayfasına Ödeme Listesi Excel\'i yüklenemez. Doğru rotasyon dosyasını veya taslağı kullanın.'
+      };
+    }
+
+    var cols = resolveRotationColumnsStrict(headerRow);
+    if (countMatchedColumns(cols) < 4) {
+      return {
+        success: false,
+        error: 'Rotasyon başlıkları bulunamadı. Excel\'de şu sütunlar olmalı: Sozlesme ID, Denetlenen Sirket, Denetime Tabi Olma Nedeni, Denetim Kapsamı, Denetim Baslangic Donemi, Denetim Bitis Donemi'
+      };
+    }
+
+    if (cols.denetlenenSirket < 0) {
+      return { success: false, error: '“Denetlenen Sirket” sütunu bulunamadı.' };
+    }
+
+    var imported = [];
+    var skipped = 0;
+    var i;
+    for (i = headerIdx + 1; i < rows.length; i++) {
+      var raw = rows[i] || [];
+      var item = parseRotationRow(raw, cols);
+      if (isJunkRotationRow(item, raw)) {
+        skipped += 1;
+        continue;
+      }
+      if (!item.denetlenenSirket) {
+        skipped += 1;
+        continue;
+      }
+      imported.push(item);
+    }
+
+    if (!imported.length) {
+      return { success: false, error: 'Aktarılacak geçerli rotasyon satırı bulunamadı.' };
+    }
+
+    return {
+      success: true,
+      rows: imported.map(function (item, idx) {
+        return repairRow({
+          id: 'excel_' + Date.now() + '_' + idx,
+          sozlesmeId: item.sozlesmeId,
+          denetlenenSirket: item.denetlenenSirket,
+          denetimeTabiOlmaNedeni: item.denetimeTabiOlmaNedeni,
+          denetimKapsami: item.denetimKapsami,
+          denetimBaslangicDonemi: item.denetimBaslangicDonemi,
+          denetimBitisDonemi: item.denetimBitisDonemi,
+          source: 'excel',
+          createdAt: new Date().toISOString()
+        });
+      }),
+      skipped: skipped,
+      headerIdx: headerIdx,
+      cols: cols
+    };
+  }
+
+  function parseRotationSheet(sheet) {
+    var rows = sheetToDisplayGrid(sheet);
+    return importRotationRows(rows);
   }
 
   global.RotasyonStore = {
@@ -441,20 +454,13 @@
     clearExcelRows: clearExcelRows,
     saveRawExcel: saveRawExcel,
     loadRawExcel: loadRawExcel,
-    normalizePeriod: normalizePeriod,
-    normalizeText: normalizeText,
     formatPeriodDisplay: formatPeriodDisplay,
     repairRow: repairRow,
-    resolveRotationColumns: resolveRotationColumns,
-    resolveRotationColumnsFromSheet: resolveRotationColumnsFromSheet,
-    parseRotationRow: parseRotationRow,
-    remapStoredExcelRows: remapStoredExcelRows,
-    buildCombinedHeaderRow: buildCombinedHeaderRow,
-    findRotationHeaderIndex: findRotationHeaderIndex,
-    isCellDate: isCellDate,
-    isExcelSerialDate: isExcelSerialDate,
-    isTextColumn: isTextColumn,
-    applyStandardSixColumnLayout: applyStandardSixColumnLayout,
+    sheetToDisplayGrid: sheetToDisplayGrid,
+    parseRotationSheet: parseRotationSheet,
+    importRotationRows: importRotationRows,
+    isCorruptedRotationData: isCorruptedRotationData,
+    looksLikeAccountCode: looksLikeAccountCode,
     HEADERS: [
       'Sozlesme ID',
       'Denetlenen Sirket',

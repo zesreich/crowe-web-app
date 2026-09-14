@@ -1009,6 +1009,18 @@ body[data-atlas-page="contracts"] .btn-outline-secondary {
   white-space: nowrap;
 }
 
+.payment-col-btn.is-active {
+  background: color-mix(in oklch, var(--primary) 88%, #000);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.payment-hide-btn.is-active {
+  background: color-mix(in oklch, var(--primary) 12%, var(--surface));
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .atlas-table .num-cell {
   font-family: var(--mono);
   text-align: right;

@@ -171,6 +171,9 @@
               <button type="button" class="btn btn-outline-dark btn-sm" id="clearReceivablesBtn" onclick="clearReceivables()" disabled>
                 <i class="ph ph-trash"></i> Listeyi temizle
               </button>
+              <button type="button" class="btn btn-outline-secondary btn-sm payment-hide-btn is-active" id="toggleHideThreePartBtn" title="120.01.02 gibi 3 parçalı ara hesapları gizle">
+                <i class="ph ph-eye-slash"></i> Ara hesapları gizle
+              </button>
             </div>
           </div>
 
@@ -195,16 +198,19 @@
                 <option value="alacakBakiyesi:desc">Alacak bakiyesi (yüksek→düşük)</option>
               </select>
             </div>
-            <div>
-              <label for="hideThreePartAccounts">Ara hesaplar</label>
-              <select id="hideThreePartAccounts">
-                <option value="1" selected>3 parçalı hesapları gizle (120.01.02)</option>
-                <option value="0">Tüm hesapları göster</option>
-              </select>
-            </div>
             <div class="atlas-filter-actions">
               <button type="button" class="btn btn-outline-secondary btn-sm" id="paymentResetFilters">Filtreleri temizle</button>
             </div>
+          </div>
+
+          <div class="atlas-column-toggle-panel" aria-label="Sütun görünürlüğü">
+            <strong>Sütunlar</strong>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="hesapKodu">Hesap Kodu</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="hesapAdi">Hesap Adı</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="borc">Borç</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="alacak">Alacak</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="borcBakiyesi">Borç Bakiyesi</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary payment-col-btn is-active" data-col="alacakBakiyesi">Alacak Bakiyesi</button>
           </div>
 
           <div class="payment-list-stats" id="receivableStats">
@@ -224,17 +230,7 @@
 
           <div class="atlas-table-wrap payment-list-table-wrap" id="receivableTableWrap" style="display:none;">
             <table class="table atlas-table table-hover" id="receivablesTable">
-              <thead>
-                <tr>
-                  <th width="4%">#</th>
-                  <th class="sortable-th" data-sort="hesapKodu">Hesap Kodu</th>
-                  <th class="sortable-th" data-sort="hesapAdi">Hesap Adı</th>
-                  <th class="sortable-th num-cell" data-sort="borc">Borç</th>
-                  <th class="sortable-th num-cell" data-sort="alacak">Alacak</th>
-                  <th class="sortable-th num-cell" data-sort="borcBakiyesi">Borç Bakiyesi</th>
-                  <th class="sortable-th num-cell" data-sort="alacakBakiyesi">Alacak Bakiyesi</th>
-                </tr>
-              </thead>
+              <thead id="receivablesHead"></thead>
               <tbody id="receivablesBody"></tbody>
             </table>
           </div>
@@ -261,15 +257,59 @@
       'Hesap Kodu', 'Hesap Adı', 'Borç', 'Alacak', 'Borç Bakiyesi', 'Alacak Bakiyesi'
     ];
 
-    var COLUMN_KEYS = ['hesapKodu', 'hesapAdi', 'borc', 'alacak', 'borcBakiyesi', 'alacakBakiyesi'];
+    var PAYMENT_COLUMNS = [
+      { key: 'hesapKodu', label: 'Hesap Kodu', cellClass: 'mono-cell' },
+      { key: 'hesapAdi', label: 'Hesap Adı' },
+      { key: 'borc', label: 'Borç', money: true, cellClass: 'num-cell' },
+      { key: 'alacak', label: 'Alacak', money: true, cellClass: 'num-cell' },
+      { key: 'borcBakiyesi', label: 'Borç Bakiyesi', money: true, cellClass: 'num-cell' },
+      { key: 'alacakBakiyesi', label: 'Alacak Bakiyesi', money: true, cellClass: 'num-cell' }
+    ];
 
     var state = {
       rows: [],
       updatedAt: null,
       sortKey: 'hesapKodu',
       sortDir: 'asc',
-      hideThreePartAccounts: true
+      hideThreePartAccounts: true,
+      visibleColumns: {
+        hesapKodu: true,
+        hesapAdi: true,
+        borc: true,
+        alacak: true,
+        borcBakiyesi: true,
+        alacakBakiyesi: true
+      }
     };
+
+    function getVisiblePaymentColumns() {
+      return PAYMENT_COLUMNS.filter(function (col) {
+        return state.visibleColumns[col.key] !== false;
+      });
+    }
+
+    function syncPaymentHideButton() {
+      var btn = document.getElementById('toggleHideThreePartBtn');
+      if (!btn) return;
+      btn.classList.toggle('is-active', state.hideThreePartAccounts);
+      btn.innerHTML = state.hideThreePartAccounts
+        ? '<i class="ph ph-eye-slash"></i> Ara hesapları gizle'
+        : '<i class="ph ph-eye"></i> Ara hesapları göster';
+    }
+
+    function syncPaymentColumnButtons() {
+      document.querySelectorAll('.payment-col-btn').forEach(function (btn) {
+        var key = btn.getAttribute('data-col');
+        btn.classList.toggle('is-active', !!state.visibleColumns[key]);
+      });
+    }
+
+    function renderPaymentCell(row, col) {
+      if (col.money) {
+        return escapeHtml(formatMoney(row[col.key]).replace('₺', ''));
+      }
+      return escapeHtml(row[col.key] || '—');
+    }
 
     function showToast(message, type) {
       type = type || 'success';
@@ -479,6 +519,7 @@
         state.sortKey = parsed.sortKey || 'hesapKodu';
         state.sortDir = parsed.sortDir || 'asc';
         state.hideThreePartAccounts = parsed.hideThreePartAccounts !== false;
+        if (parsed.visibleColumns) state.visibleColumns = parsed.visibleColumns;
         if (parsed.rows && parsed.rows.length && typeof parsed.rows[0] === 'object' && !Array.isArray(parsed.rows[0])) {
           state.rows = parsed.rows.map(migrateLegacyRow).filter(shouldImportPaymentRow);
           return;
@@ -499,7 +540,8 @@
         updatedAt: state.updatedAt,
         sortKey: state.sortKey,
         sortDir: state.sortDir,
-        hideThreePartAccounts: state.hideThreePartAccounts
+        hideThreePartAccounts: state.hideThreePartAccounts,
+        visibleColumns: state.visibleColumns
       }));
     }
 
@@ -567,7 +609,9 @@
     function renderTable() {
       var empty = document.getElementById('receivableEmpty');
       var wrap = document.getElementById('receivableTableWrap');
+      var head = document.getElementById('receivablesHead');
       var body = document.getElementById('receivablesBody');
+      var columns = getVisiblePaymentColumns();
 
       if (!state.rows.length) {
         empty.style.display = 'block';
@@ -579,25 +623,25 @@
       empty.style.display = 'none';
       wrap.style.display = 'block';
 
+      head.innerHTML = '<tr><th width="4%">#</th>' + columns.map(function (col) {
+        var cls = 'sortable-th' + (col.cellClass === 'num-cell' ? ' num-cell' : '');
+        return '<th class="' + cls + '" data-sort="' + col.key + '">' + escapeHtml(col.label) + '</th>';
+      }).join('') + '</tr>';
+
       var visible = getVisibleRows();
 
       if (!visible.length) {
-        body.innerHTML = '<tr><td colspan="7" class="text-muted text-center">Filtreye uygun kayıt yok.</td></tr>';
+        body.innerHTML = '<tr><td colspan="' + (columns.length + 1) + '" class="text-muted text-center">Filtreye uygun kayıt yok.</td></tr>';
         updateStats([]);
         updateSortHeaders();
         return;
       }
 
       body.innerHTML = visible.map(function (row, idx) {
-        return '<tr>' +
-          '<td class="num-cell">' + (idx + 1) + '</td>' +
-          '<td class="mono-cell">' + escapeHtml(row.hesapKodu || '—') + '</td>' +
-          '<td>' + escapeHtml(row.hesapAdi || '—') + '</td>' +
-          '<td class="num-cell">' + escapeHtml(formatMoney(row.borc).replace('₺', '')) + '</td>' +
-          '<td class="num-cell">' + escapeHtml(formatMoney(row.alacak).replace('₺', '')) + '</td>' +
-          '<td class="num-cell">' + escapeHtml(formatMoney(row.borcBakiyesi).replace('₺', '')) + '</td>' +
-          '<td class="num-cell">' + escapeHtml(formatMoney(row.alacakBakiyesi).replace('₺', '')) + '</td>' +
-          '</tr>';
+        return '<tr><td class="num-cell">' + (idx + 1) + '</td>' + columns.map(function (col) {
+          var cls = col.cellClass ? ' class="' + col.cellClass + '"' : '';
+          return '<td' + cls + '>' + renderPaymentCell(row, col) + '</td>';
+        }).join('') + '</tr>';
       }).join('');
 
       updateStats(visible);
@@ -691,11 +735,25 @@
 
     document.getElementById('receivableSearch').addEventListener('input', renderTable);
     document.getElementById('paymentFilterAccount').addEventListener('change', renderTable);
-    document.getElementById('hideThreePartAccounts').addEventListener('change', function (e) {
-      state.hideThreePartAccounts = e.target.value === '1';
+    document.getElementById('toggleHideThreePartBtn').addEventListener('click', function () {
+      state.hideThreePartAccounts = !state.hideThreePartAccounts;
       saveState();
+      syncPaymentHideButton();
       fillAccountFilter();
       renderTable();
+    });
+    document.querySelectorAll('.payment-col-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-col');
+        state.visibleColumns[key] = !state.visibleColumns[key];
+        if (!getVisiblePaymentColumns().length) {
+          state.visibleColumns[key] = true;
+          showToast('En az bir sütun görünür olmalı.', 'error');
+        }
+        saveState();
+        syncPaymentColumnButtons();
+        renderTable();
+      });
     });
     document.getElementById('paymentSortBy').addEventListener('change', function (e) {
       var parts = String(e.target.value || 'hesapKodu:asc').split(':');
@@ -730,7 +788,8 @@
         }
       }, 100);
       loadState();
-      document.getElementById('hideThreePartAccounts').value = state.hideThreePartAccounts ? '1' : '0';
+      syncPaymentHideButton();
+      syncPaymentColumnButtons();
       fillAccountFilter();
       renderTable();
     });
