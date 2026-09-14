@@ -76,10 +76,10 @@
         <a class="nav-btn" href="online-users.html">
           <i class="ph ph-pulse"></i><span>Çevrimiçi</span>
         </a>
-        <a class="nav-btn" href="ecosystem-mockup/">
+        <a class="nav-btn nav-btn-disabled" data-nav="ecosystem" role="link" aria-disabled="true" title="Bakım yapılıyor" tabindex="0">
           <i class="ph ph-folder-simple"></i><span>Ekosistem</span>
         </a>
-        <a class="nav-btn" href="auditor-dashboard.html">
+<a class="nav-btn" href="auditor-dashboard.html">
           <i class="ph ph-compass"></i><span>Denetçi</span>
         </a>
         <button class="nav-btn nav-logout" type="button" id="atlasLogout">
@@ -115,7 +115,7 @@
       <div class="container-fluid">
         <div class="page-header-admin">
           <h1><i class="ph ph-arrows-clockwise"></i> Rotasyon</h1>
-          <p class="page-header-meta">Raporlar bölümündeki tüm kayıtlar burada listelenir; Excel ile toplu yükleme yapılabilir</p>
+          <p class="page-header-meta">Rapor Listesi kayıtları burada da görünür; Excel ile rotasyon verisi yüklenebilir</p>
         </div>
 
         <section class="atlas-module" aria-label="Excel yükleme" style="margin-bottom:1rem;">
@@ -133,10 +133,11 @@
           </div>
           <div class="px-3 pb-3">
             <p class="mb-1 text-muted" style="font-size:0.8125rem;">
-              Sütun sırası: <strong>Şirket | Rapor türü | Tip (SPK/KGK) | Başlangıç | Bitiş | Ekip | Durum</strong>
+              Sütun sırası:
+              <strong>Sozlesme ID | Denetlenen Sirket | Denetime Tabi Olma Nedeni | Denetim Kapsamı | Denetim Baslangic Donemi | Denetim Bitis Donemi</strong>
             </p>
             <p class="mb-0 text-muted" style="font-size:0.8125rem;">
-              Tarihler <code>gg/aa/yyyy</code> veya <code>yyyy-mm-dd</code> olabilir. Yüklenen satırlar Rapor Listesi’ne de düşer.
+              Dönemler <code>gg/aa/yyyy</code>, <code>yyyy-mm-dd</code> veya metin olabilir. Excel satırları rotasyona eklenir; Rapor Listesi kayıtları ayrıca listelenir.
             </p>
           </div>
         </section>
@@ -145,7 +146,7 @@
           <div class="atlas-toolbar">
             <label class="atlas-search-field" for="rotationSearch">
               <i class="ph ph-magnifying-glass" aria-hidden="true"></i>
-              <input type="search" id="rotationSearch" placeholder="Şirket, ekip veya tür ara…" autocomplete="off">
+              <input type="search" id="rotationSearch" placeholder="Sözleşme, şirket veya kapsam ara…" autocomplete="off">
             </label>
             <div class="atlas-toolbar-actions">
               <span class="text-muted" style="font-size:0.75rem;" id="rotationCount">0 kayıt</span>
@@ -156,13 +157,12 @@
               <thead>
                 <tr>
                   <th width="4%">#</th>
-                  <th width="16%">Şirket</th>
-                  <th width="16%">Rapor türü</th>
-                  <th width="8%">Tip</th>
-                  <th width="11%">Başlangıç</th>
-                  <th width="11%">Bitiş</th>
-                  <th width="14%">Ekip</th>
-                  <th width="12%">Durum</th>
+                  <th width="12%">Sozlesme ID</th>
+                  <th width="18%">Denetlenen Sirket</th>
+                  <th width="16%">Denetime Tabi Olma Nedeni</th>
+                  <th width="16%">Denetim Kapsamı</th>
+                  <th width="14%">Denetim Baslangic Donemi</th>
+                  <th width="14%">Denetim Bitis Donemi</th>
                 </tr>
               </thead>
               <tbody id="rotationTableBody"></tbody>
@@ -183,6 +183,7 @@
   <script src="supabase-config.js"></script>
   <script src="auth.js"></script>
   <script src="reports-store.js"></script>
+  <script src="rotasyon-store.js"></script>
   <script src="prevent-active-link-reload.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -193,16 +194,16 @@
       }, 100);
     });
 
-    var ROTATION_HEADERS = ['Şirket', 'Rapor türü', 'Tip', 'Başlangıç', 'Bitiş', 'Ekip', 'Durum'];
-    var ALLOWED_TYPES = { SPK: 'SPK', KGK: 'KGK' };
-    var ALLOWED_STATUS = {
-      'tamamlandı': 'Tamamlandı',
-      'tamamlandi': 'Tamamlandı',
-      'devam ediyor': 'Devam Ediyor',
-      'devam ediyor': 'Devam Ediyor',
-      'planlandı': 'Planlandı',
-      'planlandi': 'Planlandı'
-    };
+    var ROTATION_HEADERS = window.RotasyonStore
+      ? RotasyonStore.HEADERS
+      : [
+          'Sozlesme ID',
+          'Denetlenen Sirket',
+          'Denetime Tabi Olma Nedeni',
+          'Denetim Kapsamı',
+          'Denetim Baslangic Donemi',
+          'Denetim Bitis Donemi'
+        ];
 
     function showToast(message, type) {
       type = type || 'success';
@@ -223,87 +224,34 @@
       });
     }
 
-    function parseFlexibleDate(value) {
-      if (value == null || value === '') return null;
-      if (typeof value === 'number' && isFinite(value) && typeof XLSX !== 'undefined' && XLSX.SSF) {
-        try {
-          var parsed = XLSX.SSF.parse_date_code(value);
-          if (parsed) {
-            var y = parsed.y;
-            var m = String(parsed.m).padStart(2, '0');
-            var d = String(parsed.d).padStart(2, '0');
-            return y + '-' + m + '-' + d;
-          }
-        } catch (e) {}
-      }
-      var raw = String(value).trim();
-      var iso = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-      if (iso) {
-        return iso[1] + '-' + iso[2].padStart(2, '0') + '-' + iso[3].padStart(2, '0');
-      }
-      var tr = raw.match(/^(\d{1,2})[./](\d{1,2})[./](\d{2,4})$/);
-      if (tr) {
-        var yy = tr[3].length === 2 ? ('20' + tr[3]) : tr[3];
-        return yy + '-' + tr[2].padStart(2, '0') + '-' + tr[1].padStart(2, '0');
-      }
-      var dt = new Date(raw);
-      if (!isNaN(dt.getTime())) {
-        return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
-      }
-      return null;
-    }
-
-    function formatISODateForDisplay(value) {
-      if (!value) return '—';
-      var s = String(value);
-      if (/^\d{4}-\d{2}-\d{2}/.test(s)) {
-        var p = s.slice(0, 10).split('-');
-        return p[2] + '/' + p[1] + '/' + p[0];
-      }
-      return s;
-    }
-
-    function normalizeStatus(raw) {
-      var key = String(raw || '').trim().toLocaleLowerCase('tr');
-      return ALLOWED_STATUS[key] || (raw ? String(raw).trim() : 'Planlandı');
-    }
-
-    function normalizeType(raw) {
-      var key = String(raw || '').trim().toUpperCase();
-      return ALLOWED_TYPES[key] || key;
+    function cellPeriod(value) {
+      return escapeHtml(RotasyonStore.formatPeriodDisplay(value));
     }
 
     async function loadRotation() {
       var tbody = document.getElementById('rotationTableBody');
       var countEl = document.getElementById('rotationCount');
       try {
-        var reports = await ReportsStore.listReports();
-        reports.sort(function (a, b) {
-          return String(b.startDate || '').localeCompare(String(a.startDate || ''));
-        });
-        if (countEl) countEl.textContent = reports.length + ' kayıt';
-        if (!reports.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Henüz rapor / rotasyon kaydı yok. Rapor Listesi’nden ekleyin veya Excel yükleyin.</td></tr>';
+        var rows = await RotasyonStore.listRotation();
+        if (countEl) countEl.textContent = rows.length + ' kayıt';
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Henüz rotasyon kaydı yok. Excel yükleyin veya Rapor Listesi’nden kayıt ekleyin.</td></tr>';
           return;
         }
-        tbody.innerHTML = reports.map(function (report, index) {
-          var statusBadge = report.status === 'Tamamlandı' ? 'badge-success'
-            : report.status === 'Devam Ediyor' ? 'badge-warning' : 'badge-info';
-          var typeBadge = report.reportType === 'SPK' ? 'badge-spk' : 'badge-kgk';
+        tbody.innerHTML = rows.map(function (row, index) {
           return '<tr>' +
             '<td class="text-center">' + (index + 1) + '</td>' +
-            '<td>' + escapeHtml(report.company) + '</td>' +
-            '<td>' + escapeHtml(report.service) + '</td>' +
-            '<td class="text-center"><span class="badge ' + typeBadge + '">' + escapeHtml(report.reportType) + '</span></td>' +
-            '<td class="text-center">' + escapeHtml(formatISODateForDisplay(report.startDate)) + '</td>' +
-            '<td class="text-center">' + escapeHtml(formatISODateForDisplay(report.endDate)) + '</td>' +
-            '<td>' + escapeHtml(report.team) + '</td>' +
-            '<td class="text-center"><span class="badge ' + statusBadge + '">' + escapeHtml(report.status) + '</span></td>' +
+            '<td class="mono-cell">' + escapeHtml(row.sozlesmeId || '—') + '</td>' +
+            '<td>' + escapeHtml(row.denetlenenSirket || '—') + '</td>' +
+            '<td>' + escapeHtml(row.denetimeTabiOlmaNedeni || '—') + '</td>' +
+            '<td>' + escapeHtml(row.denetimKapsami || '—') + '</td>' +
+            '<td class="text-center">' + cellPeriod(row.denetimBaslangicDonemi) + '</td>' +
+            '<td class="text-center">' + cellPeriod(row.denetimBitisDonemi) + '</td>' +
             '</tr>';
         }).join('');
       } catch (err) {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Liste yüklenemedi.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Liste yüklenemedi.</td></tr>';
         showToast((err && err.message) || 'Liste yüklenemedi', 'error');
       }
     }
@@ -315,12 +263,44 @@
       }
       var ws = XLSX.utils.aoa_to_sheet([
         ROTATION_HEADERS,
-        ['Örnek A.Ş.', 'Bağımsız Denetim', 'SPK', '01/01/2026', '31/12/2026', 'B1_EDA', 'Planlandı']
+        ['SZL-001', 'Örnek A.Ş.', 'SPK', 'Bağımsız Denetim', '01/01/2026', '31/12/2026']
       ]);
       var wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'Rotasyon');
       XLSX.writeFile(wb, 'rotasyon-taslak.xlsx');
       showToast('Excel taslağı indirildi.', 'success');
+    }
+
+    function headerIndexMap(headerRow) {
+      var map = {};
+      (headerRow || []).forEach(function (cell, idx) {
+        var key = String(cell || '')
+          .toLocaleLowerCase('tr')
+          .replace(/ı/g, 'i')
+          .replace(/ş/g, 's')
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .replace(/[^a-z0-9]+/g, ' ')
+          .trim();
+        map[key] = idx;
+      });
+      function find() {
+        var aliases = Array.prototype.slice.call(arguments);
+        for (var i = 0; i < aliases.length; i++) {
+          if (Object.prototype.hasOwnProperty.call(map, aliases[i])) return map[aliases[i]];
+        }
+        return -1;
+      }
+      return {
+        sozlesmeId: find('sozlesme id', 'sozlesmeid', 'sozlesme'),
+        denetlenenSirket: find('denetlenen sirket', 'denetlenen sirketi', 'sirket'),
+        denetimeTabiOlmaNedeni: find('denetime tabi olma nedeni', 'denetime tabi olma', 'neden'),
+        denetimKapsami: find('denetim kapsami', 'kapsam'),
+        denetimBaslangicDonemi: find('denetim baslangic donemi', 'baslangic donemi', 'baslangic'),
+        denetimBitisDonemi: find('denetim bitis donemi', 'bitis donemi', 'bitis')
+      };
     }
 
     async function importRotationExcel(file) {
@@ -339,31 +319,33 @@
           return;
         }
 
+        var cols = headerIndexMap(rows[0]);
+        // Başlık eşleşmezse sabit sıra: 0..5
+        if (cols.sozlesmeId < 0) cols.sozlesmeId = 0;
+        if (cols.denetlenenSirket < 0) cols.denetlenenSirket = 1;
+        if (cols.denetimeTabiOlmaNedeni < 0) cols.denetimeTabiOlmaNedeni = 2;
+        if (cols.denetimKapsami < 0) cols.denetimKapsami = 3;
+        if (cols.denetimBaslangicDonemi < 0) cols.denetimBaslangicDonemi = 4;
+        if (cols.denetimBitisDonemi < 0) cols.denetimBitisDonemi = 5;
+
         var toInsert = [];
         var skipped = 0;
         for (var i = 1; i < rows.length; i++) {
           var row = rows[i] || [];
-          var company = String(row[0] || '').trim();
-          var service = String(row[1] || '').trim();
-          var reportType = normalizeType(row[2]);
-          var startDate = parseFlexibleDate(row[3]);
-          var endDate = parseFlexibleDate(row[4]);
-          var team = String(row[5] || '').trim();
-          var status = normalizeStatus(row[6]);
-          if (!company && !service && !team) continue;
-          if (!company || !service || !reportType || !startDate || !endDate || !team) {
+          var item = {
+            sozlesmeId: String(row[cols.sozlesmeId] || '').trim(),
+            denetlenenSirket: String(row[cols.denetlenenSirket] || '').trim(),
+            denetimeTabiOlmaNedeni: String(row[cols.denetimeTabiOlmaNedeni] || '').trim(),
+            denetimKapsami: String(row[cols.denetimKapsami] || '').trim(),
+            denetimBaslangicDonemi: row[cols.denetimBaslangicDonemi],
+            denetimBitisDonemi: row[cols.denetimBitisDonemi]
+          };
+          if (!item.sozlesmeId && !item.denetlenenSirket && !item.denetimKapsami) continue;
+          if (!item.denetlenenSirket) {
             skipped += 1;
             continue;
           }
-          toInsert.push({
-            company: company,
-            service: service,
-            reportType: reportType,
-            startDate: startDate,
-            endDate: endDate,
-            team: team,
-            status: status
-          });
+          toInsert.push(item);
         }
 
         if (!toInsert.length) {
@@ -371,17 +353,14 @@
           return;
         }
 
-        var result = await ReportsStore.addReportsBatch(toInsert);
+        var result = RotasyonStore.addRows(toInsert);
         if (!result.success) {
           showToast(result.error || 'Yükleme başarısız.', 'error');
-          if (String(result.error || '').indexOf('oturum') !== -1 || String(result.error || '').indexOf('Oturum') !== -1) {
-            setTimeout(function () { window.location.href = 'login.html'; }, 1200);
-          }
           return;
         }
 
         await loadRotation();
-        var msg = result.count + ' kayıt rotasyona / raporlara eklendi.';
+        var msg = result.count + ' rotasyon kaydı eklendi.';
         if (skipped) msg += ' ' + skipped + ' satır atlandı.';
         showToast(msg, 'success');
       } catch (err) {

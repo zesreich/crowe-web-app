@@ -58,6 +58,11 @@
     document.addEventListener("click", function (e) {
       var link = e.target.closest("a.nav-btn, .rail a.brand, a.atlas-soft-nav");
       if (!link) return;
+      if (link.classList.contains("nav-btn-disabled") || link.getAttribute("aria-disabled") === "true") {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       var href = link.getAttribute("href");
       if (!href || href === "#" || link.hasAttribute("download") || link.target === "_blank") return;
       if (link.classList.contains("active-link-disabled")) {
@@ -346,7 +351,6 @@
       { k: ["kullanıcı", "kullanici", "user"], href: "users.html" },
       { k: ["çevrim", "cevrim", "online"], href: "online-users.html" },
       { k: ["panel", "dashboard", "kontrol"], href: "dashboard.html" },
-      { k: ["ekosistem", "atlas", "dosya", "senkron"], href: "ecosystem-mockup/" },
       { k: ["genel kurul", "beyan"], href: "genel-kurul-beyan.html" },
       { k: ["yetki yazı", "yetki yazi", "yetki"], href: "genel-kurul-yetki.html" },
       { k: ["denetçi", "denetci", "auditor"], href: "auditor-dashboard.html" },
@@ -525,9 +529,36 @@
     }
   }
 
+  function disableEkosistemNav() {
+    var links = document.querySelectorAll('a.nav-btn[href*="ecosystem-mockup"], a.nav-btn[data-nav="ecosystem"]');
+    links.forEach(function (link) {
+      if (link.dataset.maintenanceBound) return;
+      link.dataset.maintenanceBound = "1";
+      link.classList.add("nav-btn-disabled");
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("title", "Bakım yapılıyor");
+      link.setAttribute("data-nav", "ecosystem");
+      link.removeAttribute("href");
+      link.setAttribute("role", "link");
+      link.tabIndex = 0;
+      link.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.alert("Bakım yapılıyor");
+      });
+      link.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          window.alert("Bakım yapılıyor");
+        }
+      });
+    });
+  }
+
   function bindNavGroups() {
     ensureGenelKurulNav();
     ensureRaporlarNav();
+    disableEkosistemNav();
     var path = String(window.location.pathname || "").split("/").pop() || "";
     document.querySelectorAll(".nav-group[data-nav-group] .nav-sub-btn").forEach(function (link) {
       var href = link.getAttribute("href") || "";
